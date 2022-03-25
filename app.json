@@ -4,9 +4,9 @@
     "slug": "DayInTheLife",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/images/icon.png",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./assets/images/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -17,16 +17,52 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSCameraUsageDescription": "$(PRODUCT_NAME) needs access to your Camera.",
+        "NSMicrophoneUsageDescription": "$(PRODUCT_NAME) needs access to your Microphone."
+      },
+      "bundleIdentifier": "com.liammckenna04.DayInTheLife"
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
-      }
+      },
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ],
+      "package": "com.liammckenna04.dayinthelife"
     },
     "web": {
-      "favicon": "./assets/favicon.png"
-    }
-  }
+      "favicon": "./assets/images/favicon.png"
+    },
+    
+    "plugins": [
+      [
+        "@config-plugins/ffmpeg-kit-react-native", 
+        {
+
+        "package": "min-gpl",
+          "ios": {
+            "package": "min-gpl"
+          }
+      }
+    ], [ "expo-ads-facebook",
+    {
+      "userTrackingPermission": "This identifier will be used to deliver personalized ads to you."
+    }]
+  ]    
+    
+  },
+  "facebookScheme": "fb1234567891234567",
+    "facebookAppId": "2461752610622415",
+    "facebookDisplayName": "Ads",
+    "facebookAutoLogAppEventsEnabled": true,
+    "facebookAdvertiserIDCollectionEnabled": true
+    
+  
+   
+  
 }

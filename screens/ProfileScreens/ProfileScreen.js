@@ -1,15 +1,13 @@
 import * as React from 'react';
 import { StyleSheet, Text, View, Image, Pressable } from 'react-native';
-import { useFonts } from '@use-expo/font'
-import {faGear} from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { FontAwesome } from '@expo/vector-icons'
-import profilepic from "../../assets/defaultPFP.jpg"
-// import { icon } from '@fortawesome/fontawesome-svg-core';
-import {faPlus} from "@fortawesome/free-solid-svg-icons"
+import profilepic from "../../assets/images/defaultPFP.jpg"
+import {faPlus, faX} from "@fortawesome/free-solid-svg-icons"
 import { faAnglesUp, faAngleRight, faShare, faUserGroup, faComment } from '@fortawesome/free-solid-svg-icons';
-// import { faComment } from '@fortawesome/free-regular-svg-icons';
 import { faTwitter } from '@fortawesome/free-brands-svg-icons';
+import * as Linking from 'expo-linking'
+import * as WebBrowser from 'expo-web-browser'
 //Get user data on app load and
 
 const ProfileButton = ({icon, text, onPress}) => {
@@ -27,12 +25,37 @@ const ProfileButton = ({icon, text, onPress}) => {
 }
 
 
+const OpenUrl = ({url, children}) => {
+    const handlePress = React.useCallback(async () => {
+        const supported = await Linking.canOpenURL(url)
+            if (supported) {
+            
+            } else {
+                Alert.alert(`Don't know how to open this URL: ${url}`);
+
+        }
+        } , [url]);
+
+}
+
+
+
+
+
 function ProfileScreen({navigation}) {
  
+
+
     return (
     <View style={{backgroundColor: '#F2F2F6'}}>
         <View style={styles.header}>
-                <Text style={{fontFamily: 'Sora_600SemiBold', color: "#1A1A1A", fontSize: 24}}>My Profile</Text>
+                <View style={{flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center'}}>
+                    <Pressable onPress={() => {navigation.goBack()}} style={{padding: 10}}>
+                        <FontAwesomeIcon  icon={faX} iconStyle={{margin: 2, color: "#1A1A1A" }} size={22} underlayColor="transparent" activeOpacity={0.2} backgroundColor="blue" />
+                    </Pressable>
+                    <Text style={{fontFamily: 'Sora_600SemiBold', color: "#1A1A1A", fontSize: 24, marginLeft: 10}}>My Profile</Text>
+                </View>
+                
                 <FontAwesome.Button name="gear" onPress={() => {navigation.navigate('Settings')}} iconStyle={{margin: 2, color: "#1A1A1A" }} size={24} underlayColor="transparent" activeOpacity={0.2} backgroundColor="transparent" />
         </View>
         <View style={styles.body}>
@@ -43,7 +66,7 @@ function ProfileScreen({navigation}) {
             <View style={{ borderBottomColor: '#888888', borderBottomWidth: 3, width: "91%", marginTop: 25}}/>
             <ProfileButton icon={faAnglesUp}text={"Upgrade Account"} onPress={()=> {console.log("Press")}}/>
             <ProfileButton icon={faComment}text={"Frequently Asked Questions"} onPress={()=> {console.log("Press")}}/>
-            <ProfileButton icon={faTwitter}text={"Follow My Twitter"} onPress={()=> {console.log("Press")}}/>
+            <ProfileButton icon={faTwitter}text={"Follow My Twitter"} onPress={()=> {Linking.openURL("twitter://user?screen_name=Liam_McKennaa").catch(console.log(WebBrowser.openBrowserAsync("https://twitter.com/Liam_McKennaa")))}}/>
             <ProfileButton icon={faShare}text={"Share App"} onPress={()=> {console.log("Press")}}/>
             <ProfileButton icon={faUserGroup}text={"Join the Community"} onPress={()=> {console.log("Press")}}/>
         </View>
@@ -59,7 +82,9 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'space-between',
         marginTop: 55,
-        margin: 20 
+        marginBottom: 20,
+        marginRight: 20,
+        marginLeft: 10,
     },
     body : {
         display: 'flex',

@@ -42,17 +42,18 @@ const SettingsScreen = ({navigation}) => {
     return (
         <View style={{backgroundColor: '#F2F2F6'}}>
             <View style={styles.header}>
-                <View style={{flex: 1}}>
+                
                     
-                    <FontAwesome.Button name="arrow-left"  onPress={() => {navigation.goBack()}} iconStyle={{color: "#1A1A1A" }} size={24} underlayColor="transparent" activeOpacity={0.2} backgroundColor="transparent" />
+                <FontAwesome.Button name="arrow-left"  onPress={() => {navigation.goBack()}} iconStyle={{color: "#1A1A1A" }} size={24} underlayColor="transparent" activeOpacity={0.2} backgroundColor="transparent"/>
                     
-                </View>
-                <View style={{flex: 1}}></View>
-                <View>
-                    <Text style={{fontFamily: 'Sora_600SemiBold', color: "#1A1A1A", fontSize: 24, textAlign: 'center', top: 0}}>Settings</Text>
-                </View>
-                <View style={{flex: 2, paddingRight: 10}}></View>
+                
+                
+                <Text style={{fontFamily: 'Sora_600SemiBold', color: "#1A1A1A", fontSize: 24, textAlign: 'left', top: 0, left: -24}}>Settings</Text>
+                <View></View>
             </View>
+
+
+            
             <View style={styles.body}>
                 <SettingsContainer icon={faAnglesUp} text='Account'>
                     <IndividualSettingNavigate text="Edit Profile"/>
