@@ -7,6 +7,9 @@ function compareLuxonDates(a, b) {
   }
 
 const BigList = ({navigation, dayObjects}) => {
+    if (dayObjects === null) {
+        dayObjects = []
+    }
     dayObjects.sort((a, b) => compareLuxonDates(DateTime.fromISO(b.day), DateTime.fromISO(a.day)))
     const exampleObject1 = {specialObject: true, otherdatahere: false}
     const exampleObject2 = {}

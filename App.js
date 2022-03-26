@@ -46,8 +46,9 @@ const writeTextFileWithAllAudioFiles = async (filePaths) => {
 
 const newDay = async(setDayObjects) => {
 const todaySTR = await AsyncStorage.getItem('today') 
-const today = todaySTR != null ? JSON.parse(todaySTR) : null
+const today = todaySTR != null ? JSON.parse(todaySTR) : []
 console.log(today)
+
 const vidSegsString = await AsyncStorage.getItem('videoSegments')
 if (vidSegsString == null) {
   console.log("No value previously stored")
@@ -171,6 +172,7 @@ export default function App() {
     //On app load
     useEffect(async() => {
       const FirstStartup = isFirstStartup()
+
       createDirectory("DayInTheLife/Days/")
       createDirectory("DayInTheLife/Today/")
       createDirectory("DayInTheLife/TodayFinished/")

@@ -1,12 +1,12 @@
 {
   "expo": {
-    "name": "DayInTheLife",
+    "name": "Day In The Life: Video Journal",
     "slug": "DayInTheLife",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/logoUnsized.png",
     "splash": {
-      "image": "./assets/images/splash.png",
+      "image": "./assets/images/logoUnsized.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },

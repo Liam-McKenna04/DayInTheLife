@@ -14,8 +14,12 @@ var RNFS = require('react-native-fs')
 
 const writeTextFileWithAllAudioFiles = async (filePaths) => {
   var fileContent = ''
-  await RNFS.unlink(RNFS.DocumentDirectoryPath + '/audioList.txt', {idempotent: true})
-
+  console.log('b')
+  const exists = await RNFS.exists(RNFS.DocumentDirectoryPath + "/audioList.txt")
+  if (exists) {
+  await RNFS.unlink(RNFS.DocumentDirectoryPath + '/audioList.txt')
+  }
+  console.log('c')
   filePaths.forEach(path => {
     // console.log(path)
     fileContent += `file '${path}'\n`
