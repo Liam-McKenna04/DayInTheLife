@@ -2,7 +2,6 @@ import {React} from 'react';
 import {View, StyleSheet, Button, ScrollView, Text, Pressable} from 'react-native';
 import SingleGalleryItem from '../Items/SingleGalleryItem';
 const SmallList = ({navigation, dayObjects}) => {
-    console.log('bleenis')
     return (
         <View dayObjects={dayObjects}>
             <View style={styles.headerContainer}>

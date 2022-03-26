@@ -22,7 +22,7 @@ const BigList = ({navigation, dayObjects}) => {
                     {dayObjects.map(x => {
                     if (x.specialObject) {
                     } else { 
-                        console.log('b')
+                        
                     return <SingleLargeGalleryItem key={x.day} dayObject={x} navigation={navigation}/>
                 }
                     })} 

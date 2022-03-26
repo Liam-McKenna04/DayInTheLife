@@ -114,13 +114,14 @@ export const SetTodayNotes = async(NotesList) => {
             //Day exist
             
             let newToday = JSON.parse(today)
-            console.log(NotesList)
+            
             newToday["notes"] = NotesList
             console.log("SETTING NOTES")
-            console.log(newToday)
-            await AsyncStorage.removeItem('today');
-
+             
+            
+            
             await AsyncStorage.setItem('today', JSON.stringify(newToday))
+            console.log(newToday)
         } else {
             //Day don't exist
             console.log("today doesn't exist, err")

@@ -7,13 +7,21 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import * as FileSystem from 'expo-file-system';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { faRotate, faDeleteLeft, faNoteSticky, faCircleCheck, faArrowRotateLeft } from '@fortawesome/free-solid-svg-icons';
 import {v4 as uuid} from 'uuid'
+import { Audio, Video } from 'expo-av';
+import { useNavigation } from '@react-navigation/native';
+
 
 import { FontAwesome } from '@expo/vector-icons'
-import { GetVideoSegments } from '../../utility';
+import { FFmpegKit, FFprobeKit, RNFFmpegConfig  } from 'ffmpeg-kit-react-native';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 
-function CameraScreen({navigation}) {
+
+function CameraScreen({Recording, setRecording}) {
   //Refs
+  const navigation = useNavigation()
+
   
     const [camera, setCamera] = useState(null)
     const [record, setRecord] = useState(null);
@@ -32,14 +40,18 @@ function CameraScreen({navigation}) {
 
     //Video Settings
     const [VideoList, setVideoList] = useState([]);
-    const [Recording, setRecording] = useState(false)
     const [Loaded, setLoaded] = useState(false);
 
     useEffect(async() => {
       const vidSegsString = await AsyncStorage.getItem('videoSegments')
     const vidSegs = await JSON.parse(vidSegsString)
-    console.log(vidSegs)
+    // console.log(vidSegs)
+    if (vidSegs === null) {
+      await AsyncStorage.setItem('videoSegments', "[]")
+      setVideoList([])
+    }else {
     setVideoList(vidSegs)
+    }
     setLoaded(true)
       
       
@@ -47,6 +59,7 @@ function CameraScreen({navigation}) {
 
      
   }, []);
+
 
   const playVideoHandler = () => {
 
@@ -78,8 +91,24 @@ function CameraScreen({navigation}) {
       }, []);
     
       useEffect(async() => {
-        console.log(VideoList)
         
+        // console.log(VideoList)
+        // console.log(VideoList[0])
+        const lengths = []
+        for (item of VideoList) {
+          
+          await FFprobeKit.execute(`-v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 ${item}`).then(async (session) => {
+            let output = await session.getOutput()
+            lengths.push(Number(output))
+          })
+        }
+        const sum = lengths.reduce((partialSum, a) => partialSum + a, 0);
+        console.log('-')
+        console.log(sum) 
+       
+        setVideoLength(sum)
+        
+
         await AsyncStorage.setItem('videoSegments', JSON.stringify(VideoList))
         
       }, [VideoList]);
@@ -101,18 +130,30 @@ function CameraScreen({navigation}) {
       }
 
       const takeVideo = async () => {
-        if(camera){
-            const data = await camera.recordAsync({quality: '720p'})
+            console.log("Maxvidlength" +MaxVideoLength)
+            console.log("vidlength"+ VideoLength)
+            if (MaxVideoLength < VideoLength){
+              console.log("TOO LONG")
+              return false
+            }
+            setRecording(true)
+            console.log('b')
+            const data = await camera.recordAsync({maxDuration: MaxVideoLength - VideoLength})
+            console.log('e')
+
+            setRecording(false)
+
+            
             const myUUID = uuid()
-            const fileEnd = data.uri.split('.').pop()
+            const fileEnd = await data.uri.split('.').pop()
             const newURI = FileSystem.documentDirectory + "DayInTheLife/Today/" + myUUID + "." + fileEnd
-            await FileSystem.moveAsync({from: data.uri, to: newURI})
+            const x2 = await FileSystem.moveAsync({from: data.uri, to: newURI})
             
             setRecord(newURI);
             setVideoList([...VideoList, newURI])
             
             
-        }
+        
       }
 
       const stopVideo = async () => {
@@ -139,15 +180,24 @@ function CameraScreen({navigation}) {
               onPress={() => navigation.navigate('GalleryNav')}>
         <FontAwesome name={"arrow-left"}  size={24} color="#FFF" />
         </TouchableOpacity>
-            <Pressable style={{backgroundColor: 'red', width: 40, height: 40, justifyContent: 'center', alignItems:'center', borderRadius: 99}}
+            <TouchableOpacity 
+            style={{
+
+              alignItems:'center',
+              justifyContent:'center',
+              width:40,
+              height:40,
+              backgroundColor:'rgba(0,0,0,0.2)',
+              borderRadius:50,
+            }}
+
               onPress={() => {
-                console.log(CameraOrientation)
                 setCameraOrientation(CameraOrientation === Camera.Constants.Type.back
                 ? Camera.Constants.Type.front
                 : Camera.Constants.Type.back)}}
             >
-                <Text>b</Text>
-            </Pressable>
+                <FontAwesomeIcon icon={faRotate} size={24}color="#FFF"></FontAwesomeIcon>
+            </TouchableOpacity>
       </View>
 
 
@@ -155,10 +205,20 @@ function CameraScreen({navigation}) {
 
           <View style={{justifyContent: 'space-between', flexDirection: 'row', alignItems: 'center', marginBottom: 65}}>
               <View style={{flex: 1, alignItems: 'flex-end'}}>
-                <Pressable style={{backgroundColor: 'blue', width: 40, height: 40, borderRadius: 99, marginRight: 30, justifyContent: 'center', alignItems: 'center' }}
+                <TouchableOpacity style={{
+
+                      alignItems:'center',
+                      justifyContent:'center',
+                      width:40,
+                      height:40,
+                      backgroundColor:'rgba(0,0,0,0.2)',
+                      borderRadius:50,
+                      marginRight: 30
+                      }}
                   onPress={() => navigation.navigate("Notes")}>
-                    <Text>n</Text>
-                </Pressable>
+                <FontAwesomeIcon icon={faNoteSticky} size={24}color="#FFF"></FontAwesomeIcon>
+
+                </TouchableOpacity>
               </View>
 
 
@@ -182,7 +242,16 @@ function CameraScreen({navigation}) {
               </View>
 
               <View style={{flexDirection: 'row', flex: 1, justifyContent: 'space-between'}}>
-                <Pressable style={{backgroundColor: 'blue', width: 40, height: 40, borderRadius: 99, marginLeft: 30, justifyContent: 'center', alignItems: 'center' }}
+                {VideoList.length > 0? <TouchableOpacity style={{
+
+                          alignItems:'center',
+                          justifyContent:'center',
+                          width:40,
+                          height:40,
+                          backgroundColor:'rgba(0,0,0,0.2)',
+                          borderRadius:50,
+                          marginLeft: 30
+                          }}
                 
                 onPress={async() => {
                   const uriToDelete = VideoList[VideoList.length - 1]
@@ -192,12 +261,23 @@ function CameraScreen({navigation}) {
                   await FileSystem.deleteAsync(uriToDelete, {idempotent: true}).catch(()=> console.log('no more videos to delete :)'))
                 }}
                 >
-                  <Text style={{color: 'black'}}>d</Text>
-                </Pressable>
+                <FontAwesomeIcon icon={faArrowRotateLeft} size={24}color="#FFF"></FontAwesomeIcon>
+                </TouchableOpacity>: <View/>}
+
                 { VideoList.length > 0? 
-                <Pressable style={{backgroundColor: 'red', width: 40, height: 40, borderRadius: 99, marginRight: 30, justifyContent: 'center', alignItems:'center' }} onPress={() => navigation.navigate('CameraPlayback')}>
-                  <Text>p</Text>
-                </Pressable>: <View/>
+                <TouchableOpacity style={{
+
+                  alignItems:'center',
+                  justifyContent:'center',
+                  width:40,
+                  height:40,
+                  backgroundColor:'rgba(0,0,0,0.2)',
+                  borderRadius:50,
+                  marginRight: 30
+
+                  }} onPress={() => navigation.navigate('CameraPlayback')}>
+                   <FontAwesomeIcon icon={faCircleCheck} size={24}color="#FFF"></FontAwesomeIcon>
+                </TouchableOpacity>: <View/>
             }
               </View>
           </View>

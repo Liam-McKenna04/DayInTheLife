@@ -5,21 +5,18 @@ import NoteTakingScreen from './NoteTakingScreen'
 import CameraPlaybackScreen from './CameraPlaybackScreen'
 import { createStackNavigator } from '@react-navigation/stack';
 
+import { CardStyleInterpolators } from '@react-navigation/stack';
+const CameraStack = createStackNavigator();
 
-const CameraStack = createStackNavigator()
 
 
-
-const CameraNav = () => {
+const CameraNav = ({Recording, setRecording}) => {
     return (
-    <CameraStack.Navigator screenOptions={{ headerShown: false}}>
-        <CameraStack.Screen name="Camera" component={CameraScreen}/>
-        <CameraStack.Screen name="CameraPlayback" component={CameraPlaybackScreen} options={{
-        animationEnabled: true,
-      }}/>
-        <CameraStack.Screen name="Notes" component={NoteTakingScreen} options={{
-        animationEnabled: true,
-      }}/>
+    <CameraStack.Navigator  screenOptions={{ presentation: 'modal', headerMode: 'none', headerShown: false, animationEnabled: true, gestureEnabled: true,  gestureDirection: 'vertical-inverted'}}>
+        <CameraStack.Screen name="Camera" children={() => <CameraScreen Recording={Recording} setRecording={setRecording} />}/>
+        <CameraStack.Screen name="CameraPlayback" component={CameraPlaybackScreen} options={{cardStyleInterpolator: ({current, inverted, layouts}) => CardStyleInterpolators.forHorizontalIOS({current: current, inverted: 1, layouts: layouts})}}/>
+        <CameraStack.Screen name="Notes" component={NoteTakingScreen} options={{cardStyleInterpolator: ({current, inverted, layouts}) => CardStyleInterpolators.forVerticalIOS({current: current, inverted: 1, layouts: layouts})
+}}/>
     </CameraStack.Navigator>
     );
 }

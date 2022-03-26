@@ -23,7 +23,6 @@ function getNumberSuffix(num) {
 
 const MainContentRenderer = ({dayObject}) => {
     if (dayObject.thumbnail != "") {
-        console.log(dayObject.thumbnail)
         return (<ImageBackground source={{uri: dayObject.thumbnail}} style={{height: "100%", width: '100%', resizeMode: 'cover', flex: 1, borderRadius: 10 }} imageStyle={{borderRadius: 10}}>
                         <LinearGradient
                          style={{height: '100%', width: '100%', borderRadius: 10, backgroundColor: 'transparent'}}

@@ -11,6 +11,8 @@ import { StatusBar } from 'expo-status-bar';
 
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useNavigation } from '@react-navigation/native';
+import * as FileSystem from 'expo-file-system';
 
 
 function groupBy(collection, returnFunction) {
@@ -32,10 +34,11 @@ function groupBy(collection, returnFunction) {
 
 // var obj = groupBy(list, "group");
 
-function GalleryScreen({navigation}) {
-    
+function GalleryScreen({DayObjects, setDayObjects}) {
+    const navigation = useNavigation()
+
     const insets = useSafeAreaInsets();
-    const [DayObjects, setDayObjects] = useState([]);
+    // const [DayObjects, setDayObjects] = useState([]);
     const [ThisWeekObjects, setThisWeekObjects] = useState([]);
     const [NotthisWeekDays, setNotthisWeekDays] = useState([]);
 //     let yearObjects = groupBy(DayObjects, (x) => x['day'].startOf('week').year)
@@ -51,19 +54,22 @@ function GalleryScreen({navigation}) {
         const pastDaysSTR = await AsyncStorage.getItem('PastDays')
         const pastDays = await JSON.parse(pastDaysSTR)
          setDayObjects(pastDays)
-         
+          
     
     }, []);
 
 
-    useEffect(()=> {
+    useEffect(async()=> {
         console.log('DAYOBJECTS')
          console.log(DayObjects)   
-         console.log('-----')
+        //  await FileSystem.getInfoAsync(DayObjects[0].video)
+         console.log('-----') 
+         if (DayObjects != null){ 
         setThisWeekObjects(DayObjects.filter(Day => (DateTime.fromISO(Day.day).weekNumber === DateTime.now().weekNumber) && (DateTime.fromISO(Day.day).year === DateTime.now().year)))
         setNotthisWeekDays(DayObjects.filter(Day => !((DateTime.fromISO(Day.day).weekNumber === DateTime.now().weekNumber) && (DateTime.fromISO(Day.day).year === DateTime.now().year))))
-
-
+         }  
+         setNotthisWeekDays(DayObjects)
+ 
 
     }, [DayObjects])
     
@@ -87,7 +93,7 @@ function GalleryScreen({navigation}) {
         {ThisWeekObjects.length == 0 ? <View/>: <SmallList dayObjects={ThisWeekObjects} navigation={navigation}/> } 
         <BigList dayObjects={NotthisWeekDays}  navigation={navigation}/>  
 
-        </ScrollView> 
+        </ScrollView>  
     </View>
   )
 }

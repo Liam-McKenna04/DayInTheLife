@@ -9,6 +9,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import StaticNoteComponent from './Items/StaticNoteComponent';
 import backgroundImage from '../../assets/images/backgroundimage.png'
+import { DateTime } from 'luxon';
 const HEADER_HEIGHT = 663;
 // await Audio.setAudioModeAsync({ playsInSilentModeIOS: true });
 // const playbackObject = new Audio.Sound();
@@ -16,7 +17,6 @@ const HEADER_HEIGHT = 663;
 
 const VideoPlayer = ({thumbnail, video, VideoPlaying}) => { 
   const vidRef = useRef(null)
-  
   const [status, setStatus] = useState({});
  
       return (
@@ -94,7 +94,7 @@ const AnimatedImageHeader = ({animatedValue, thumbnail, video, VideoClickHandler
 }
 
 
-const DayScrollViewComponent = ({navigation, dayObject }) => {
+const DayScrollViewComponent = ({navigation, dayObject}) => {
   const offset = useRef(new Animated.Value(0)).current;
   const scrollViewRef = useRef(null)
   const [VideoPlaying, setVideoPlaying] = useState(true);
@@ -121,7 +121,6 @@ const DayScrollViewComponent = ({navigation, dayObject }) => {
   
   
 
-    console.log(dayObject.thumbnail)
     
   return (
     <SafeAreaProvider style={{flex: 1}}>
@@ -158,7 +157,8 @@ const DayScrollViewComponent = ({navigation, dayObject }) => {
         
             >
               
-                {dayObject.notes.map((note)=><StaticNoteComponent NoteClickHandler={NoteClickHandler} key={note.time} text={note.text} title={note.title} time={note.time.toFormat('t')}/>)}
+                {dayObject.notes.map((note)=>{
+                return <StaticNoteComponent NoteClickHandler={NoteClickHandler} key={note.date} text={note.text} title={note.title} time={DateTime.fromISO(note.date).toFormat('t')}/>})}
                 
             </ScrollView>
             

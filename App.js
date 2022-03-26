@@ -5,7 +5,10 @@ import { StyleSheet, Text, View, SafeAreaView, ScrollView, useColorScheme } from
 import * as FileSystem from 'expo-file-system';
 import {v4 as uuid} from 'uuid'
 
+
 import { NavigationContainer } from '@react-navigation/native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 
 import AppLoading from 'expo-app-loading';
 import {useFonts, Sora_400Regular, Sora_600SemiBold } from '@expo-google-fonts/sora'
@@ -22,11 +25,11 @@ import { LogBox } from 'react-native';
 import { FFmpegKit  } from 'ffmpeg-kit-react-native';
 var RNFS = require('react-native-fs')
  
-const RootStack = createStackNavigator();
+const RootStack = createMaterialTopTabNavigator();
 
 const writeTextFileWithAllAudioFiles = async (filePaths) => {
   var fileContent = ''
-
+  await RNFS.unlink(RNFS.DocumentDirectoryPath + '/audioList.txt', {idempotent: true})
   filePaths.forEach(path => {
     // console.log(path)
     fileContent += `file '${path}'\n`
@@ -41,15 +44,15 @@ const writeTextFileWithAllAudioFiles = async (filePaths) => {
 }
 
 
-const newDay = async() => {
-const todaySTR = await AsyncStorage.getItem('today')
+const newDay = async(setDayObjects) => {
+const todaySTR = await AsyncStorage.getItem('today') 
 const today = todaySTR != null ? JSON.parse(todaySTR) : null
 console.log(today)
 const vidSegsString = await AsyncStorage.getItem('videoSegments')
 if (vidSegsString == null) {
   console.log("No value previously stored")
 } else {
-const vidSegs = await JSON.parse(vidSegsString)
+const vidSegs = await JSON.parse(vidSegsString)  
 if (vidSegs.length === 0) {
    console.log('no videos')
 } else {
@@ -60,7 +63,7 @@ const endingSTR = vidSegs[0].split('.').pop()
 const inputFile = FileSystem.documentDirectory + "DayInTheLife/TodayFinished/" + "finished" + "." + endingSTR
 const inputFileInfo = await FileSystem.getInfoAsync(inputFile)
 console.log("finished file exists " + inputFileInfo.exists)  
-const outputFile = FileSystem.documentDirectory + "DayInTheLife/Days" + myUuid + "." + endingSTR
+const outputFile = FileSystem.documentDirectory + "DayInTheLife/Days/" + myUuid + "." + endingSTR
 finishedinfo = await FileSystem.getInfoAsync(inputFile)
 if (!finishedinfo.exists) {
   const vidSegsString = await AsyncStorage.getItem('videoSegments')
@@ -68,21 +71,20 @@ if (!finishedinfo.exists) {
   const textfile = await writeTextFileWithAllAudioFiles(vidSegs)
   const command = `-f concat -safe 0 -i ${textfile} -c copy ${inputFile}`
   await FFmpegKit.execute(command) 
-
+  
 } 
+const thumbnail = await createThumbnail(inputFile)
+  today.thumbnail = thumbnail
 console.log(finishedinfo.exists)
-if (finishedinfo.exists) {
+
 await FileSystem.moveAsync({from: inputFile, to: outputFile})
 today.video = outputFile
 
-const thumbnail = await createThumbnail(outputFile)
-today.thumbnail = thumbnail
-console.log(typeof(today)) 
+ 
 
 
 
 
-}  
 
  
 
@@ -103,10 +105,10 @@ await FileSystem.makeDirectoryAsync(FileSystem.documentDirectory + "DayInTheLife
 const emptyday = JSON.stringify({day: DateTime.now(), video: "", thumbnail: "", notes: []})
 await AsyncStorage.setItem('today', emptyday)
 
-console.log(today)
+// console.log(today)
 //add today to data 
-jsonPastDays = await AsyncStorage.getItem('PastDays')
-PastDays = await jsonPastDays != null ? JSON.parse(jsonPastDays) : null
+const jsonPastDays = await AsyncStorage.getItem('PastDays')
+const PastDays = jsonPastDays != null ? await JSON.parse(jsonPastDays) : null
 if ((today.notes.length > 0) || (today.thumbnail.length > 0)) {
   console.log(today.notes.length)
   console.log(today.thumbnail.length)
@@ -123,11 +125,13 @@ await AsyncStorage.setItem('PastDays', stringToday )
 } else {
   console.log("DIDNT PUSH, NO DATA")
 }
+setDayObjects(PastDays)
+
 }
 
 const createThumbnail = async(videoURI) => {
   const imageUuid = uuid()
-  const outputfilepath = FileSystem.documentDirectory + "DayInTheLife/Days" + imageUuid + ".png"
+  const outputfilepath = FileSystem.documentDirectory + "DayInTheLife/Days/" + imageUuid + ".png"
   const command = `-i ${videoURI} -ss 00:00:01.000 -vframes 1 ${outputfilepath}`
    await FFmpegKit.execute(command)
   return outputfilepath
@@ -137,15 +141,19 @@ const createThumbnail = async(videoURI) => {
 
 
 
-const RootNavigator = () => {
+const RootNavigator = ({DayObjects, setDayObjects}) => {
+  const [Recording, setRecording] = useState(false)
+  
+ 
   return (
-    <RootStack.Navigator initialRouteName='GalleryNav' screenOptions={{ headerShown: false, animationEnabled: false }}>
+    <RootStack.Navigator initialRouteName='GalleryNav' screenOptions={{swipeEnabled: !Recording, tabBarStyle:{display: 'none'}, headerShown: false, gestureDirection:'horizontal'  }}>
+        <RootStack.Screen name="ProfileNav" component={ProfileNavHub} options={{gestureDirection: 'horizontal-inverted'}}/>
 
-        <RootStack.Screen name="ProfileNav" component={ProfileNavHub}/>
-        <RootStack.Screen name="GalleryNav" component={GalleryNav}/>
-        <RootStack.Screen name="CameraNav" component={CameraNav}/>
-        {/* <RootStack.Screen name="BottomTabNavigatorScreen" component={Tabs}/> */}
-        {/* <RootStack.Screen name="CameraNav" component={CameraNav} options={{ ananimationEnabled: true}} /> */}
+        <RootStack.Screen name="GalleryNav" options={{gestureDirection: 'horizontal'}} children={() => <GalleryNav DayObjects={DayObjects} setDayObjects={setDayObjects} />}/>
+        <RootStack.Screen name="CameraNav" children={() => <CameraNav Recording={Recording} setRecording={setRecording} />} options={{gestureDirection: 'horizontal'}}/>
+        
+
+     
     </RootStack.Navigator>
   )
 }
@@ -156,6 +164,8 @@ export default function App() {
       Sora_400Regular,
       Sora_600SemiBold
     })
+    const [DayObjects, setDayObjects] = useState([]);
+
 
 
     //On app load
@@ -164,22 +174,28 @@ export default function App() {
       createDirectory("DayInTheLife/Days/")
       createDirectory("DayInTheLife/Today/")
       createDirectory("DayInTheLife/TodayFinished/")
+      // if (FirstStartup){
+      //   AsyncStorage.setItem('today', JSON.stringify({day: DateTime.now(), video: "", thumbnail: "", notes: []}))
+      //   AsyncStorage.setItem('days', JSON.stringify([])) 
+      // }
       await CreateToday()
       today = await GetToday()
-      console.log(+DateTime.fromISO(today.day).startOf('day') == +DateTime.now().startOf("day"))
+      console.log(today) 
+      // console.log(+DateTime.fromISO(today.day).startOf('day') == +DateTime.now().startOf("day"))
       if (+DateTime.fromISO(today.day).startOf("day") === +DateTime.now().startOf("day")) {
         console.log('x')
       } else {
-        newDay()
+        newDay(setDayObjects)
 
-        //Recycle day object and 
+
       }
       const listener = Midnight.addListener(()=> {
-        newDay()
+        newDay(setDayObjects)  
+        console.log("ITSSS MIDNIGHT AYOOOO")
       })
-      // newDay()
 
-      return ()=> listener.remove()
+
+      return ()=> listener.remove() 
 
 
 
@@ -200,7 +216,7 @@ export default function App() {
     
     <NavigationContainer>
       <StatusBar style='auto'/>
-      <RootNavigator/>
+      <RootNavigator DayObjects={DayObjects} setDayObjects={setDayObjects} />
     </NavigationContainer>
   );
 }

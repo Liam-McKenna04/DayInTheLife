@@ -1,14 +1,16 @@
 import React from 'react';
 import {View, StyleSheet, Text, Pressable, Image} from 'react-native';
+import { Video } from 'expo-av';
 import { LogBox } from 'react-native';
 import {DateTime} from 'luxon'
+import { useNavigation } from '@react-navigation/native';
 
 const MainContentRenderer = ({dayObject}) => {
     // console.log(dayObject)
-    console.log('aaa')
     if (dayObject.thumbnail.length > 0) {
-        console.log(typeof(dayObject.thumbnail))
-        return (<Image style={{height: "75%", width: '100%', resizeMode: 'cover', borderRadius: 10}} source={{uri: dayObject.thumbnail}}/>)
+        const thumb = dayObject.thumbnail
+        // console.log(typeof(thumb))
+        return (<Image style={{height: "75%", width: '100%', resizeMode: 'cover', borderRadius: 10}} resizeMode='cover' source={{uri: dayObject.thumbnail}}/>)
     } else {
         return (<View style={styles.MainContentStyle}><Text style={{fontFamily:"Sora_400Regular", fontSize: 16, textAlign: 'center'}}>{dayObject.notes[0].title}</Text></View>)
     }
@@ -26,7 +28,8 @@ const TitleContentRenderer = ({dayObject, sectionType}) => {
 
 
 
-const SingleGalleryItem = ({dayObject, sectionType, navigation}) => {
+const SingleGalleryItem = ({dayObject, sectionType}) => {
+    const navigation = useNavigation()
     return (
         <Pressable style={styles.GalleryItemContainer} onPress={(e) => {navigation.navigate('DayView', {dayObject})}}>
 

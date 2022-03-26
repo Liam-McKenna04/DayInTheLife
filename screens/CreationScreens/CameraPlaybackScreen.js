@@ -6,7 +6,7 @@ import * as FileSystem from 'expo-file-system';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {GetVideoSegments} from '../../utility'
 import * as MediaLibrary from 'expo-media-library';
-import { FFmpegKit  } from 'ffmpeg-kit-react-native';
+import { FFmpegKit, FFprobeKit  } from 'ffmpeg-kit-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { FontAwesome } from '@expo/vector-icons'
 import { useIsFocused } from '@react-navigation/native';
@@ -14,6 +14,7 @@ var RNFS = require('react-native-fs')
 
 const writeTextFileWithAllAudioFiles = async (filePaths) => {
   var fileContent = ''
+  await RNFS.unlink(RNFS.DocumentDirectoryPath + '/audioList.txt', {idempotent: true})
 
   filePaths.forEach(path => {
     // console.log(path)
