@@ -1,3 +1,4 @@
+import 'react-native-gesture-handler'
 import * as React from 'react';
 import { useState, useEffect } from 'react';
 import Tabs from "./components/NavbarComponent"

@@ -22,7 +22,8 @@
         "NSCameraUsageDescription": "$(PRODUCT_NAME) needs access to your Camera.",
         "NSMicrophoneUsageDescription": "$(PRODUCT_NAME) needs access to your Microphone."
       },
-      "bundleIdentifier": "com.liammckenna04.DayInTheLife"
+      "bundleIdentifier": "com.liammckenna04.DayInTheLife",
+      "buildNumber": "2"
     },
     "android": {
       "adaptiveIcon": {
@@ -38,31 +39,13 @@
     "web": {
       "favicon": "./assets/images/favicon.png"
     },
-    
     "plugins": [
-      [
-        "@config-plugins/ffmpeg-kit-react-native", 
-        {
-
-        "package": "min-gpl",
-          "ios": {
-            "package": "min-gpl"
-          }
-      }
-    ], [ "expo-ads-facebook",
-    {
-      "userTrackingPermission": "This identifier will be used to deliver personalized ads to you."
-    }]
-  ]    
-    
+      "react-native-vision-camera"
+    ]
   },
   "facebookScheme": "fb1234567891234567",
-    "facebookAppId": "2461752610622415",
-    "facebookDisplayName": "Ads",
-    "facebookAutoLogAppEventsEnabled": true,
-    "facebookAdvertiserIDCollectionEnabled": true
-    
-  
-   
-  
+  "facebookAppId": "2461752610622415",
+  "facebookDisplayName": "Ads",
+  "facebookAutoLogAppEventsEnabled": true,
+  "facebookAdvertiserIDCollectionEnabled": true
 }
