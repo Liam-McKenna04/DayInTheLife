@@ -4,11 +4,11 @@
     "slug": "DayInTheLife",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/logoUnsized.png",
+    "icon": "./assets/images/logo2.png",
     "splash": {
-      "image": "./assets/images/logoUnsized.png",
+      "image": "./assets/images/logoTrans.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#F2F2F6"
     },
     "updates": {
       "fallbackToCacheTimeout": 0
@@ -17,6 +17,7 @@
       "**/*"
     ],
     "ios": {
+      "icon": "./assets/images/logo2.png",
       "supportsTablet": true,
       "infoPlist": {
         "NSCameraUsageDescription": "$(PRODUCT_NAME) needs access to your Camera.",
@@ -27,7 +28,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "foregroundImage": "./assets/images/logo2.png",
         "backgroundColor": "#FFFFFF"
       },
       "permissions": [
@@ -40,12 +41,17 @@
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
-      "react-native-vision-camera"
+      [
+      "react-native-vision-camera", 
+      {
+        "cameraPermissionText": "$(PRODUCT_NAME) needs access to your Camera.",
+
+        "enableMicrophonePermission": true,
+        "microphonePermissionText": "$(PRODUCT_NAME) needs access to your Microphone."
+
+      }
     ]
-  },
-  "facebookScheme": "fb1234567891234567",
-  "facebookAppId": "2461752610622415",
-  "facebookDisplayName": "Ads",
-  "facebookAutoLogAppEventsEnabled": true,
-  "facebookAdvertiserIDCollectionEnabled": true
+    ]
+  }
+ 
 }

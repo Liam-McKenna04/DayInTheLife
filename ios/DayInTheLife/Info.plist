@@ -1,7 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
+
   <dict>
+   <key>GADApplicationIdentifier</key>
+    <string>ca-app-pub-3940256099942544~1458002511</string>
+<!-- <string>ca-app-pub-4572817562844546~8046878342</string> Production -->
+  <key>SKAdNetworkItems</key>
+  <array>
+    <dict>
+      <key>SKAdNetworkIdentifier</key>
+      <string>cstr6suwn9.skadnetwork</string>
+    </dict>
+  </array>
+
     <key>CFBundleDevelopmentRegion</key>
     <string>$(DEVELOPMENT_LANGUAGE)</string>
     <key>CFBundleDisplayName</key>
@@ -58,17 +70,7 @@
     <string>$(PRODUCT_NAME) needs access to your Microphone.</string>
     <key>NSUserTrackingUsageDescription</key>
     <string>This identifier will be used to deliver personalized ads to you.</string>
-    <key>SKAdNetworkItems</key>
-    <array>
-      <dict>
-        <key>SKAdNetworkIdentifier</key>
-        <string>v9wttpbfk9.skadnetwork</string>
-      </dict>
-      <dict>
-        <key>SKAdNetworkIdentifier</key>
-        <string>n38lu8286q.skadnetwork</string>
-      </dict>
-    </array>
+    
     <key>UILaunchStoryboardName</key>
     <string>SplashScreen</string>
     <key>UIRequiredDeviceCapabilities</key>
@@ -96,4 +98,5 @@
     <key>UIViewControllerBasedStatusBarAppearance</key>
     <false/>
   </dict>
+ 
 </plist>

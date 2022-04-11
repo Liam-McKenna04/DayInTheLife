@@ -11,7 +11,9 @@ target 'DayInTheLife' do
   use_expo_modules!
 # @generated begin ffmpeg-kit-react-native-import - expo prebuild (DO NOT MODIFY) sync-a79a962553e9fe0961383adf881bd0dada86e29b
   pod 'ffmpeg-kit-react-native', :subspecs => podfile_properties['ffmpeg-kit-react-native.subspecs'] || [], :podspec => File.join(File.dirname(`node --print "require.resolve('ffmpeg-kit-react-native/package.json')"`), "ffmpeg-kit-react-native.podspec")
-# @generated end ffmpeg-kit-react-native-import
+
+
+  # @generated end ffmpeg-kit-react-native-import
   config = use_native_modules!
 
   pod 'expo-dev-launcher', path: '../node_modules/expo-dev-launcher', :configurations => :debug
@@ -21,6 +23,8 @@ target 'DayInTheLife' do
     :hermes_enabled => podfile_properties['expo.jsEngine'] == 'hermes'
   )
 
+  pod 'Google-Mobile-Ads-SDK', '8.11.0'
+  pod 'GoogleMobileAdsMediationFacebook', '6.5.1.0'
   # Uncomment to opt-in to using Flipper
   #
   # if !ENV['CI']

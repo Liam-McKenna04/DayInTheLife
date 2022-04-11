@@ -1,6 +1,6 @@
 import React from 'react';
 import { useState, useRef, useEffect } from 'react';
-import {View, StyleSheet, Text, Pressable, ScrollView, TextInput} from 'react-native';
+import {View, StyleSheet, Text, Pressable, ScrollView, TextInput, TouchableOpacity} from 'react-native';
 import { FontAwesome } from '@expo/vector-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faVideo, faVideoCamera, faCheck, faTrash } from '@fortawesome/free-solid-svg-icons';
@@ -75,7 +75,7 @@ const CompletedNote = ({FinishedEditing, title, textContent, date, index, setAny
 const TopLeftButton = ({navigation, AnyEditable, Notes, setNotes, IndexEditable, setIndexEditable, setAnyEditable}) => {
     if (AnyEditable) {
         return (
-        <Pressable style={{marginLeft: 12}} onPress={() => {
+        <TouchableOpacity style={{marginLeft: 12, padding: 5}} onPress={() => {
             console.log(IndexEditable)
             let filteredNotes = Notes.filter((element, index) => {
                 
@@ -89,7 +89,7 @@ const TopLeftButton = ({navigation, AnyEditable, Notes, setNotes, IndexEditable,
             
             >
             <FontAwesomeIcon icon={faTrash} size={22} />
-        </Pressable>
+        </TouchableOpacity>
 
         )
     }
@@ -101,7 +101,7 @@ const TopLeftButton = ({navigation, AnyEditable, Notes, setNotes, IndexEditable,
 const TopRightButton = ({FinishedEditing, setFinishedEditing, NoteTitle, NoteText, navigation, Notes, setNotes, setNoteText, setNoteTitle, AnyEditable, EditTitle, EditText, IndexEditable, setIndexEditable, setAnyEditable}) => {
     if (AnyEditable){
         return  (
-            <Pressable style={{marginRight: 12}} onPress={() => {setNotes([...Notes.slice(0, IndexEditable), 
+            <Pressable style={{marginRight: 12, padding: 5}} onPress={() => {setNotes([...Notes.slice(0, IndexEditable), 
                                                                         {title: EditTitle, text: EditText, date: Notes[IndexEditable].date},
                                                                         ...Notes.slice(IndexEditable + 1)
                                                                         
@@ -118,8 +118,8 @@ const TopRightButton = ({FinishedEditing, setFinishedEditing, NoteTitle, NoteTex
 return (
     <View>
 
-                    {}
-                    <Pressable style={{marginRight: 12}} onPress={(NoteTitle === "" ) && (NoteText === "") ? 
+                    
+                    <TouchableOpacity style={{marginRight: 12, padding: 5}} onPress={(NoteTitle === "" ) && (NoteText === "") ? 
                     () => navigation.navigate('Camera') :
                     () => {
                         if (NoteTitle === "") {
@@ -136,7 +136,7 @@ return (
                 }
                     }>
                         <FontAwesomeIcon icon={(NoteTitle === "" ) && (NoteText === "") ?  faVideoCamera : faCheck} size = {24}></FontAwesomeIcon>
-                    </Pressable>
+                    </TouchableOpacity>
 
 
                 </View>

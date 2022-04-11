@@ -1,20 +1,58 @@
 import React from 'react';
 import {View, StyleSheet, Text, Pressable, ScrollView} from 'react-native';
 import SingleLargeGalleryItem from '../Items/SingleLargeGalleryItem'
+import SpecialItem from "../Items/SpecialItem"
+import AdItem from "../Items/AdItem"
 import { DateTime } from 'luxon';
+import { v4 as uuidv4 } from 'uuid';
+
 function compareLuxonDates(a, b) {
     return a.toMillis() - b.toMillis()
   }
 
-const BigList = ({navigation, dayObjects}) => {
+const BigList = ({navigation, dayObjects, objectCount}) => {
+    //editing objects in list
     if (dayObjects === null) {
         dayObjects = []
     }
     dayObjects.sort((a, b) => compareLuxonDates(DateTime.fromISO(b.day), DateTime.fromISO(a.day)))
-    const exampleObject1 = {specialObject: true, otherdatahere: false}
-    const exampleObject2 = {}
-    x = 2
-    dayObjects.splice(x, 0, exampleObject1)
+    let allObjects = []
+    if (objectCount === 0) {
+            const specialObject = {specialObject: true, text:"Preview Day", onClick: ()=> {navigation.navigate('CameraNav')}, id: uuidv4()}
+            const adObject = {ad: true, id: uuidv4()}
+            allObjects = [...dayObjects, specialObject, adObject]
+    } else if (dayObjects.length === 0) {
+        if (objectCount < 3) {
+            const specialObject = {specialObject: true, text:"Rate on App Store",onClick: ()=> {}, id: uuidv4()}
+            const adObject = {ad: true, id: uuidv4()}
+
+            allObjects = [...dayObjects, specialObject, adObject]
+
+        }else {
+    const specialObject = {specialObject: true, text:"Share with your friends",onClick: ()=> {}}
+    const adObject = {ad: true, id: uuidv4()}
+    allObjects = [...dayObjects, specialObject, adObject]
+        }
+    } else {
+    allObjects = [...dayObjects]
+    allObjects.splice(1, 0, {ad: true, id: uuidv4()})
+    console.log(allObjects)
+    }
+            
+        
+    
+      
+            
+            
+    
+
+
+
+    
+
+
+
+
     return (
         <View  style={{flex: 1, top: -20}}>
             <View style={styles.headerContainer}>
@@ -22,9 +60,13 @@ const BigList = ({navigation, dayObjects}) => {
             </View>
             <View  style={{flex: 1}}>
                 <ScrollView contentContainerStyle={styles.container}>
-                    {dayObjects.map(x => {
-                    if (x.specialObject) {
-                    } else { 
+                    {allObjects.map(x => {
+                    if (x.ad) {
+                        return <AdItem key={x.id}/>
+                    } else if (x.specialObject) {
+                        return <SpecialItem key={x.id} onClick={()=>{x.onClick()}} text={x.text} Image=""></SpecialItem>
+                    }
+                     else { 
                         
                     return <SingleLargeGalleryItem key={x.day} dayObject={x} navigation={navigation}/>
                 }

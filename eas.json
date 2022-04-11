@@ -4,11 +4,16 @@
   },
   "build": {
     "development": {
+ 
       "distribution": "internal",
+      "cache": {"key": "aaa"},
+
       "android": {
         "gradleCommand": ":app:assembleDebug"
       },
       "ios": {
+
+        "cocoapods": "1.11.2",
         "buildConfiguration": "Debug"
       }
     },

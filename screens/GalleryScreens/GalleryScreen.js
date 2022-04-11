@@ -1,6 +1,6 @@
 import React from 'react';
 import { useEffect, useState } from 'react';
-import { StyleSheet, Text, View, Pressable, ScrollView } from 'react-native';
+import { StyleSheet, Text, View, Pressable, ScrollView, TouchableOpacity, Button } from 'react-native';
 import BigList from '../../components/gallery/Lists/BigList';
 import SmallList from '../../components/gallery/Lists/SmallList';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
@@ -36,7 +36,6 @@ function groupBy(collection, returnFunction) {
 
 function GalleryScreen({DayObjects, setDayObjects}) {
     const navigation = useNavigation()
-
     const insets = useSafeAreaInsets();
     // const [DayObjects, setDayObjects] = useState([]);
     const [ThisWeekObjects, setThisWeekObjects] = useState([]);
@@ -68,31 +67,36 @@ function GalleryScreen({DayObjects, setDayObjects}) {
         setThisWeekObjects(DayObjects.filter(Day => (DateTime.fromISO(Day.day).weekNumber === DateTime.now().weekNumber) && (DateTime.fromISO(Day.day).year === DateTime.now().year)))
         setNotthisWeekDays(DayObjects.filter(Day => !((DateTime.fromISO(Day.day).weekNumber === DateTime.now().weekNumber) && (DateTime.fromISO(Day.day).year === DateTime.now().year))))
          }  
-         setNotthisWeekDays(DayObjects)
+        
  
-
+        // console.log(ThisWeekObjects.length)
     }, [DayObjects])
     
     return (
     <View navigation={navigation} style={styles.GalleryContainer}>
-        <StatusBar style='auto'/>
+        
         <View navigation={navigation} style={{display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: (insets.top + 5), marginLeft: 18, marginBottom: 10, marginRight: 18}}>
             <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                <Pressable style={{justifyContent: 'center', alignItems: 'center', padding: 10}} onPress={ () => navigation.navigate('ProfileNav')}>
+                {/* <TouchableOpacity style={{justifyContent: 'center', alignItems: 'center', padding: 10}} onPress={ () => navigation.navigate('ProfileNav')}>
                     <FontAwesomeIcon icon={faUser} size={20}/>
-                </Pressable>
-                <Text style={{ fontFamily: "Sora_600SemiBold",  color: "#1A1A1A", fontSize: 24, marginLeft: 10, alignItems: 'center'}}>Gallery</Text>
+                </TouchableOpacity> */}
+                <Text style={{ fontFamily: "Sora_600SemiBold",  color: "#1A1A1A", fontSize: 32, marginLeft: 10, alignItems: 'center'}}>Gallery</Text>
             </View>
 
-            <Pressable style={{justifyContent: 'center', alignItems: 'center', padding: 10}} onPress={ () => navigation.navigate('CameraNav')}>
+            <TouchableOpacity style={{justifyContent: 'center', alignItems: 'center', padding: 10}} onPress={ () => navigation.navigate('CameraNav')}>
                 <FontAwesomeIcon icon={faSquarePlus} size={20}/>
-            </Pressable>
+            </TouchableOpacity>
         </View>
 
         <ScrollView>
-        {ThisWeekObjects.length == 0 ? <View/>: <SmallList dayObjects={ThisWeekObjects} navigation={navigation}/> } 
-        <BigList dayObjects={NotthisWeekDays}  navigation={navigation}/>  
-
+        <SmallList dayObjects={ThisWeekObjects} navigation={navigation}/>
+        <BigList dayObjects={NotthisWeekDays} objectCount={DayObjects == null? 0 : DayObjects.length} navigation={navigation}/>  
+        {DayObjects === null|| DayObjects.length === 0 ? 
+        <View style={{flex: 1, justifyContent: 'center',  alignItems:'center', flexDirection:'column'}}>
+            <Text style={{ fontFamily: "Sora_600SemiBold",  color: "#1A1A1A", fontSize: 28, alignItems: 'center', textAlign:'center', marginBottom: 10}}>Create your first day</Text>
+            <Text style={{fontFamily: "Sora_400Regular",  color: "#1A1A1A", fontSize: 14, alignItems: 'center', textAlign:'center', marginBottom: 10, maxWidth: '80%'}}>Record a video and add journal entries. Your previous days will appear here</Text>
+            <TouchableOpacity style={{padding: 5}} onPress={()=> navigation.navigate('CameraNav')}><Text style={{fontFamily: "Sora_600SemiBold",  color: "#00468B", fontSize: 14, alignItems: 'center', textAlign:'center', marginBottom: 10, maxWidth: '80%'}}>Create day</Text></TouchableOpacity>
+        </View>: <View/>}
         </ScrollView>  
     </View>
   )

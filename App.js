@@ -1,10 +1,10 @@
-import 'react-native-gesture-handler'
 import * as React from 'react';
 import { useState, useEffect } from 'react';
 import Tabs from "./components/NavbarComponent"
 import { StyleSheet, Text, View, SafeAreaView, ScrollView, useColorScheme } from 'react-native';
 import * as FileSystem from 'expo-file-system';
 import {v4 as uuid} from 'uuid'
+import { getTrackingStatus } from 'react-native-tracking-transparency';
 
 
 import { NavigationContainer } from '@react-navigation/native';
@@ -79,6 +79,7 @@ const thumbnail = await createThumbnail(inputFile)
   today.thumbnail = thumbnail
 console.log(finishedinfo.exists)
 
+
 await FileSystem.moveAsync({from: inputFile, to: outputFile})
 today.video = outputFile
 
@@ -142,10 +143,9 @@ const createThumbnail = async(videoURI) => {
 
 
 
-
 const RootNavigator = ({DayObjects, setDayObjects}) => {
   const [Recording, setRecording] = useState(false)
-  
+  // console.log(DayObjects)
  
   return (
     <RootStack.Navigator initialRouteName='GalleryNav' screenOptions={{swipeEnabled: !Recording, tabBarStyle:{display: 'none'}, headerShown: false, gestureDirection:'horizontal'  }}>
@@ -169,7 +169,7 @@ export default function App() {
     const [DayObjects, setDayObjects] = useState([]);
 
 
-
+   
     //On app load
     useEffect(async() => {
       const FirstStartup = isFirstStartup()
@@ -183,7 +183,7 @@ export default function App() {
       // }
       await CreateToday()
       today = await GetToday()
-      console.log(today) 
+      
       // console.log(+DateTime.fromISO(today.day).startOf('day') == +DateTime.now().startOf("day"))
       if (+DateTime.fromISO(today.day).startOf("day") === +DateTime.now().startOf("day")) {
         console.log('x')
@@ -191,18 +191,22 @@ export default function App() {
         newDay(setDayObjects)
 
 
-      }
+      } 
       const listener = Midnight.addListener(()=> {
         newDay(setDayObjects)  
         console.log("ITSSS MIDNIGHT AYOOOO")
       })
-
-
+      // await FileSystem.getInfoAsync(DayObjects[0].video) 
+      
       return ()=> listener.remove() 
 
 
 
         },
+
+
+
+
      []);
 
     
@@ -212,13 +216,10 @@ export default function App() {
     }
 
 
-   
-
 
   return (
     
     <NavigationContainer>
-      <StatusBar style='auto'/>
       <RootNavigator DayObjects={DayObjects} setDayObjects={setDayObjects} />
     </NavigationContainer>
   );

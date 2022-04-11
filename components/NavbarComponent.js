@@ -1,7 +1,6 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import GalleryScreen from "../screens/GalleryScreens/GalleryScreen";
 import ProfileScreen from "../screens/ProfileScreens/ProfileScreen";
-import CameraScreen from "../screens/CreationScreens/CameraScreen"
 import { StyleSheet, Text, View, Image, TouchableOpacity, Modal } from "react-native";
 import GalleryImage from '../assets/icons/images-regular.svg';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'

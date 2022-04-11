@@ -6,16 +6,15 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import * as FileSystem from 'expo-file-system';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { faRotate, faNoteSticky, faCircleCheck, faArrowRotateLeft } from '@fortawesome/free-solid-svg-icons';
+import { faRotate, faNoteSticky, faCircleCheck, faArrowRotateLeft, faPen, faPenClip } from '@fortawesome/free-solid-svg-icons';
 import {v4 as uuid} from 'uuid'
 import { useNavigation } from '@react-navigation/native';
 
-import Svg, {Circle} from 'react-native-svg'
-
+import Svg, {Circle, Path} from 'react-native-svg'
+import { Linking } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons'
 import {  FFprobeKit  } from 'ffmpeg-kit-react-native';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
-
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -36,6 +35,10 @@ var RNFS = require('react-native-fs')
 
 
 function VisionCameraScreen({Recording, setRecording}) {
+
+
+ 
+
   //Timer
   const [seconds, setSeconds] = useState(0);
   const [isActive, setIsActive] = useState(false);
@@ -97,17 +100,18 @@ function VisionCameraScreen({Recording, setRecording}) {
     const [CameraOrientation, setCameraOrientation] = useState();
 
   //Options
+    const [LengthList, setLengthList] = useState([]);
     const [VideoLength, setVideoLength] = useState(0);
     const [MaxVideoLength, setMaxVideoLength] = useState(60);
     const [Flash, setFlash] = useState("");
     const [Locked, setLocked] = useState(false);
-
-
+  
     //Video Settings
     const [VideoList, setVideoList] = useState([]);
     const [Loaded, setLoaded] = useState(false);
     const AnimatedCameraButton = Animated.createAnimatedComponent(Pressable)
-    
+    // console.log(VideoList)
+
     const cameraButtonStyle = useAnimatedStyle(() => {
       return {
         width: withTiming(!Recording ? 78: 88, {duration: 100}),
@@ -122,11 +126,17 @@ function VisionCameraScreen({Recording, setRecording}) {
     useEffect(async() => {
       const vidSegsString = await AsyncStorage.getItem('videoSegments')
     const vidSegs = await JSON.parse(vidSegsString)
-    // console.log(vidSegs)
+    
     if (vidSegs === null) {
       await AsyncStorage.setItem('videoSegments', "[]")
       setVideoList([])
     }else {
+    for (let i = vidSegs.length - 1; i > -1; i--){
+    let response = await FileSystem.getInfoAsync(vidSegs[i])
+    if (response.exists === false){
+      vidSegs.splice(i, 1)
+    }
+    }
     setVideoList(vidSegs)
     }
     setLoaded(true)
@@ -141,17 +151,19 @@ function VisionCameraScreen({Recording, setRecording}) {
   }, [devices]);
   
 
-    useEffect(() => {
-      (async () => {
+    useEffect(async() => {
+        
 
         
-        const camStatus  = await Camera.getCameraPermissionStatus();
-        const micStatus  = await Camera.getMicrophonePermissionStatus();
-        // console.log(status)
+        let camStatus  = await Camera.getCameraPermissionStatus();
+        let micStatus  = await Camera.getMicrophonePermissionStatus();
+        camStatus = await Camera.requestCameraPermission()
+        micStatus = await Camera.requestMicrophonePermission()
+        
+        
         setCameraHasPermission(camStatus === 'authorized');
         setMicHasPermission(micStatus === "authorized")
-        
-      })();
+      
     }, []);
 
     
@@ -169,32 +181,55 @@ function VisionCameraScreen({Recording, setRecording}) {
             lengths.push(Number(output))
           })
         }
-        const sum = lengths.reduce((partialSum, a) => partialSum + a, 0);
-        
+        let sum = lengths.reduce((partialSum, a) => partialSum + a, 0);
+        sum = sum || 0
        setDelta(0)
       setVideoLength(sum)
+      setLengthList(lengths)
+      
         
 
         await AsyncStorage.setItem('videoSegments', JSON.stringify(VideoList))
         
       }, [VideoList]);
 
+
+
+
     if (CameraHasPermission === null || MicHasPermission === null) {
         //Loading
       return <View />;
     }
-    if (CameraHasPermission === false) {
+    if (CameraHasPermission === false || MicHasPermission === false) {
         //Redirect to settings
-      return <Text>No access to camera</Text>;
-    }
-    if (MicHasPermission === false) {
-        //Redirect to settings
+        let title = "Enable Camera"
+        let text = "Please provide us access to your camera, which is required to create days"
+        if (CameraHasPermission === true) {
+          title = "Enable Microphone"
+          text = "Please provide us access to your Microphone, which is required to create days"
+        }
+      return (
+      <View style={{justifyContent:'center', alignItems: 'center', flex: 1}}>
+          <View style={{height: 400, width: "100%", top: -50}}>
+            <Text style={{ fontFamily: "Sora_600SemiBold",  color: "#1A1A1A", fontSize: 38, marginLeft: 20, alignItems: 'center', marginBottom: 5 }}>{title}</Text>
+            <Text style={{ fontFamily: "Sora_400Regular",  color: "#1A1A1A", fontSize: 22, marginLeft: 20, alignItems: 'center', marginBottom: 5}}>{text}</Text>
+            <Pressable onPress={()=> {Linking.openSettings()}} style={styles.press}>
+                <View style={{flex: 1, display: "flex", flexDirection: "row", alignItems: "center", justifyContent: 'center'}}>
+                
+                {/* <FontAwesomeIcon icon={faGear} size={24} style={{color: 'black'}}/> */}
+                <Text style={{textAlign: "center", marginLeft: 13, fontFamily: "Sora_600SemiBold", fontSize: 18, color: 'white'}}>Go To Settings</Text>
 
-        return <Text>No access to Video</Text>;
-      }
+                </View>
+              {/* <FontAwesomeIcon icon={faAngleRight} size={20} style={{color: 'black'}}/> */}
+              </Pressable>
+          </View>
+      </View>
+      );
+    }
+    
 
       const takeVideo =  async() => {
-            console.log("Maxvidlength: " +MaxVideoLength)
+            console.log("Maxvidlength: " + MaxVideoLength)
             console.log("vidlength: "+ VideoLength)
             if (MaxVideoLength < VideoLength){
               console.log("TOO LONG")
@@ -242,7 +277,6 @@ function VisionCameraScreen({Recording, setRecording}) {
         camera.stopRecording().catch(()=> console.log('err'));
       }
       
-
       const shutterOpacity = Recording ? .5 : 1
       
 
@@ -251,26 +285,25 @@ function VisionCameraScreen({Recording, setRecording}) {
 
       const radius = (size - strokeWidth) / 2
       const circumference = radius * 2 * Math.PI
-      
-      const alpha = Animated.interpolateNode(VideoLength + (Delta), {
-        inputRange: [0, MaxVideoLength - .7], 
+      const alpha = Animated.interpolateNode( (VideoLength + Delta), {
+        inputRange: [0, MaxVideoLength], 
         
         outputRange: [Math.PI * 2, 0],
         extrapolate: Extrapolate.CLAMP
         
       })
-      
       const strokeDashoffset = multiply(alpha, radius)
       
+      // console.log(strokeDashoffset)
+      const strokeMarker = () => {
 
-
-
+      } 
 
 
     return (
       
-<Camera ref ={ref => setCamera(ref)} style={{flex: 1, width: "100%", justifyContent: 'space-between'}} video={true}
-  audio={true} isActive={true} device={CameraOrientation}  >
+<Camera ref ={ref => setCamera(ref)} style={{flex: 1, width: "100%", justifyContent: 'space-between'}} zoom={1.2} video={true}
+  audio={true} isActive={true} device={CameraOrientation}  > 
     <StatusBar style='light'></StatusBar>
     <SafeAreaView style={{flex: 1, width: "100%", justifyContent: 'space-between'}}>
 
@@ -325,7 +358,7 @@ function VisionCameraScreen({Recording, setRecording}) {
                       marginRight: 30
                       }}
                   onPress={() => navigation.navigate("Notes")}>
-                <FontAwesomeIcon icon={faNoteSticky} size={24}color="#FFF"></FontAwesomeIcon>
+                <FontAwesomeIcon icon={faPenClip} size={22} color="#FFF"></FontAwesomeIcon>
 
                 </TouchableOpacity>
               </View>
@@ -333,7 +366,11 @@ function VisionCameraScreen({Recording, setRecording}) {
 
               <View style={{width: 120, height: 120, justifyContent: 'center', alignItems: 'center', backgroundColor: 'transparent'}}>
             
-              <Svg rotation="90deg" width={size} height={size}><AnimatedCircle strokeLinecap={'round'} stroke="#2162cc"  fill="none" cy={size/2} cx={size/2} r={radius}   strokeDasharray={`${circumference} ${circumference}`} {...{strokeWidth, strokeDashoffset}}></AnimatedCircle></Svg>
+              <Svg style={{transform:[{rotateZ: "270deg"}]}} width={size} height={size}>
+                <AnimatedCircle strokeLinecap='round' stroke="#00468B" fill="none" cy={size/2} cx={size/2} r={radius} strokeDashoffset={strokeDashoffset}  strokeDasharray={`${circumference} ${circumference}`} {...{strokeWidth}}></AnimatedCircle>
+                      {/* <Path d={`M64 64 L75 75`} fill="none" stroke="red"/> */}
+                       
+              </Svg>
 
               <Animated.View                 
               style={[cameraButtonStyle, {backgroundColor: 'transparent', position: 'absolute',borderColor: 'white', borderRadius: 100, opacity: shutterOpacity}]}>
@@ -405,7 +442,24 @@ function VisionCameraScreen({Recording, setRecording}) {
 export default VisionCameraScreen
 
 const styles = StyleSheet.create({
-    exampleStyle:  { flex: 1, alignItems: 'center', justifyContent: 'center' }
-
+    exampleStyle:  { flex: 1, alignItems: 'center', justifyContent: 'center' },
+    press: {
+      backgroundColor: "#00468B", 
+      width: "89%", 
+      marginTop: 22, 
+      marginLeft: 20,
+      height: 66, 
+      display: "flex", 
+      flexDirection: "row", 
+      alignItems: "center", 
+      justifyContent: "space-between", 
+      padding: 20, 
+      borderRadius: 5,
+      shadowOffset: {
+          width: 0, 
+          height: 2
+      },
+      shadowOpacity: 0.1
+  }
 
 })
