@@ -25,7 +25,7 @@ if (trackingStatus === 'authorized' || trackingStatus === 'unavailable') {
 
 
     nativeAdViewRef.current?.loadAd();
-    console.log(nativeAdViewRef.current.ad.aspectRato) 
+    
   }, [])
 
   return (

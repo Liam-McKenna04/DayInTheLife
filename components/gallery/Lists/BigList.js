@@ -8,7 +8,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 function compareLuxonDates(a, b) {
     return a.toMillis() - b.toMillis()
-  }
+  } 
 
 const BigList = ({navigation, dayObjects, objectCount}) => {
     //editing objects in list
@@ -18,12 +18,12 @@ const BigList = ({navigation, dayObjects, objectCount}) => {
     dayObjects.sort((a, b) => compareLuxonDates(DateTime.fromISO(b.day), DateTime.fromISO(a.day)))
     let allObjects = []
     if (objectCount === 0) {
-            const specialObject = {specialObject: true, text:"Preview Day", onClick: ()=> {navigation.navigate('CameraNav')}, id: uuidv4()}
+            const specialObject = {specialObject: true, text:"Example day", onClick: ()=> {navigation.navigate('CameraNav')}, id: uuidv4()}
             const adObject = {ad: true, id: uuidv4()}
-            allObjects = [...dayObjects, specialObject, adObject]
+            allObjects = [...dayObjects, adObject]
     } else if (dayObjects.length === 0) {
         if (objectCount < 3) {
-            const specialObject = {specialObject: true, text:"Rate on App Store",onClick: ()=> {}, id: uuidv4()}
+            const specialObject = {specialObject: true, text:"Share with your friends",onClick: ()=> {}}
             const adObject = {ad: true, id: uuidv4()}
 
             allObjects = [...dayObjects, specialObject, adObject]

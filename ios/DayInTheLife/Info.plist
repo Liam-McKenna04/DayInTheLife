@@ -97,6 +97,9 @@
     <string>Light</string>
     <key>UIViewControllerBasedStatusBarAppearance</key>
     <false/>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>DayInTheLife needs access to your Camera Roll</string>
+    
   </dict>
  
 </plist>

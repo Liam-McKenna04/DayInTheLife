@@ -1,11 +1,13 @@
 import React from 'react';
-import {View, StyleSheet, Text} from 'react-native';
+import {View, StyleSheet, Text, TouchableOpacity} from 'react-native';
 import { FontAwesome } from '@expo/vector-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 
-import { faAnglesUp, faAngleRight, faShare, faUserGroup, faComment } from '@fortawesome/free-solid-svg-icons';
+import { faAnglesUp, faAngleRight, faShare, faUserGroup, faComment, faArrowUpFromBracket, faArrowUpRightFromSquare } from '@fortawesome/free-solid-svg-icons';
+import { useNavigation } from '@react-navigation/native';
 
-const DateHeader = ({navigation, headerContent}) => {
+const DateHeader = ({headerContent, setShareVisable}) => {
+    const navigation = useNavigation()
     return (
         <View style={{alignItems: 'center'}}>
             <View style={styles.header}>
@@ -15,8 +17,20 @@ const DateHeader = ({navigation, headerContent}) => {
                     
                 
                 
-                <Text style={{fontFamily: 'Sora_600SemiBold', color: "#1A1A1A", fontSize: 26, textAlign: 'left', top: 2, left: -24}}>{headerContent}</Text>
-                <View></View>
+                <Text style={{fontFamily: 'Sora_600SemiBold', color: "#1A1A1A", fontSize: 26, textAlign: 'left', top: 2}}>{headerContent}</Text>
+                
+                <TouchableOpacity
+                style={{
+
+                alignItems:'center',
+                justifyContent:'center',
+                width:40,
+                height:40,
+                
+              }} onPress={()=> {setShareVisable(true)}}>
+                <FontAwesomeIcon icon={faArrowUpRightFromSquare} size={22}></FontAwesomeIcon>
+
+        </TouchableOpacity>
             </View>
             <View style={{ borderBottomColor: '#888888', borderBottomWidth: 1, width: "95%", marginTop: 10}}/>
 

@@ -1,20 +1,27 @@
 import React from 'react';
-import { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, Pressable, TouchableOpacity } from 'react-native';
+import { useState, useEffect, useContext} from 'react';
+import { StyleSheet, Text, View, Pressable, TouchableOpacity, Platform, PermissionsAndroid ,Image , Dimensions} from 'react-native';
 import { Camera, useCameraDevices } from 'react-native-vision-camera';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import * as FileSystem from 'expo-file-system';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { faRotate, faNoteSticky, faCircleCheck, faArrowRotateLeft, faPen, faPenClip } from '@fortawesome/free-solid-svg-icons';
+import { faRotate, faNoteSticky, faCircleCheck, faArrowRotateLeft, faPen, faPenClip, faPlus } from '@fortawesome/free-solid-svg-icons';
 import {v4 as uuid} from 'uuid'
 import { useNavigation } from '@react-navigation/native';
-
+import Swiper from 'react-native-swiper'
+import CameraRoll from '@react-native-community/cameraroll'
 import Svg, {Circle, Path} from 'react-native-svg'
 import { Linking } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons'
-import {  FFprobeKit  } from 'ffmpeg-kit-react-native';
+import {  FFmpegKit, FFprobeKit  } from 'ffmpeg-kit-react-native';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
+import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
+import LoadingImage from "../../assets/images/logoTrans.png"
+import AppContext from '../../AppContext';
+import { useFocusEffect } from '@react-navigation/native';
+
+
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -24,20 +31,34 @@ import Animated, {
   multiply,
   Clock,
   Extrapolate,
+  useDerivedValue,
+  withRepeat,
 } from 'react-native-reanimated'
-const AnimatedCircle = Animated.createAnimatedComponent(Circle)
 
+const AnimatedCircle = Animated.createAnimatedComponent(Circle)
+const windowWidth = Dimensions.get('window').width
+const windowHeight = Dimensions.get('window').height
 var RNFS = require('react-native-fs')
 
+async function hasAndroidPermission() {
+  const permission = PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE;
 
+  const hasPermission = await PermissionsAndroid.check(permission);
+  if (hasPermission) {
+    return true;
+  }
+
+  const status = await PermissionsAndroid.request(permission);
+  return status === 'granted';
+}
 
   
 
 
-function VisionCameraScreen({Recording, setRecording}) {
+function VisionCameraScreen({Recording, setRecording, swiperRef}) {
 
-
- 
+const [rotateValue, setRotateValue] = useState(new Animated.Value(0));
+// First set up animation 
 
   //Timer
   const [seconds, setSeconds] = useState(0);
@@ -65,8 +86,11 @@ function VisionCameraScreen({Recording, setRecording}) {
           stopVideo()
           setIsActive(false)
         }
-        
+        if (delta > 600) {
           setDelta(delta/1000)
+        }else {
+          setDelta(0)
+        }
         
       }, 0);
     } else if (!isActive && seconds !== 0) {
@@ -77,13 +101,22 @@ function VisionCameraScreen({Recording, setRecording}) {
   }, [isActive, seconds]);
 
 
+  const rotationProgress = useSharedValue(0)
+  
+  const rotationStyle  = useAnimatedStyle(()=> {
+    return {
+      transform: [{rotate: rotationProgress.value+"deg"}]
+    }
+  }, [])
 
 
+  const rotateFunction = () => {
+    rotationProgress.value = withRepeat(withTiming(360, {duration: 5000, easing: Easing.linear}), -1)
+  }
 
-
-
-
-
+  useEffect(() => {
+    rotateFunction()
+  }, []);
 
 
 
@@ -105,12 +138,16 @@ function VisionCameraScreen({Recording, setRecording}) {
     const [MaxVideoLength, setMaxVideoLength] = useState(60);
     const [Flash, setFlash] = useState("");
     const [Locked, setLocked] = useState(false);
-  
+    const [Previewable, setPreviewable] = useState(true);
     //Video Settings
     const [VideoList, setVideoList] = useState([]);
     const [Loaded, setLoaded] = useState(false);
     const AnimatedCameraButton = Animated.createAnimatedComponent(Pressable)
+    const [ShortPressable, setShortPressable] = useState(true)
+    let photo = null
     // console.log(VideoList)
+    const {DayObjects, setDayObjects} = useContext(AppContext)
+
 
     const cameraButtonStyle = useAnimatedStyle(() => {
       return {
@@ -124,6 +161,7 @@ function VisionCameraScreen({Recording, setRecording}) {
 
 
     useEffect(async() => {
+        
       const vidSegsString = await AsyncStorage.getItem('videoSegments')
     const vidSegs = await JSON.parse(vidSegsString)
     
@@ -131,12 +169,35 @@ function VisionCameraScreen({Recording, setRecording}) {
       await AsyncStorage.setItem('videoSegments', "[]")
       setVideoList([])
     }else {
-    for (let i = vidSegs.length - 1; i > -1; i--){
-    let response = await FileSystem.getInfoAsync(vidSegs[i])
-    if (response.exists === false){
-      vidSegs.splice(i, 1)
+    // for (let i = vidSegs.length - 1; i > -1; i--){
+    // let response = await FileSystem.getInfoAsync(vidSegs[i])
+    // if (response.exists === false){
+    //   vidSegs.splice(i, 1)
+    // }
+    // }
+    setVideoList(vidSegs)
     }
-    }
+     
+  }, [DayObjects]);
+
+
+    useEffect(async() => {
+      const vidSegsString = await AsyncStorage.getItem('videoSegments')
+    const vidSegs = await JSON.parse(vidSegsString)
+    // console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAa")
+    if (vidSegs === null) {
+      console.log("null")
+      await AsyncStorage.setItem('videoSegments', "[]")
+      setVideoList([])
+    }else {
+    // for (let i = vidSegs.length - 1; i > -1; i--){
+    // let response = await FileSystem.getInfoAsync(vidSegs[i])
+    // if (response.exists === false){
+    //   vidSegs.splice(i, 1)
+    // }
+    // }
+    console.log("VIDSEGS " + vidSegs) 
+
     setVideoList(vidSegs)
     }
     setLoaded(true)
@@ -176,23 +237,23 @@ function VisionCameraScreen({Recording, setRecording}) {
         const lengths = []
         for (item of VideoList) {
           
-          await FFprobeKit.execute(`-v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 ${item}`).then(async (session) => {
-            let output = await session.getOutput()
-            lengths.push(Number(output))
-          })
-        }
-        let sum = lengths.reduce((partialSum, a) => partialSum + a, 0);
-        sum = sum || 0
-       setDelta(0)
-      setVideoLength(sum)
-      setLengthList(lengths)
-      
-        
+          lengths.push(item.duration)
+ 
 
+
+
+
+        }
+        const sum = lengths.reduce((a, b) => a + b, 0)
+        setVideoLength(sum)
+        setDelta(0)
         await AsyncStorage.setItem('videoSegments', JSON.stringify(VideoList))
+        console.log(VideoList)
+
+
+        // await FFprobeKit.execute(`-v error -show_forma t -show_streams ${VideoList[0].uri}`)
         
       }, [VideoList]);
-
 
 
 
@@ -227,6 +288,44 @@ function VisionCameraScreen({Recording, setRecording}) {
       );
     }
     
+    const capturePhoto = async(photo, imported, metadata) => {
+      setShortPressable(false)
+      let picType = "photo"
+      if (imported) {
+        picType = "photoImported"
+      }
+      console.log("infunc " + photo.path)
+      const photoPath = photo
+      const photoID = uuid()
+      const length = 2
+      let fileEnd = "mp4" // check if this is right on android before releasing
+      if (Platform.OS === 'ios') {
+        fileEnd = "mov"
+      }
+     
+      const endingTag = "DayInTheLife/Today/" + photoID + "." + fileEnd
+      const newURI = FileSystem.documentDirectory + "DayInTheLife/Today/" + photoID + "." + fileEnd
+      const cacheURI = FileSystem.cacheDirectory + photoID + "." + fileEnd
+      const cacheURI2 = FileSystem.cacheDirectory + photoID + "000" +"." + fileEnd
+      if (imported && metadata.height > metadata.width) {await FFmpegKit.execute(`-y -i ${photoPath} -vf "transpose=1" ${photoPath} -loglevel quiet`)} 
+
+      if (!imported) {
+        await FFmpegKit.execute(`-y -i ${photoPath} -vf "transpose=1" ${photoPath} -loglevel quiet`)
+      }
+      await FFmpegKit.execute(`-framerate 1/2 -i ${photoPath} -c:v libx264 -t 2 -pix_fmt yuv420p -vf "scale=1080:1920:force_original_aspect_ratio=decrease,pad=1080:1920:-1:-1:color=black" ${cacheURI}`)
+      await FFmpegKit.execute(` -f lavfi -i anullsrc=channel_layout=stereo:sample_rate=44100 -i ${cacheURI} -c:v copy -c:a aac -shortest  ${cacheURI2}`)
+      await FFmpegKit.execute(`-i ${cacheURI2} -map 0:0 -map 0:1 -ac 2 -c:a aac -ar 48000 -vf format=yuv420p,scale=1080x1920,yadif -video_track_timescale 600 -c:v libx264 ${newURI}`)
+      console.log(metadata)
+      
+      console.log('aaa')
+        // await FileSystem.deleteAsync(photoPath)
+        setVideoList([...VideoList, {uri: endingTag, type: picType, duration: 2}])
+      console.log(endingTag) 
+
+     
+      setShortPressable(true)
+      
+    }
 
       const takeVideo =  async() => {
             console.log("Maxvidlength: " + MaxVideoLength)
@@ -237,32 +336,66 @@ function VisionCameraScreen({Recording, setRecording}) {
             }
             setIsActive(true)
             setRecording(true)
-            // clearTimeout(timeoutID)
-            // const timeoutID = setTimeout(() => stopVideo(), (MaxVideoLength - VideoLength)* 1000)
-            camera.startRecording({onRecordingFinished: async(video)=> {
-                setRecording(false)
-                
-                const myUUID = uuid()
-                const fileEnd = await video.path.split('.').pop()
-                const newURI = FileSystem.documentDirectory + "DayInTheLife/Today/" + myUUID + "." + fileEnd
-                const x2 = await RNFS.moveFile(video.path, newURI)
-                
-                setRecord(newURI);
-                setVideoList([...VideoList, newURI])
-                
-                reset()
-
-
+            const startTime = new Date().getTime()            
             
-            } , onRecordingError: (err) => {console.log(err) 
+           await camera.startRecording({videoCodec: 'h264', onRecordingFinished: async(video)=> {
+
+              const delta = new Date().getTime() - startTime
+              if (delta < 500) {
+                console.log('a')
               setDelta(0)
               reset()
-              
-            setRecording(false)}
-          })
-            
-            
+              photo = await camera.takePhoto({qualityPrioritization: 'speed'})
+            console.log("photo " + photo.path)
+            setRecording(false)
+            capturePhoto(photo.path, false, photo)
+            return
+              }
+              setRecording(false)
 
+
+
+                console.log(video)
+                const myUUID = uuid()
+                // const fileEnd = await video.path.split('.').pop()
+                let fileEnd = "mp4" // check if this is right on android before releasing
+                if (Platform.OS === 'ios') {
+                        fileEnd = "mov"
+                 }
+                const newURI =  "DayInTheLife/Today/" + myUUID + "." + fileEnd
+                // await FFmpegKit.execute(`-i ${video.path} -video_track_timescale 60000 ${newURI}`)
+                // await FFmpegKit.execute(`-i ${video.path} -preset ultrafast -video_track_timescale 30 ${newURI}`)
+
+                await RNFS.moveFile(video.path, FileSystem.documentDirectory + newURI)
+                
+                setRecord(newURI);
+                setVideoList([...VideoList, {uri: newURI, type: 'video', duration: video.duration}])
+                
+                reset()
+                // await FileSystem.deleteAsync(photo.path)
+
+
+            
+            } , onRecordingError: async(err) => {
+              console.log('a')
+              setDelta(0)
+              reset()
+              photo = await camera.takePhoto({qualityPrioritization: 'speed'})
+            console.log("photo " + photo.path)
+            setRecording(false)
+            capturePhoto(photo.path, false, photo)
+
+
+          
+          
+          }
+          }
+          
+          
+          )
+            
+          // reset()
+          // setDelta(0)
 
             
             
@@ -271,10 +404,15 @@ function VisionCameraScreen({Recording, setRecording}) {
         
       }
 
-      const stopVideo = () => {
+      const stopVideo = async() => {
           console.log("video length: "+ VideoLength)
+          
+        camera.stopRecording().catch(async()=>{ photo = await camera.takePhoto({qualityPrioritization: 'speed'})
+        console.log("photo aa" + photo.path)
+        capturePhoto(photo.path, false, photo)});
         
-        camera.stopRecording().catch(()=> console.log('err'));
+          reset()
+          setRecording(false)
       }
       
       const shutterOpacity = Recording ? .5 : 1
@@ -300,15 +438,17 @@ function VisionCameraScreen({Recording, setRecording}) {
       } 
 
 
-    return (
       
-<Camera ref ={ref => setCamera(ref)} style={{flex: 1, width: "100%", justifyContent: 'space-between'}} zoom={1.2} video={true}
-  audio={true} isActive={true} device={CameraOrientation}  > 
+
+
+    return (
+<Camera ref ={ref => setCamera(ref)} style={{flex: 1, width: "100%", justifyContent: 'space-between'}} zoom={1.1} video={true} photo={true} 
+  audio={true} isActive={true} device={CameraOrientation}> 
     <StatusBar style='light'></StatusBar>
     <SafeAreaView style={{flex: 1, width: "100%", justifyContent: 'space-between'}}>
 
       <View style={{justifyContent: "space-between", flexDirection: 'row', marginTop: 5, marginHorizontal: 25}}>
-        <TouchableOpacity
+        {!Recording?<TouchableOpacity
              style={{
 
               alignItems:'center',
@@ -320,8 +460,8 @@ function VisionCameraScreen({Recording, setRecording}) {
             }}
               onPress={() => navigation.navigate('GalleryNav')}>
         <FontAwesome name={"arrow-left"}  size={24} color="#FFF" />
-        </TouchableOpacity>
-            <TouchableOpacity 
+        </TouchableOpacity>: <View/>}
+            {!Recording?<TouchableOpacity 
             style={{
 
               alignItems:'center',
@@ -338,16 +478,17 @@ function VisionCameraScreen({Recording, setRecording}) {
                 : devices.back)}}
             >
                 <FontAwesomeIcon icon={faRotate} size={24}color="#FFF"></FontAwesomeIcon>
-            </TouchableOpacity>
+            </TouchableOpacity>: <View/>}
       </View>
 
 
 
 
-          <View style={{justifyContent: 'space-between', flexDirection: 'row', alignItems: 'center', marginBottom: 65}}>
+         { Previewable?<View style={{justifyContent: 'space-between', flexDirection: 'row', alignItems: 'center', marginBottom: 65}}>
             
-              <View style={{flex: 1, alignItems: 'flex-end'}}>
-                <TouchableOpacity style={{
+          <View style={{flexDirection: 'row', flex: 1, justifyContent: 'space-between'}}>
+            
+               { !Recording?<TouchableOpacity style={{
 
                       alignItems:'center',
                       justifyContent:'center',
@@ -355,12 +496,58 @@ function VisionCameraScreen({Recording, setRecording}) {
                       height:40,
                       backgroundColor:'rgba(0,0,0,0.2)',
                       borderRadius:50,
-                      marginRight: 30
+                      marginLeft: 30
                       }}
-                  onPress={() => navigation.navigate("Notes")}>
-                <FontAwesomeIcon icon={faPenClip} size={22} color="#FFF"></FontAwesomeIcon>
+                  onPress={async()=>{
+                    setPreviewable(false)
+                    console.log(MaxVideoLength-VideoLength)
+                    const result = await launchImageLibrary({mediaType: 'mixed'}).catch((err)=> {console.log(err)})
+                    if (result.didCancel) {
+                      setPreviewable(true)
+                    }
+                    if (result.assets){
+                    if (result.assets[0].duration > (MaxVideoLength - VideoLength)) {
+                      console.log("Too long")
+                      return
+                    }
+                    if (result.assets[0].type.includes('image')){
+                      capturePhoto(result.assets[0].uri, true, result.assets[0])
+                    } else if (result.assets[0].type.includes('video')){
+                      
+                      console.log(result.assets[0])
+                      console.log("------------------------")
+                      const myUuid = uuid()
+                      const fileEnd = await result.assets[0].fileName.split('.').pop()
+                      const newTag = "DayInTheLife/Today/" + myUuid + "." + fileEnd
+                      const newURI = FileSystem.documentDirectory + newTag
+                      
+                      await FFmpegKit.execute(`-i ${result.assets[0].uri} -preset ultrafast -vf format=yuv420p,scale=1080x1920 -video_track_timescale 600 ${newURI}`)
+                      // await RNFS.moveFile(result.assets[0].uri, newURI)
+                      
+                      setVideoList([...VideoList, {uri: newTag, type: "importedVideo", duration: result.assets[0].duration}])
+                    }
+                    console.log(result)
+                    setPreviewable(true)
 
-                </TouchableOpacity>
+                  }}}>
+                <FontAwesomeIcon icon={faPlus} size={22} color="#FFF"></FontAwesomeIcon>
+
+                </TouchableOpacity>: <View/>}
+                {!Recording?<TouchableOpacity style={{
+
+                alignItems:'center',
+                justifyContent:'center',
+                width:40,
+                height:40,
+                backgroundColor:'rgba(0,0,0,0.2)',
+                borderRadius:50,
+                marginRight: 20
+                }}
+                onPress={()=>{if (swiperRef.current) {swiperRef.current.scrollBy(1, true)}}}>
+                <FontAwesomeIcon icon={faPenClip} size={22} color="#FFF"></FontAwesomeIcon>
+                
+                </TouchableOpacity>: <View/>}
+                
               </View>
 
 
@@ -378,13 +565,13 @@ function VisionCameraScreen({Recording, setRecording}) {
               // onPress={}
               onPressIn={async() => {await takeVideo()}}
                 
-              onPressOut={async() => {stopVideo()}}
+              onPressOut={async()=> stopVideo()}
               
               // onLongPress={}
               // delayLongPress={}
 
             
-            style={{backgroundColor: 'transparent', height: 86, width: 86, borderRadius: 100}}>
+              style={ {backgroundColor: 'transparent',  borderRadius: 100, position: 'absolute', left: -20, right: -20, top: -20, bottom: -20}}>
 
                 </Pressable>
                 </Animated.View>
@@ -394,7 +581,7 @@ function VisionCameraScreen({Recording, setRecording}) {
               
 
               <View style={{flexDirection: 'row', flex: 1, justifyContent: 'space-between'}}>
-                {VideoList.length > 0? <TouchableOpacity style={{
+                {Previewable && VideoList.length > 0 && !Recording? <TouchableOpacity style={{
 
                           alignItems:'center',
                           justifyContent:'center',
@@ -406,17 +593,19 @@ function VisionCameraScreen({Recording, setRecording}) {
                           }}
                 
                 onPress={async() => {
+                  if (ShortPressable) {
+                  console.log(VideoList)
                   const uriToDelete = VideoList[VideoList.length - 1]
                   if (VideoList.length > 0){
                   setVideoList(VideoList.slice(0, -1))
                   }
-                  await FileSystem.deleteAsync(uriToDelete, {idempotent: true}).catch(()=> console.log('no more videos to delete :)'))
-                }}
+                  await FileSystem.deleteAsync(FileSystem.documentDirectory+uriToDelete, {idempotent: true}).catch(()=> console.log('no more videos to delete :)'))
+                 } }}
                 >
                 <FontAwesomeIcon icon={faArrowRotateLeft} size={24}color="#FFF"></FontAwesomeIcon>
                 </TouchableOpacity>: <View/>}
 
-                { VideoList.length > 0? 
+                { Previewable && VideoList.length > 0 && !Recording? 
                 <Pressable style={{
 
                   alignItems:'center',
@@ -427,16 +616,17 @@ function VisionCameraScreen({Recording, setRecording}) {
                   borderRadius:50,
                   marginRight: 30
 
-                  }} onPress={() => navigation.navigate('CameraPlayback')}>
+                  }} onPress={() => {if (ShortPressable) {navigation.navigate('PlaybackNav')} }}>
                    <FontAwesomeIcon icon={faCircleCheck} size={24}color="#FFF"></FontAwesomeIcon>
                 </Pressable>: <View/>
             }
               </View>
-          </View>
+          </View> : <View style={{justifyContent: 'center', flexDirection: 'row', alignItems: 'center', marginBottom: 65}}>
+            <Animated.Image style={[rotationStyle,{height: 100, width: 100}]} source={LoadingImage}></Animated.Image>
+            </View> }
             
     </SafeAreaView>
     </Camera>
-        
   )
 }
 export default VisionCameraScreen

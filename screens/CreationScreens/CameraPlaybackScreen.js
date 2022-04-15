@@ -14,9 +14,22 @@ import { useFocusEffect } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import {Slider} from '@miblanchard/react-native-slider';
-
-import { faRotate, faNoteSticky, faCircleCheck, faArrowRotateLeft, faPen, faPenClip, faEye, faPause, faVolumeMute, faPlay, faVolumeHigh } from '@fortawesome/free-solid-svg-icons';
+import { useNavigation } from '@react-navigation/native';
+import { DateTime } from 'luxon';
+import {v4 as uuid} from 'uuid'
+import {faPenToSquare, faRotate, faNoteSticky, faCircleCheck, faArrowRotateLeft, faPen, faPenClip, faEye, faPause, faVolumeMute, faPlay, faVolumeHigh, faMicrophone, faClapperboard } from '@fortawesome/free-solid-svg-icons';
 var RNFS = require('react-native-fs')
+
+
+const createThumbnail = async(videoURI) => {
+
+  const imageUuid = uuid()
+  const outputfilepath = "DayInTheLife/Days/" + imageUuid + ".png"
+  const command = `-i ${videoURI} -ss 00:00:01.000 -vframes 1 ${FileSystem.documentDirectory + outputfilepath}`
+   await FFmpegKit.execute(command)
+  return outputfilepath
+}  
+
 
 const writeTextFileWithAllAudioFiles = async (filePaths) => {
   var fileContent = ''
@@ -25,8 +38,9 @@ const writeTextFileWithAllAudioFiles = async (filePaths) => {
   if (exists) {
   await RNFS.unlink(RNFS.DocumentDirectoryPath + '/audioList.txt').catch((e)=> console.log("f"))
   }
-  filePaths.forEach(path => {
+  filePaths.forEach(item => {
     // console.log(path)
+    const path = FileSystem.documentDirectory + item.uri
     fileContent += `file '${path}'\n`
   });
   const filePath =  RNFS.DocumentDirectoryPath + '/audioList.txt'
@@ -53,7 +67,6 @@ const VideoPlayer = ({navigation, thumbnail, VideoURI, VideoPlaying, videoURILis
       };
     }, [])
   );
-  
 
     return (
       <View style={{flex: 1, backgroundColor: 'black', alignItems: 'center'}}>
@@ -62,7 +75,7 @@ const VideoPlayer = ({navigation, thumbnail, VideoURI, VideoPlaying, videoURILis
         ref={video}
         style={{height: '100%', aspectRatio: 9/16, position: 'absolute', display: 'flex'}}
         source={{
-          uri: VideoURI,
+          uri: FileSystem.documentDirectory + VideoURI,
         }}
         useNativeControls={false}
         resizeMode="cover"
@@ -149,22 +162,27 @@ const buttonStyle = (EditorStatus, setting) => {
 }
 
 
-const CameraPlaybackScreen = ({navigation}) => {
+const CameraPlaybackScreen = () => {
   const [VideoList , setVideoList] = useState([])
   const [VideoURI, setVideoURI] = useState("");
   const [Loaded, setLoaded] = useState(false)
-  const [EditorStatus, setEditorStatus] = useState("Preview");
+  const navigation = useNavigation()
+  const [EditorStatus, setEditorStatus] = useState("none");
   useEffect(async() => {
     const vidSegsString = await AsyncStorage.getItem('videoSegments')
     const vidSegs = await JSON.parse(vidSegsString)
-    // console.log(vidSegs)
+    
+    console.log(vidSegs)
     setVideoList(vidSegs)
     setLoaded(true)
     
     
     }, [])
     
-
+useEffect(() => {
+  console.log("VIDEOURI CHANGED")
+  console.log(VideoURI)
+}, [VideoURI]);
     
     
 
@@ -172,6 +190,7 @@ const CameraPlaybackScreen = ({navigation}) => {
 
     useEffect(async() => {
       if (VideoList.length != 0 || Loaded){
+        
         let listlength = VideoList.length
       let StringToText = ""
       let FilterString = ""
@@ -184,21 +203,30 @@ const CameraPlaybackScreen = ({navigation}) => {
       
     }
       const textfile = await writeTextFileWithAllAudioFiles(VideoList)
-      const endingTAG = VideoList[0]
+      console.log(VideoList)
+      const endingTAG = VideoList[0].uri
       const endingSTR = endingTAG.split('.').pop()
-      const outputFile = FileSystem.documentDirectory + "DayInTheLife/TodayFinished/" + "finished" + "." + endingSTR
+      const outputTAG = "DayInTheLife/TodayFinished/" + "finished" + "." + endingSTR
+      const outputFile = FileSystem.documentDirectory + outputTAG
 
-    FileSystem.deleteAsync(outputFile, {idempotent: true})
-      // await FFmpegKit.execute(`${StringToText} -filter_complex "${FilterString} concat=n=${listlength}:v=1:a=1 [v] [a]" -map "[v]" -map "[a]" ${outputFile}`).then(async(session)=> {
+      FileSystem.deleteAsync(outputFile, {idempotent: true})
+      // await FFmpegKit.execute(`${StringToText} -r 25 -filter_complex "${FilterString} concat=n=${listlength}:v=1:a=1 [v] [a]" -map "[v]" -map "[a]" ${outputFile}`).then(async(session)=> {
       //   setVideoURI(outputFile)
+      //   console.log('----------------------------------------------------')
       //   console.log(outputFile)
       
       // })
     
     const command = `-f concat -safe 0 -i ${textfile} -c copy ${outputFile} -loglevel quiet`
-
+    
+      
+     // await FFprobeKit.execute(`-v error -select_streams v:0 -show_entries stream=codec_name -of default=noprint_wrappers=1:nokey=1 ${VideoList[1]}`)
+    // await FFprobeKit.execute(`-v error -show_entries stream=width,height -of default=noprint_wrappers=1 ${VideoList[1]}`)
+    // await FFprobeKit.execute(`-v error -select_streams v:0 -show_entries stream=avg_frame_rate -of default=noprint_wrappers=1:nokey=1 ${VideoList[0]}`) 
+    
+    
     const x = await FFmpegKit.execute(command).then(() => {
-      setVideoURI(outputFile)
+      setVideoURI(outputTAG)
       
     }
 
@@ -226,27 +254,38 @@ const CameraPlaybackScreen = ({navigation}) => {
               backgroundColor:'rgba(0,0,0,0.2)',
               borderRadius:50,
             }}
-              onPress={() => navigation.navigate('Camera')}>
+              onPress={() => navigation.navigate('Nav')}>
         <FontAwesome name={"arrow-left"}  size={24} color="#FFF" />
 
         </TouchableOpacity>
         <View>
         <TouchableOpacity
              style={buttonStyle(EditorStatus, "Preview")}
-              onPress={() =>{setEditorStatus("Preview")}}>
+              onPress={async() =>{
+                // setEditorStatus("none")
+                // const travelURI = VideoURI
+                // const todaySTR =  await AsyncStorage.getItem('today')
+                // const today = await JSON.parse(todaySTR)
+                // const notes = today.notes
+                // const thumbnail =  FileSystem.documentDirectory +  await createThumbnail(FileSystem.documentDirectory + travelURI)
+
+                // const dayObject = {day: DateTime.now(), video: travelURI, thumbnail: thumbnail, notes: notes, id: uuid()}
+                // navigation.navigate("Preview", {dayObject})
+              
+              }}>
                 <FontAwesomeIcon icon={faEye} size={22} color={EditorStatus === "Preview" ?"#000":"#FFF" }></FontAwesomeIcon>
 
         </TouchableOpacity>
         <TouchableOpacity
-             style={buttonStyle(EditorStatus, "Edit")}
-              onPress={() =>{setEditorStatus("Edit")}}>
-                <FontAwesomeIcon icon={faEye} size={22} color={EditorStatus === "Edit" ?"#000":"#FFF" }></FontAwesomeIcon>
+             style={buttonStyle(EditorStatus, "Voiceover")}
+             onPress={() =>{if (EditorStatus === "Voiceover"){setEditorStatus("none")} else { setEditorStatus("Voiceover")}}}>
+                <FontAwesomeIcon icon={faMicrophone} size={22} color={EditorStatus === "Voiceover" ?"#000":"#FFF" }></FontAwesomeIcon>
 
         </TouchableOpacity>
         <TouchableOpacity
-             style={buttonStyle(EditorStatus, "hee")}
-              onPress={() =>{setEditorStatus("hee")}}>
-                <FontAwesomeIcon icon={faEye} size={22} color={EditorStatus === "hee" ?"#000":"#FFF" }></FontAwesomeIcon>
+             style={buttonStyle(EditorStatus, "Edit")}
+             onPress={() =>{if (EditorStatus === "Edit"){setEditorStatus("none")} else { setEditorStatus("Edit")}}}>
+                <FontAwesomeIcon icon={faClapperboard} size={20} color={EditorStatus === "Edit" ?"#000":"#FFF" }></FontAwesomeIcon>
 
         </TouchableOpacity>
         
@@ -254,11 +293,7 @@ const CameraPlaybackScreen = ({navigation}) => {
         </View>
         </View>
         {VideoURI.length > 0 ? <VideoPlayer setVideoList={setVideoList} navigation={navigation} VideoURI={VideoURI} videoURIList={VideoList} VideoPlaying={true}/>: <View/>}
-        {/* {EditorStatus !== "Preview"? <LinearGradient
-                         style={{height: '30%', width: '100%', backgroundColor: 'transparent', position: 'absolute', zIndex: 1, bottom: 0}}
-                             colors={['rgba(0,0,0, 0.8)','rgba(0,0,0, 0) ']}
-                             start={{ x: 1, y: 0.9 }}
-                             end={{ x: 1, y:0}}/> : <View/>} */}
+        
         
 
 

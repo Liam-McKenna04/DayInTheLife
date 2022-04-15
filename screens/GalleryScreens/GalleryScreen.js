@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, Pressable, ScrollView, TouchableOpacity, Button } from 'react-native';
 import BigList from '../../components/gallery/Lists/BigList';
@@ -13,7 +13,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import * as FileSystem from 'expo-file-system';
-
+import AppContext from '../../AppContext';
 
 function groupBy(collection, returnFunction) {
     var i = 0, val, index,
@@ -31,10 +31,11 @@ function groupBy(collection, returnFunction) {
     }
     return result;
 }
-
+ 
 // var obj = groupBy(list, "group");
 
-function GalleryScreen({DayObjects, setDayObjects}) {
+function GalleryScreen() {
+    const {DayObjects, setDayObjects} = useContext(AppContext)
     const navigation = useNavigation()
     const insets = useSafeAreaInsets();
     // const [DayObjects, setDayObjects] = useState([]);

@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Animated, ScrollView , Image, Pressable, Modal} from 'react-native'
+import { StyleSheet, Text, View, Animated, ScrollView , Image, Pressable, Modal, TouchableOpacity} from 'react-native'
 import {Video, AVPlaybackStatus} from 'expo-av'
 import Swipeable from 'react-native-gesture-handler/Swipeable';
 
@@ -10,28 +10,53 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import StaticNoteComponent from './Items/StaticNoteComponent';
 import backgroundImage from '../../assets/images/backgroundimage.png'
 import { DateTime } from 'luxon';
+import { SharedElement } from 'react-navigation-shared-element';
+import { useFocusEffect } from '@react-navigation/native';
+import { InteractionManager } from 'react-native';
+import * as FileSystem from 'expo-file-system';
+
 const HEADER_HEIGHT = 663;
 // await Audio.setAudioModeAsync({ playsInSilentModeIOS: true });
 // const playbackObject = new Audio.Sound();
 
 
-const VideoPlayer = ({thumbnail, video, VideoPlaying}) => { 
+const VideoPlayer = ({thumbnail, video, VideoPlaying, id}) => { 
+  const [Loaded, setLoaded] = useState(false);
+  useFocusEffect(
+    React.useCallback(() => {
+      // Do something when the screen is focused
+      const task = InteractionManager.runAfterInteractions(() => {
+        // Expensive task
+       setLoaded(true)
+      });
+        return () => {
+        // setLoaded(false)
+      };
+    }, [])
+  );
   const vidRef = useRef(null)
   const [status, setStatus] = useState({});
  
       return (
       
-        <View thumbnail={thumbnail} style={{flex: 1, position: 'relative', top: 0, bottom: 0, left: 0, right: 0}}>
-            <Video  style={{flex: 1, height: '100%', width: '100%', resizeMode: 'cover', borderRadius: 10, backgroundColor: 'white'}} 
-                    ref={vidRef} source={{uri: video}}
+        <View style={{flex: 1}}>
+              {Loaded?<Video  style={{resizeMode: 'cover', borderRadius: 10, backgroundColor: 'white', position: 'absolute',
+              
+            zIndex: 1, top: 0, bottom: 0, left: 0, right: 0, backgroundColor: 'transparent'
+            }} 
+                    ref={vidRef} source={{uri: FileSystem.documentDirectory + video}}
+                    
                     // useNativeControls
                     resizeMode='cover'
-                    onPlaybackStatusUpdate={status => setStatus(() => status)}
+                    // onPlaybackStatusUpdate={status => setStatus(() => status)}
                     isLooping
                     shouldPlay={VideoPlaying}
+                    thumbnail={FileSystem.documentDirectory + thumbnail}
+
                     
 
-                    />
+                    />:<View/>}
+                 <SharedElement id={id}><Image source={{uri: FileSystem.documentDirectory + thumbnail}} style={{height: "100%", borderRadius: 10}}></Image></SharedElement>
 
 
       </View>
@@ -42,7 +67,7 @@ const VideoPlayer = ({thumbnail, video, VideoPlaying}) => {
 
 
 
-const AnimatedImageHeader = ({animatedValue, thumbnail, video, VideoClickHandler, VideoPlaying}) => {
+const AnimatedImageHeader = ({animatedValue, thumbnail, video, VideoClickHandler, VideoPlaying, id}) => {
     // const insets = useSafeAreaInsets();
     const headerHeight = animatedValue.interpolate({
         inputRange: [0, HEADER_HEIGHT - 185],
@@ -70,11 +95,10 @@ const AnimatedImageHeader = ({animatedValue, thumbnail, video, VideoClickHandler
         pointerEvents="none"
         >
         <View></View>
-        
+
         <Pressable  
 
           style={{height: '90%', width: '90%', position: 'relative',borderRadius: 10, shadowOffset: {width: 2, height: 2},shadowOpacity: 0.1,shadowRadius: 10}} 
-            thumbnail={thumbnail}
             onPress={() => {
               VideoClickHandler()
               
@@ -83,7 +107,7 @@ const AnimatedImageHeader = ({animatedValue, thumbnail, video, VideoClickHandler
             
             >
           
-          <VideoPlayer VideoPlaying={VideoPlaying} thumbnail={thumbnail} video={video}/>
+          <VideoPlayer id={id} VideoPlaying={VideoPlaying} thumbnail={thumbnail} video={video}/>
         </Pressable>
         <View style={{borderBottomColor: '#888888', borderBottomWidth: 1, width: "80%"}}/>
 
@@ -125,7 +149,7 @@ const DayScrollViewComponent = ({navigation, dayObject}) => {
   return (
     <SafeAreaProvider style={{flex: 1}}>
            
-            <AnimatedImageHeader VideoPlaying={VideoPlaying} VideoClickHandler={VideoClickHandler} thumbnail={dayObject.thumbnail} video={dayObject.video} animatedValue={offset} />
+            <AnimatedImageHeader id={dayObject.id} VideoPlaying={VideoPlaying} VideoClickHandler={VideoClickHandler} thumbnail={dayObject.thumbnail} video={dayObject.video} animatedValue={offset} />
             <ScrollView 
             
               NoteClickHandler={NoteClickHandler}

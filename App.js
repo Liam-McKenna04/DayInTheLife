@@ -24,6 +24,7 @@ import { DateTime } from 'luxon';
 import Midnight from 'react-native-midnight';
 import { LogBox } from 'react-native';
 import { FFmpegKit  } from 'ffmpeg-kit-react-native';
+import AppContext from './AppContext';
 var RNFS = require('react-native-fs')
  
 const RootStack = createMaterialTopTabNavigator();
@@ -31,8 +32,9 @@ const RootStack = createMaterialTopTabNavigator();
 const writeTextFileWithAllAudioFiles = async (filePaths) => {
   var fileContent = ''
   await RNFS.unlink(RNFS.DocumentDirectoryPath + '/audioList.txt', {idempotent: true})
-  filePaths.forEach(path => {
+  filePaths.forEach(item => {
     // console.log(path)
+    const path = item.uri
     fileContent += `file '${path}'\n`
   });
   const filePath =  RNFS.DocumentDirectoryPath + '/audioList.txt'
@@ -51,6 +53,7 @@ const today = todaySTR != null ? JSON.parse(todaySTR) : []
 console.log(today)
 
 const vidSegsString = await AsyncStorage.getItem('videoSegments')
+
 if (vidSegsString == null) {
   console.log("No value previously stored")
 } else {
@@ -61,11 +64,11 @@ if (vidSegs.length === 0) {
   //video exists
 console.log('videos')
 const myUuid = uuid()
-const endingSTR = vidSegs[0].split('.').pop()
+const endingSTR = vidSegs[0].uri.split('.').pop()
 const inputFile = FileSystem.documentDirectory + "DayInTheLife/TodayFinished/" + "finished" + "." + endingSTR
 const inputFileInfo = await FileSystem.getInfoAsync(inputFile)
 console.log("finished file exists " + inputFileInfo.exists)  
-const outputFile = FileSystem.documentDirectory + "DayInTheLife/Days/" + myUuid + "." + endingSTR
+const outputFile = "DayInTheLife/Days/" + myUuid + "." + endingSTR
 finishedinfo = await FileSystem.getInfoAsync(inputFile)
 if (!finishedinfo.exists) {
   const vidSegsString = await AsyncStorage.getItem('videoSegments')
@@ -80,7 +83,7 @@ const thumbnail = await createThumbnail(inputFile)
 console.log(finishedinfo.exists)
 
 
-await FileSystem.moveAsync({from: inputFile, to: outputFile})
+await FileSystem.moveAsync({from: inputFile, to: FileSystem.documentDirectory + outputFile})
 today.video = outputFile
 
  
@@ -105,7 +108,7 @@ await FileSystem.deleteAsync(FileSystem.documentDirectory + "DayInTheLife/Today"
 await FileSystem.makeDirectoryAsync(FileSystem.documentDirectory + "DayInTheLife/Today")
 
 //Create new today item
-const emptyday = JSON.stringify({day: DateTime.now(), video: "", thumbnail: "", notes: []})
+const emptyday = JSON.stringify({day: DateTime.now(), video: "", thumbnail: "", notes: [], id: uuid()})
 await AsyncStorage.setItem('today', emptyday)
 
 // console.log(today)
@@ -117,7 +120,7 @@ if ((today.notes.length > 0) || (today.thumbnail.length > 0)) {
   console.log(today.thumbnail.length)
 if (PastDays === null) {
 const stringToday = JSON.stringify([today])
-await AsyncStorage.setItem('PastDays', stringToday )
+await AsyncStorage.setItem('PastDays', stringToday)
 } else {
   
   PastDays.push(today)
@@ -134,8 +137,8 @@ setDayObjects(PastDays)
 
 const createThumbnail = async(videoURI) => {
   const imageUuid = uuid()
-  const outputfilepath = FileSystem.documentDirectory + "DayInTheLife/Days/" + imageUuid + ".png"
-  const command = `-i ${videoURI} -ss 00:00:01.000 -vframes 1 ${outputfilepath}`
+  const outputfilepath = "DayInTheLife/Days/" + imageUuid + ".png"
+  const command = `-i ${videoURI} -vframes 1 ${FileSystem.documentDirectory + outputfilepath}`
    await FFmpegKit.execute(command)
   return outputfilepath
 }  
@@ -183,7 +186,6 @@ export default function App() {
       // }
       await CreateToday()
       today = await GetToday()
-      
       // console.log(+DateTime.fromISO(today.day).startOf('day') == +DateTime.now().startOf("day"))
       if (+DateTime.fromISO(today.day).startOf("day") === +DateTime.now().startOf("day")) {
         console.log('x')
@@ -197,6 +199,7 @@ export default function App() {
         console.log("ITSSS MIDNIGHT AYOOOO")
       })
       // await FileSystem.getInfoAsync(DayObjects[0].video) 
+      // newDay(setDayObjects)     
       
       return ()=> listener.remove() 
 
@@ -218,10 +221,11 @@ export default function App() {
 
 
   return (
-    
+    <AppContext.Provider value={{DayObjects, setDayObjects}}>
     <NavigationContainer>
-      <RootNavigator DayObjects={DayObjects} setDayObjects={setDayObjects} />
+      <RootNavigator/>
     </NavigationContainer>
+    </AppContext.Provider>
   );
 }
 

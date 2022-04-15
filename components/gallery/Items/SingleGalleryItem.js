@@ -1,16 +1,22 @@
 import React from 'react';
-import {View, StyleSheet, Text, Pressable, Image} from 'react-native';
+import {View, StyleSheet, Text, Pressable, Image, Share} from 'react-native';
 import { Video } from 'expo-av';
 import { LogBox } from 'react-native';
 import {DateTime} from 'luxon'
 import { useNavigation } from '@react-navigation/native';
+import { SharedElement } from 'react-navigation-shared-element';
+import * as FileSystem from 'expo-file-system';
 
 const MainContentRenderer = ({dayObject}) => {
     // console.log(dayObject)
     if (dayObject.thumbnail.length > 0) {
-        const thumb = dayObject.thumbnail
+        
         // console.log(typeof(thumb))
-        return (<Image style={{height: "75%", width: '100%', resizeMode: 'cover', borderRadius: 10}} resizeMode='cover' source={{uri: dayObject.thumbnail}}/>)
+        return (
+        <SharedElement id={dayObject.id} style={{width: '100%', height: '75%'}}>
+        <Image style={{height: "100%", width: '100%', resizeMode: 'cover', borderRadius: 10}} resizeMode='cover' source={{uri: FileSystem.documentDirectory + dayObject.thumbnail}}/>
+        </SharedElement>
+        )
     } else {
         return (<View style={styles.MainContentStyle}><Text style={{fontFamily:"Sora_400Regular", fontSize: 16, textAlign: 'center'}}>{dayObject.notes[0].title}</Text></View>)
     }
@@ -31,11 +37,13 @@ const TitleContentRenderer = ({dayObject, sectionType}) => {
 const SingleGalleryItem = ({dayObject, sectionType}) => {
     const navigation = useNavigation()
     return (
+        
         <Pressable style={styles.GalleryItemContainer} onPress={(e) => {navigation.navigate('DayView', {dayObject})}}>
 
             <MainContentRenderer dayObject={dayObject}/>
             <TitleContentRenderer dayObject={dayObject} sectionType="thisWeek"/>
         </Pressable>
+        
     );
 }
 

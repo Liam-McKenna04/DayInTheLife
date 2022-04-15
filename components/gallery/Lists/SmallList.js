@@ -1,7 +1,7 @@
 import React from 'react';
 import {View, StyleSheet, Button, ScrollView, Text, Pressable} from 'react-native';
 import SingleGalleryItem from '../Items/SingleGalleryItem';
-const SmallList = ({navigation, dayObjects}) => {
+const SmallList = ({navigation, dayObjects}) => { 
     
     if (dayObjects.length == 0) { 
         return (<View></View>)

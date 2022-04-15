@@ -2,7 +2,10 @@ import React from 'react';
 import {View, StyleSheet, Text, Pressable, Image, ImageBackground} from 'react-native';
 import { DateTime } from 'luxon';
 import { LinearGradient } from 'expo-linear-gradient'
-
+import { SharedElement } from 'react-navigation-shared-element';
+import { useFocusEffect } from '@react-navigation/native';
+import { InteractionManager } from 'react-native';
+import * as FileSystem from 'expo-file-system';
 function getNumberSuffix(num) {
     const th = 'th'
     const rd = 'rd'
@@ -22,14 +25,25 @@ function getNumberSuffix(num) {
   }
 
 const MainContentRenderer = ({dayObject}) => {
+    console.log(dayObject.thumbnail) 
     if (dayObject.thumbnail != "") {
-        return (<ImageBackground source={{uri: dayObject.thumbnail}} style={{height: "100%", width: '100%', resizeMode: 'cover', flex: 1, borderRadius: 10 }} imageStyle={{borderRadius: 10}}>
-                        <LinearGradient
-                         style={{height: '100%', width: '100%', borderRadius: 10, backgroundColor: 'transparent'}}
+        return (
+        
+
+<View style={{height: "100%", width: "100%"}}>
+    
+<SharedElement id={dayObject.id} style={{height: "100%", width: "100%"}}>
+<Image source={{uri: FileSystem.documentDirectory + dayObject.thumbnail}} style={{height: "100%", width: '100%', resizeMode: 'cover', flex: 1, borderRadius: 10 }} imageStyle={{borderRadius: 10}}>
+                
+</Image>
+<LinearGradient
+                         style={{height: '100%', width: '100%', borderRadius: 10, backgroundColor: 'transparent', position: 'absolute'}}
                              colors={['rgba(255,255,255, 0.43) ,','rgba(255,255,255, 0)) ']}
                              start={{ x: 0.0, y: 0.0 }}
                              end={{ x: 0.0, y:0.5}}/>
-                    </ImageBackground>
+</SharedElement>
+
+</View>
                     
                 )
     } else {
@@ -43,6 +57,19 @@ const MainContentRenderer = ({dayObject}) => {
 }
 
 const TitleContentRenderer = ({dayObject, sectionType}) => {
+    const [Loaded, setLoaded] = React.useState(false);
+    useFocusEffect(
+        React.useCallback(() => {
+          // Do something when the screen is focused
+          const task = InteractionManager.runAfterInteractions(() => {
+            // Expensive task
+           setLoaded(true)
+          });
+            return () => {
+            setLoaded(false)
+          };
+        }, []))
+    
     
     if (sectionType === "thisWeek") {
         const weekday = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
@@ -54,8 +81,11 @@ const TitleContentRenderer = ({dayObject, sectionType}) => {
     } else if (sectionType === "days") {
         let suffix = getNumberSuffix(DateTime.fromISO(dayObject.day).day)
         let year = DateTime.fromISO(dayObject.day).year == DateTime.now().year ? "" : DateTime.fromISO(dayObject.day).year
-        //Should I include year? Yes for now but eventually include 
+        if (Loaded){
         return (<Text  style={{fontFamily: "Sora_600SemiBold", fontSize: 25, textAlign: 'left', position: 'absolute',  top: 12, left: 12, width: '90%', zIndex: 1}}>{DateTime.fromISO(dayObject.day).toFormat('LLL d')}{suffix} {year}</Text>)
+        } else {
+            return <View></View>
+        }
     }
 }
 
