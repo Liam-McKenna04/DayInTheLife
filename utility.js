@@ -166,3 +166,10 @@ export const DeleteToday = async() => {
     FileSystem.makeDirectoryAsync(FileSystem.documentDirectory + "DayInTheLife/Today/")
        
 }
+
+
+
+
+
+
+

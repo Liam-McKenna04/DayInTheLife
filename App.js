@@ -1,35 +1,25 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
-import Tabs from "./components/NavbarComponent"
-import { StyleSheet, Text, View, SafeAreaView, ScrollView, useColorScheme } from 'react-native';
 import * as FileSystem from 'expo-file-system';
 import {v4 as uuid} from 'uuid'
-import { getTrackingStatus } from 'react-native-tracking-transparency';
 
 
 import { NavigationContainer } from '@react-navigation/native';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 
 import AppLoading from 'expo-app-loading';
 import {useFonts, Sora_400Regular, Sora_600SemiBold } from '@expo-google-fonts/sora'
-import { createStackNavigator } from '@react-navigation/stack';
-import CameraNav from './screens/CreationScreens/CameraNav';
-import GalleryNav from './screens/GalleryScreens/GalleryNav';
-import ProfileNavHub from './screens/ProfileScreens/ProfileNavHub';
-import { StatusBar } from 'expo-status-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {isFirstStartup, createDirectory, CreateToday, GetToday} from './utility'
+import {createDirectory, CreateToday, GetToday} from './utility'
 import { DateTime } from 'luxon';
 import Midnight from 'react-native-midnight';
-import { LogBox } from 'react-native';
 import { FFmpegKit  } from 'ffmpeg-kit-react-native';
 import AppContext from './AppContext';
+
+import Navigation from './src/navigation/Navigation'
 var RNFS = require('react-native-fs')
  
-const RootStack = createMaterialTopTabNavigator();
 
-const writeTextFileWithAllAudioFiles = async (filePaths) => {
+const writeTextFileWithAllVidFiles = async (filePaths) => {
   var fileContent = ''
   await RNFS.unlink(RNFS.DocumentDirectoryPath + '/audioList.txt', {idempotent: true})
   filePaths.forEach(item => {
@@ -50,7 +40,6 @@ const writeTextFileWithAllAudioFiles = async (filePaths) => {
 const newDay = async(setDayObjects) => {
 const todaySTR = await AsyncStorage.getItem('today') 
 const today = todaySTR != null ? JSON.parse(todaySTR) : []
-console.log(today)
 
 const vidSegsString = await AsyncStorage.getItem('videoSegments')
 
@@ -62,7 +51,6 @@ if (vidSegs.length === 0) {
    console.log('no videos')
 } else {
   //video exists
-console.log('videos')
 const myUuid = uuid()
 const endingSTR = vidSegs[0].uri.split('.').pop()
 const inputFile = FileSystem.documentDirectory + "DayInTheLife/TodayFinished/" + "finished" + "." + endingSTR
@@ -73,7 +61,7 @@ finishedinfo = await FileSystem.getInfoAsync(inputFile)
 if (!finishedinfo.exists) {
   const vidSegsString = await AsyncStorage.getItem('videoSegments')
   const vidSegs = await JSON.parse(vidSegsString)
-  const textfile = await writeTextFileWithAllAudioFiles(vidSegs)
+  const textfile = await writeTextFileWithAllVidFiles(vidSegs)
   const command = `-f concat -safe 0 -i ${textfile} -c copy ${inputFile}`
   await FFmpegKit.execute(command) 
   
@@ -146,22 +134,6 @@ const createThumbnail = async(videoURI) => {
 
 
 
-const RootNavigator = ({DayObjects, setDayObjects}) => {
-  const [Recording, setRecording] = useState(false)
-  // console.log(DayObjects)
- 
-  return (
-    <RootStack.Navigator initialRouteName='GalleryNav' screenOptions={{swipeEnabled: !Recording, tabBarStyle:{display: 'none'}, headerShown: false, gestureDirection:'horizontal'  }}>
-        <RootStack.Screen name="ProfileNav" component={ProfileNavHub} options={{gestureDirection: 'horizontal-inverted'}}/>
-
-        <RootStack.Screen name="GalleryNav" options={{gestureDirection: 'horizontal'}} children={() => <GalleryNav DayObjects={DayObjects} setDayObjects={setDayObjects} />}/>
-        <RootStack.Screen name="CameraNav" children={() => <CameraNav Recording={Recording} setRecording={setRecording} />} options={{gestureDirection: 'horizontal'}}/>
-        
-
-     
-    </RootStack.Navigator>
-  )
-}
 
 
 export default function App() {
@@ -175,18 +147,13 @@ export default function App() {
    
     //On app load
     useEffect(async() => {
-      const FirstStartup = isFirstStartup()
 
       createDirectory("DayInTheLife/Days/")
       createDirectory("DayInTheLife/Today/")
       createDirectory("DayInTheLife/TodayFinished/")
-      // if (FirstStartup){
-      //   AsyncStorage.setItem('today', JSON.stringify({day: DateTime.now(), video: "", thumbnail: "", notes: []}))
-      //   AsyncStorage.setItem('days', JSON.stringify([])) 
-      // }
+    
       await CreateToday()
       today = await GetToday()
-      // console.log(+DateTime.fromISO(today.day).startOf('day') == +DateTime.now().startOf("day"))
       if (+DateTime.fromISO(today.day).startOf("day") === +DateTime.now().startOf("day")) {
         console.log('x')
       } else {
@@ -196,9 +163,9 @@ export default function App() {
       } 
       const listener = Midnight.addListener(()=> {
         newDay(setDayObjects)  
-        console.log("ITSSS MIDNIGHT AYOOOO")
       })
       // await FileSystem.getInfoAsync(DayObjects[0].video) 
+      // await AsyncStorage.setItem("PastDays", "[]")
       // newDay(setDayObjects)     
       
       return ()=> listener.remove() 
@@ -206,7 +173,6 @@ export default function App() {
 
 
         },
-
 
 
 
@@ -223,13 +189,9 @@ export default function App() {
   return (
     <AppContext.Provider value={{DayObjects, setDayObjects}}>
     <NavigationContainer>
-      <RootNavigator/>
+      <Navigation/>
     </NavigationContainer>
     </AppContext.Provider>
   );
 }
-
-
-const styles = StyleSheet.create({
-});
 
