@@ -12,18 +12,28 @@ import Swiper from 'react-native-swiper'
 import AppContext from '../../../../AppContext';
 import { useNavigation } from '@react-navigation/native';
 import { useFocusEffect } from '@react-navigation/native';
+import {neutral2, text1, revNeutral2, surfaceColor, elevatedColor, colorScheme, placeholderColor} from '../../../utils/colors'
 
-//https://reactnative.dev/docs/appstate
 const CompletedNote = ({FinishedEditing, title, textContent, date, index, setAnyEditable, AnyEditable, setIndexEditable, EditTitle, setEditTitle, EditText, setEditText, }) => {
     const editTextBody = useRef()
     const [Editable, setEditable] = useState(true);
     useEffect(() => {
         setEditable(false)
     }, [FinishedEditing]);
+    
     if (!Editable) {
     
     return (
-        <Pressable style={{backgroundColor: "white", marginBottom: 30, paddingTop: 15, paddingHorizontal: 20, paddingBottom: 30, justifyContent: 'flex-start', alignItems:'flex-start', flexDirection: 'column', width: '90%', borderRadius: 5}}
+        <Pressable style={{backgroundColor: elevatedColor(), marginBottom: 30, paddingTop: 15, paddingHorizontal: 20, paddingBottom: 30, justifyContent: 'flex-start', alignItems:'flex-start', flexDirection: 'column', width: '90%', borderRadius: 5,
+        shadowOffset: {
+            width: 0, 
+            height: 3
+        },
+        shadowOpacity: 0.15,
+        shadowRadius: 10,
+        elevation: 5,
+    
+    }}
         
         onPress ={() => {
             if (AnyEditable) {
@@ -40,13 +50,13 @@ const CompletedNote = ({FinishedEditing, title, textContent, date, index, setAny
             }}
         >
             <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-                <Text style={{marginBottom: 5}}>
+                <Text style={{marginBottom: 5, color: text1()}}>
                     {DateTime.fromISO(date).toFormat("t")}
                     
                 </Text>
             </View>
-            <Text style={{fontFamily: 'Sora_600SemiBold', fontSize: 36, marginBottom: 5}}>{title}</Text>
-            <Text style={{fontFamily: 'Sora_400Regular', fontSize: 16, marginHorizontal: 10}}>{textContent}</Text>
+            <Text style={{fontFamily: 'Sora_600SemiBold', fontSize: 36, marginBottom: 5, color: text1()}}>{title}</Text>
+            <Text style={{fontFamily: 'Sora_400Regular', fontSize: 16, marginHorizontal: 10, color: text1()}}>{textContent}</Text>
         </Pressable>
     )
     } else {
@@ -60,11 +70,11 @@ const CompletedNote = ({FinishedEditing, title, textContent, date, index, setAny
                     </Text>
                 </View>
                 <TextInput style={{fontFamily: 'Sora_600SemiBold', fontSize: 36, marginBottom: 5, width: '100%'}} multiline={true} 
-                    onChangeText={setEditTitle} value={EditTitle} blurOnSubmit={true} autoFocus={true}
+                    onChangeText={setEditTitle} value={EditTitle} blurOnSubmit={true} autoFocus={true} keyboardAppearance={colorScheme}
                     onSubmitEditing={()=> editTextBody.current.focus()}
                     autoCapitalize='sentences' ></TextInput>
                 <TextInput ref={editTextBody} style={{fontFamily: 'Sora_400Regular', fontSize: 16, marginHorizontal: 10, width: '100%'}} multiline={true} 
-                    onChangeText={setEditText} value={EditText}
+                    onChangeText={setEditText} value={EditText} keyboardAppearance={colorScheme}
                 >
 
                 </TextInput>
@@ -94,13 +104,13 @@ const TopLeftButton = ({ AnyEditable, Notes, setNotes, IndexEditable, setIndexEd
         }}
             
             >
-            <FontAwesomeIcon icon={faTrash} size={22} />
+            <FontAwesomeIcon icon={faTrash} size={22} color={text1()} />
         </TouchableOpacity>
 
         )
     }
     return (
-        <FontAwesome.Button name="arrow-left"  onPress={() => {navigation.navigate('GalleryNav')}} iconStyle={{color: "#1A1A1A" }} size={24} underlayColor="transparent" activeOpacity={0.2} backgroundColor="transparent"/>
+        <FontAwesome.Button name="arrow-left"  onPress={() => {navigation.navigate('GalleryNav')}} iconStyle={{color: text1() }} size={24} underlayColor="transparent" activeOpacity={0.2} backgroundColor="transparent"/>
     )   
 }
 
@@ -116,7 +126,7 @@ const TopRightButton = ({swiperRef, FinishedEditing, setFinishedEditing, NoteTit
                                                                 setIndexEditable(null)
                                                                 setFinishedEditing(!FinishedEditing)
                                                                         }}>
-                <FontAwesomeIcon icon={faCheck} size={24} />
+                <FontAwesomeIcon icon={faCheck} size={24} color={text1()}/>
             </Pressable>
     
             )
@@ -141,7 +151,7 @@ return (
                 
                 }
                     }>
-                        <FontAwesomeIcon icon={(NoteTitle === "" ) && (NoteText === "") ?  faVideoCamera : faCheck} size = {24}></FontAwesomeIcon>
+                        <FontAwesomeIcon icon={(NoteTitle === "" ) && (NoteText === "") ?  faVideoCamera : faCheck} size = {24} color={text1()}></FontAwesomeIcon>
                     </TouchableOpacity>
 
 
@@ -172,7 +182,6 @@ const Notetakingscreen = ({swiperRef}) => {
     const [Loaded, setLoaded] = useState(false);
     const {DayObjects, setDayObjects} = useContext(AppContext)
     
-
     useEffect(() => {
         
         GetTodayNotes().then((value)=> {setNotes(value)
@@ -198,8 +207,8 @@ const Notetakingscreen = ({swiperRef}) => {
 
     }, [Notes])
     return (
-        <View style={{flex: 1, backgroundColor: '#EEEEEE'}}>
-            <StatusBar style='dark'/>
+        <View style={{flex: 1, backgroundColor: surfaceColor()}}>
+            {/* <StatusBar style='dark'/> */}
             <View style={{alignItems: 'center'}}>
             <View style={styles.header}>
                 
@@ -207,7 +216,7 @@ const Notetakingscreen = ({swiperRef}) => {
                 <TopLeftButton setAnyEditable={setAnyEditable} setIndexEditable={setIndexEditable} AnyEditable={AnyEditable} Notes={Notes} setNotes={setNotes} IndexEditable={IndexEditable}/>
                 
                 
-                <Text style={{fontFamily: 'Sora_600SemiBold', color: "#1A1A1A", fontSize: 36, textAlign: 'left', top: 2,}}>Notes</Text>
+                <Text style={{fontFamily: 'Sora_600SemiBold', color: text1(), fontSize: 36, textAlign: 'left', top: 2,}}>Notes</Text>
                 <TopRightButton swiperRef={swiperRef} FinishedEditing={FinishedEditing} setFinishedEditing={setFinishedEditing} setIndexEditable={setIndexEditable} setAnyEditable={setAnyEditable} IndexEditable={IndexEditable} EditText={EditText} EditTitle={EditTitle} AnyEditable={AnyEditable} NoteTitle={NoteTitle} NoteText={NoteText} Notes={Notes} setNotes={setNotes} setNoteTitle={setNoteTitle} setNoteText={setNoteText}/>
             </View>
             <View style={{ borderBottomColor: '#888888', borderBottomWidth: 1, width: "95%", marginTop: 10, marginBottom: 20}}/>
@@ -217,16 +226,16 @@ const Notetakingscreen = ({swiperRef}) => {
 
             <ScrollView style={{width: "100%", flex: 1}} contentContainerStyle={{alignItems:'flex-start'}}>
                 <View style={{width: '100%', paddingHorizontal: 40, display: AnyEditable ? 'none': 'flex'}}>
-                    <TextInput multiline={true} style={{fontFamily: 'Sora_600SemiBold', color: "#1A1A1A", fontSize: 32, textAlign: 'left', width:"100%"}} 
-                    onChangeText={setNoteTitle} value={NoteTitle} placeholder="New Note" blurOnSubmit={true}
-                    onSubmitEditing={()=> textBody.current.focus()}
+                    <TextInput multiline={true} style={{fontFamily: 'Sora_600SemiBold', color: text1(), fontSize: 32, textAlign: 'left', width:"100%"}} 
+                    onChangeText={setNoteTitle} value={NoteTitle} placeholder="New Note" blurOnSubmit={true} keyboardAppearance={colorScheme}
+                    onSubmitEditing={()=> textBody.current.focus()} placeholderTextColor={placeholderColor()}
                     autoCapitalize='sentences'
                     />
 
                     
                     <TextInput ref={textBody} multiline={true}
-                    style={{marginTop:10, fontFamily: 'Sora_400Regular', color: "#1A1A1A", fontSize: 16, textAlign: 'left', paddingBottom: 150}}
-                    onChangeText={setNoteText} value={NoteText} blurOnSubmit={false}
+                    style={{marginTop:10, fontFamily: 'Sora_400Regular', color: text1(), fontSize: 16, textAlign: 'left', paddingBottom: 150}}
+                    onChangeText={setNoteText} value={NoteText} blurOnSubmit={false} keyboardAppearance={colorScheme}
                     onSubmitEditing={() => {
                         
                         // setNotes([{title: NoteTitle, text: NoteText, date: DateTime.now()}, ...Notes])

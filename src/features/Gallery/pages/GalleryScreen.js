@@ -14,7 +14,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import * as FileSystem from 'expo-file-system';
 import AppContext from '../../../../AppContext';
-
+import {surfaceColor, elevatedColor, text1} from '../../../utils/colors'
 function groupBy(collection, returnFunction) {
     var i = 0, val, index,
         values = [], result = [];
@@ -81,21 +81,21 @@ function GalleryScreen() {
                 {/* <TouchableOpacity style={{justifyContent: 'center', alignItems: 'center', padding: 10}} onPress={ () => navigation.navigate('ProfileNav')}>
                     <FontAwesomeIcon icon={faUser} size={20}/>
                 </TouchableOpacity> */}
-                <Text style={{ fontFamily: "Sora_600SemiBold",  color: "#1A1A1A", fontSize: 32, marginLeft: 10, alignItems: 'center'}}>Gallery</Text>
+                <Text style={{ fontFamily: "Sora_600SemiBold",  color: text1(), fontSize: 32, marginLeft: 10, alignItems: 'center'}}>Gallery</Text>
             </View>
 
             <TouchableOpacity style={{justifyContent: 'center', alignItems: 'center', padding: 10}} onPress={ () => navigation.navigate('CameraNav')}>
-                <FontAwesomeIcon icon={faSquarePlus} size={20}/>
+                <FontAwesomeIcon icon={faSquarePlus} size={20} color={text1()}/>
             </TouchableOpacity>
         </View>
 
         <ScrollView>
         <SmallList dayObjects={ThisWeekObjects} navigation={navigation}/>
-        <BigList dayObjects={NotthisWeekDays} objectCount={DayObjects == null? 0 : DayObjects.length} navigation={navigation}/>  
+        <BigList dayObjects={ThisWeekObjects} objectCount={DayObjects == null? 0 : DayObjects.length} navigation={navigation}/>  
         {DayObjects === null|| DayObjects.length === 0 ? 
         <View style={{flex: 1, justifyContent: 'center',  alignItems:'center', flexDirection:'column'}}>
-            <Text style={{ fontFamily: "Sora_600SemiBold",  color: "#1A1A1A", fontSize: 28, alignItems: 'center', textAlign:'center', marginBottom: 10}}>Create your first day</Text>
-            <Text style={{fontFamily: "Sora_400Regular",  color: "#1A1A1A", fontSize: 14, alignItems: 'center', textAlign:'center', marginBottom: 10, maxWidth: '80%'}}>Record a video and add journal entries. Your previous days will appear here</Text>
+            <Text style={{ fontFamily: "Sora_600SemiBold",  color: text1(), fontSize: 28, alignItems: 'center', textAlign:'center', marginBottom: 10}}>Create your first day</Text>
+            <Text style={{fontFamily: "Sora_400Regular",  color: text1(), fontSize: 14, alignItems: 'center', textAlign:'center', marginBottom: 10, maxWidth: '90%'}}>Record videos of your daily activities and add journal entries. Your previous days will appear here</Text>
             <TouchableOpacity style={{padding: 5}} onPress={()=> navigation.navigate('CameraNav')}><Text style={{fontFamily: "Sora_600SemiBold",  color: "#00468B", fontSize: 14, alignItems: 'center', textAlign:'center', marginBottom: 10, maxWidth: '80%'}}>Create day</Text></TouchableOpacity>
         </View>: <View/>}
         </ScrollView>  
@@ -105,7 +105,7 @@ function GalleryScreen() {
 export default GalleryScreen
 
 const styles = StyleSheet.create({
-    GalleryContainer:  {display: 'flex', flexDirection: 'column', backgroundColor: '#EEEEEE', flex: 1}
+    GalleryContainer:  {display: 'flex', flexDirection: 'column', backgroundColor: surfaceColor(), flex: 1, justifyContent: 'flex-start'}
 
 
 })

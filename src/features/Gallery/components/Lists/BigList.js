@@ -5,6 +5,7 @@ import SpecialItem from "../ListItems/SpecialItem"
 import AdItem from "../ListItems/AdItem"
 import { DateTime } from 'luxon';
 import { v4 as uuidv4 } from 'uuid';
+import {surfaceColor, elevatedColor, text1} from '../../../../utils/colors'
 
 function compareLuxonDates(a, b) {
     return a.toMillis() - b.toMillis()
@@ -54,9 +55,9 @@ const BigList = ({navigation, dayObjects, objectCount}) => {
 
 
     return (
-        <View  style={{flex: 1, top: -20}}>
+        <View  style={{top: -20, minHeight: 310, flexDirection: 'column', justifyContent: 'flex-start'}}>
             <View style={styles.headerContainer}>
-                <Text style={{fontFamily:"Sora_600SemiBold", fontSize: 16}}>Recent days</Text> 
+                <Text style={{fontFamily:"Sora_600SemiBold", fontSize: 16, color: text1()}}>Recent days</Text> 
             </View>
             <View  style={{flex: 1}}>
                 <ScrollView contentContainerStyle={styles.container}>
@@ -82,7 +83,7 @@ const BigList = ({navigation, dayObjects, objectCount}) => {
 const styles = StyleSheet.create(
     {headerContainer: {
     display: 'flex',
-    // flex: 1,
+    
     flexDirection: 'row',
     marginHorizontal: 30,
     marginTop: 25,
@@ -91,8 +92,7 @@ const styles = StyleSheet.create(
     alignItems: 'center',
     overflow: 'visible'
 }, container: {
-    // flex: 1
-    flexDirection: 'row', flexWrap: 'wrap', overflow: 'visible', paddingTop: 25, width: '100%', marginLeft: 10
+    flexDirection: 'row', flexWrap: 'wrap', overflow: 'visible', paddingTop: 25, width: '100%', marginLeft: 10, flex: 1
 }
 
 

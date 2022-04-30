@@ -1,15 +1,11 @@
 {
   "expo": {
-    "name": "Day In The Life: Video Journal",
-    "slug": "DayInTheLife",
-    "version": "1.0.0",
+    "name": "Jot",
+    "slug": "Jot",
+    "version": "0.1.0",
     "orientation": "portrait",
-    "icon": "./assets/images/logo2.png",
-    "splash": {
-      "image": "./assets/images/logoTrans.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#F2F2F6"
-    },
+  
+   
     "updates": {
       "fallbackToCacheTimeout": 0
     },
@@ -17,18 +13,18 @@
       "**/*"
     ],
     "ios": {
-      "icon": "./assets/images/logo2.png",
-      "supportsTablet": true,
+      "icon": "./assets/icons/logo.png",
+      "supportsTablet": false,
       "infoPlist": {
         "NSCameraUsageDescription": "$(PRODUCT_NAME) needs access to your Camera.",
         "NSMicrophoneUsageDescription": "$(PRODUCT_NAME) needs access to your Microphone."
       },
-      "bundleIdentifier": "com.liammckenna04.DayInTheLife",
-      "buildNumber": "2"
+      "bundleIdentifier": "com.liammckenna04.Jot",
+      "buildNumber": "6"
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/logo2.png",
+        "foregroundImage": "./assets/icons/logo.png",
         "backgroundColor": "#FFFFFF"
       },
       "permissions": [

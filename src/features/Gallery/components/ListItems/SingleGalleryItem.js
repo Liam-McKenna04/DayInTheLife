@@ -6,6 +6,7 @@ import {DateTime} from 'luxon'
 import { useNavigation } from '@react-navigation/native';
 import { SharedElement } from 'react-navigation-shared-element';
 import * as FileSystem from 'expo-file-system';
+import {surfaceColor, elevatedColor, text1} from '../../../../utils/colors'
 
 const MainContentRenderer = ({dayObject}) => {
     // console.log(dayObject)
@@ -18,7 +19,7 @@ const MainContentRenderer = ({dayObject}) => {
         </SharedElement>
         )
     } else {
-        return (<View style={styles.MainContentStyle}><Text style={{fontFamily:"Sora_400Regular", fontSize: 16, textAlign: 'center'}}>{dayObject.notes[0].title}</Text></View>)
+        return (<View style={styles.MainContentStyle}><Text style={{fontFamily:"Sora_400Regular", fontSize: 16, textAlign: 'center', color: text1()}}>{dayObject.notes[0].text}</Text></View>)
     }
 }
 
@@ -26,7 +27,7 @@ const TitleContentRenderer = ({dayObject, sectionType}) => {
     
     if (sectionType === "thisWeek") {
         const weekday = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday' , 'Sunday' ]
-        return (<Text style={{fontFamily: "Sora_600SemiBold", fontSize: 18}}>{weekday[DateTime.fromISO(dayObject.day).weekday - 1]}</Text>)
+        return (<Text style={{fontFamily: "Sora_600SemiBold", fontSize: 18, color: text1()}}>{weekday[DateTime.fromISO(dayObject.day).weekday - 1]}</Text>)
     }
 }
 
@@ -50,7 +51,7 @@ const SingleGalleryItem = ({dayObject, sectionType}) => {
 const styles = StyleSheet.create({
     GalleryItemContainer :{
         
-        backgroundColor: 'white',
+        backgroundColor: elevatedColor(),
         width: 133,
         height: 165,
         borderRadius: 10,
@@ -61,9 +62,10 @@ const styles = StyleSheet.create({
             width: 2, 
             height: 2
         },
-        shadowOpacity: 0.1,
+        shadowOpacity: 0,
         shadowRadius: 10,
-        
+        shadowColor: 'grey',
+        elevation: 14,
         marginTop: 20,
         marginLeft: 30,
         padding: 10

@@ -161,9 +161,8 @@ export default function App() {
 
 
       } 
-      const listener = Midnight.addListener(()=> {
-        newDay(setDayObjects)  
-      })
+      
+
       // await FileSystem.getInfoAsync(DayObjects[0].video) 
       // await AsyncStorage.setItem("PastDays", "[]")
       // newDay(setDayObjects)     
@@ -177,7 +176,23 @@ export default function App() {
 
 
      []);
+     const MINUTE_MS = 600000;
 
+     useEffect(() => {
+       const interval = setInterval(async() => {
+        await CreateToday()
+        today = await GetToday()
+        if (+DateTime.fromISO(today.day).startOf("day") === +DateTime.now().startOf("day")) {
+          // console.log('xdddd')
+        } else {
+          newDay(setDayObjects)
+  
+  
+        } 
+       }, MINUTE_MS);
+     
+       return () => clearInterval(interval); // This represents the unmount function, in which you need to clear your interval to prevent memory leaks.
+     }, [])
     
     
     if (!fontsLoaded) {

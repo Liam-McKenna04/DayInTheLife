@@ -7,7 +7,7 @@ import Modal from "react-native-modal"
 import Share, {Social} from 'react-native-share';
 import * as FileSystem from 'expo-file-system';
 import * as SMS from 'expo-sms';
-
+import { surfaceColor, text1 } from '../../../../utils/colors';
 
 const ShareFunc = async({dayObject, social}) => {
     if (social === "sms") {
@@ -52,10 +52,10 @@ const ShareMenu = ({setShareVisable, ShareVisable, dayObject}) => {
     const buttonSpacing = 13
   return (
     <Modal scrollHorizontal={true} propagateSwipe={true} useNativeDriverForBackdrop swipeDirection="down" onSwipeComplete={()=> setShareVisable(false)} isVisible={ShareVisable}  onBackdropPress={()=> {setShareVisable(false)}} style={{flex: 1, marginHorizontal: 0, marginBottom: 0, justifyContent: 'flex-end'}}>
-                <View style={{height: 150, backgroundColor: 'white'}}>
+                <View style={{height: 150, backgroundColor: surfaceColor()}}>
                     <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
                         <View></View>
-                        <Text style={{fontFamily: "Sora_400Regular", fontSize: 14, textAlign: 'center', marginVertical: 5}}>Share Your Day</Text>
+                        <Text style={{fontFamily: "Sora_400Regular", fontSize: 14, textAlign: 'center', marginVertical: 5, color: text1()}}>Share Your Day</Text>
                         <View></View>
                     </View>
                     <ScrollView showsHorizontalScrollIndicator={false} scrollEnabled={true} horizontal={true} contentContainerStyle={{height: 100,  alignItems: 'center'}}>
@@ -68,7 +68,7 @@ const ShareMenu = ({setShareVisable, ShareVisable, dayObject}) => {
                         onPress={async()=> {await ShareFunc({dayObject, social: "sms"})}} >
                         <FontAwesomeIcon icon={faComment} size={36} color='white'> </FontAwesomeIcon>
                         </Pressable>
-                        <Text style={{textAlign: 'center', left: 5, top: 3}}>Message</Text>
+                        <Text style={{textAlign: 'center', left: 5, top: 3, color: text1()}}>Message</Text>
                         </View>
 
                         {/* <Pressable style={{width: buttonSize, height: buttonSize, backgroundColor: 'transparent', marginLeft: buttonSpacing, borderRadius: 100, alignItems: 'center', justifyContent: 'center'}}
@@ -86,7 +86,7 @@ const ShareMenu = ({setShareVisable, ShareVisable, dayObject}) => {
                         <Image style={{width: '100%', height: '100%', borderRadius: 100, resizeMode: 'cover'}} source={require('../../../../../assets/icons/InstagramLogo.png')}/>
                         
                         </Pressable>
-                        <Text style={{textAlign: 'center', left: 5, top: 3}}>Instagram</Text>
+                        <Text style={{textAlign: 'center', left: 5, top: 3, color: text1()}}>Instagram</Text>
                         </View>
 
                         {/* <Pressable style={{width: buttonSize, height: buttonSize, backgroundColor: '#25D366', marginLeft: buttonSpacing, borderRadius: 100, alignItems: 'center', justifyContent: 'center'}}
@@ -103,7 +103,7 @@ const ShareMenu = ({setShareVisable, ShareVisable, dayObject}) => {
                         <Pressable style={{width: buttonSize, height: buttonSize, backgroundColor: '#00468B', marginLeft: buttonSpacing, borderRadius: 100, alignItems: 'center', justifyContent: 'center'}}
                         onPress={async()=> {await OpenFunc()} }>
                         <FontAwesomeIcon icon={faEllipsis} size={35} color='white'></FontAwesomeIcon></Pressable>
-                        <Text style={{textAlign: 'center', left: 5, top: 3}}>More</Text>
+                        <Text style={{textAlign: 'center', left: 5, top: 3, color: text1()}}>More</Text>
                         </View>
                        
                     </ScrollView>

@@ -42,17 +42,12 @@ if (trackingStatus === 'authorized' || trackingStatus === 'unavailable') {
     >
     {/* <HeadlineView style={{fontFamily: "Sora_600SemiBold", fontSize: 15, textAlign: 'left', position: 'absolute',  top: 12, left: 12, width: '90%', zIndex: 4}}/> */}
 
-    <LinearGradient
-                         style={{height: '100%', width: '100%', borderRadius: 10, backgroundColor: 'transparent', position: 'absolute', zIndex: 2}}
-                             colors={['rgba(255,255,255, 0.43) ,','rgba(255,255,255, 0)) ']}
-                             start={{ x: 0.0, y: 0.0 }}
-                             end={{ x: 0.0, y:0.5}}
-                             
-                             />
+    
     <ImageView
   style={{
     width: "100%",
     height: "100%",
+    borderRadius: 7,
     resizeMode: 'stretch'
   }}
     ></ImageView>
@@ -67,19 +62,19 @@ const styles = StyleSheet.create({
         backgroundColor: 'white',
         width: 165,
         height: 205,
-        borderRadius: 10,
+        borderRadius: 7,
         flexDirection: 'column',
         justifyContent: 'flex-start',
-        overflow: 'hidden',
+        overflow: 'visible',
         
         // alignItems: 'center',
         shadowOffset: {
-            width: 2, 
-            height: 2
+            width: 0, 
+            height: 8
         },
-        shadowOpacity: 0.2,
+        shadowOpacity: 0.22,
         shadowRadius: 10,
-        elevation: 3,
+        elevation: 14,
         zIndex: 2,
         
         

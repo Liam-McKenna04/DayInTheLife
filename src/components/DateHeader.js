@@ -5,6 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 
 import { faAnglesUp, faAngleRight, faShare, faUserGroup, faComment, faArrowUpFromBracket, faArrowUpRightFromSquare } from '@fortawesome/free-solid-svg-icons';
 import { useNavigation } from '@react-navigation/native';
+import {surfaceColor, elevatedColor, text1} from '../utils/colors'
 
 const DateHeader = ({headerContent, setShareVisable}) => {
     const navigation = useNavigation()
@@ -13,11 +14,11 @@ const DateHeader = ({headerContent, setShareVisable}) => {
             <View style={styles.header}>
                 
                     
-                <FontAwesome.Button name="arrow-left"  onPress={() => {navigation.goBack()}} iconStyle={{color: "#1A1A1A" }} size={24} underlayColor="transparent" activeOpacity={0.2} backgroundColor="transparent"/>
+                <FontAwesome.Button name="arrow-left"  onPress={() => {navigation.goBack()}} iconStyle={{color: text1() }} size={24} underlayColor="transparent" activeOpacity={0.2} backgroundColor="transparent"/>
                     
                 
                 
-                <Text style={{fontFamily: 'Sora_600SemiBold', color: "#1A1A1A", fontSize: 26, textAlign: 'left', top: 2}}>{headerContent}</Text>
+                <Text style={{fontFamily: 'Sora_600SemiBold', color: text1(), fontSize: 26, textAlign: 'left', top: 2}}>{headerContent}</Text>
                 
                 <TouchableOpacity
                 style={{
@@ -27,8 +28,9 @@ const DateHeader = ({headerContent, setShareVisable}) => {
                 width:40,
                 height:40,
                 
+                
               }} onPress={()=> {setShareVisable(true)}}>
-                <FontAwesomeIcon icon={faArrowUpRightFromSquare} size={22}></FontAwesomeIcon>
+                <FontAwesomeIcon icon={faArrowUpRightFromSquare} size={22} color={text1()}></FontAwesomeIcon>
 
         </TouchableOpacity>
             </View>

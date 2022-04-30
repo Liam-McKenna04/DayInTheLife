@@ -39,7 +39,7 @@ const VideoPlayer = ({thumbnail, video, VideoPlaying, id}) => {
       return (
       
         <View style={{flex: 1}}>
-              {Loaded?<Video  style={{resizeMode: 'cover', borderRadius: 10, backgroundColor: 'white', position: 'absolute',
+              {Loaded?<Video  style={{resizeMode: 'cover', borderRadius: 10, backgroundColor: 'transparent', position: 'absolute',
               
             zIndex: 1, top: 0, bottom: 0, left: 0, right: 0, backgroundColor: 'transparent'
             }} 
@@ -84,7 +84,7 @@ const AnimatedImageHeader = ({animatedValue, thumbnail, video, VideoClickHandler
           
           zIndex: 1,
           height: headerHeight,
-          backgroundColor: '#F2F2F6', 
+          backgroundColor: 'transparent', 
           alignItems: 'center',
           justifyContent: 'space-between',
           flex: 1,
@@ -153,7 +153,7 @@ const DayScrollViewComponent = ({navigation, dayObject}) => {
             
               NoteClickHandler={NoteClickHandler}
                 ref={scrollViewRef}
-                style={{flex: 1, backgroundColor: '#F2F2F6'}} 
+                style={{flex: 1, backgroundColor: 'transparent'}} 
                 showsVerticalScrollIndicator={false} 
                 contentContainerStyle={[styles.contentContainer, dayObject.video == "" ? styles.contentContainerWithoutVideo: styles.contentContainerWithVideo]}
                 scrollEventThrottle={16}

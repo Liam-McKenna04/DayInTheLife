@@ -12,7 +12,7 @@ import { faComment, faEllipsis } from '@fortawesome/free-solid-svg-icons';
 import Share, {Social} from 'react-native-share';
 
 
-
+import { text1, surfaceColor } from '../../../utils/colors';
 
 const DayScreen = ({route, navigation}) => {
     const {dayObject} = route.params
@@ -20,7 +20,7 @@ const DayScreen = ({route, navigation}) => {
   
     return (
         
-        <View style={{flex: 1, backgroundColor: '#F2F2F6'}}>
+        <View style={{flex: 1, backgroundColor: surfaceColor()}}>
             
             <DateHeader setShareVisable={setShareVisable} navigation={navigation} headerContent={DateTime.fromISO(dayObject.day).toFormat("cccc', ' LLL d")}/>
 

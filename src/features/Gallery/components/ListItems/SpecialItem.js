@@ -41,17 +41,18 @@ const styles = StyleSheet.create({ GalleryItemContainer :{
     borderRadius: 10,
     flexDirection: 'column',
     justifyContent: 'flex-start',
-    overflow: 'hidden',
+    overflow: 'visible',
     
     alignItems: 'center',
     shadowOffset: {
-        width: 2, 
-        height: 2
+        width: 0, 
+        height: 8
     },
     shadowOpacity: 0.2,
     shadowRadius: 10,
-    elevation: 3,
-    zIndex: 2,
+    elevation: 14,
+    
+    
     
     
     // marginTop: 20,

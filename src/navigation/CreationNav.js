@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Keyboard } from 'react-native'
+import { StyleSheet, Text, View, Keyboard , Appearance} from 'react-native'
 import React, {useRef, useState} from 'react'
 import VisionCameraScreen from '../features/Creation/pages/VisionCameraScreen'
 import NoteTakingScreen from '../features/Creation/pages/NoteTakingScreen'
@@ -6,6 +6,7 @@ import Swiper from 'react-native-swiper'
 import { useNavigation } from '@react-navigation/native';
 import { useFocusEffect } from '@react-navigation/native'
 import { StatusBar, setStatusBarStyle } from 'expo-status-bar'
+import { colorScheme } from '../utils/colors'
 const CreationNav = ({Recording, setRecording}) => {
   const [currentScreen, setCurrentScreen] = useState(0);
   
@@ -20,8 +21,7 @@ const CreationNav = ({Recording, setRecording}) => {
           };
       }))
     const StatusBarHandler = () => {
-      if (Focused && currentScreen === 0) {
-        
+      if (Focused && currentScreen === 0 ||colorScheme === 'dark') {
         setStatusBarStyle('light')
       } else {
         

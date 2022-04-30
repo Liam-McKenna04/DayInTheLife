@@ -5410,6 +5410,11 @@ react-native-tab-view@^3.1.1:
   resolved "https://registry.npmjs.org/react-native-tab-view/-/react-native-tab-view-3.1.1.tgz"
   integrity sha512-M5pRN6utQfytKWoKlKVzg5NbkYu308qNoW1khGTtEOTs1k14p2dHJ/BWOJoJYHKbPVUyZldbG9MFT7gUl4YHnw==
 
+react-native-tiktok@^1.1.1:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/react-native-tiktok/-/react-native-tiktok-1.1.1.tgz#82c1827b1f73abd931c08b56fd00a5898d7454df"
+  integrity sha512-+9tkcB84dfBI2bGOBNPB7v0DF5ra/0EiMP/IhJSVIEb/iCyI1gpdv7epwzzQlnzk8YLvdu4tDZMf/yANAEQnpw==
+
 react-native-tracking-transparency@^0.1.1:
   version "0.1.1"
   resolved "https://registry.npmjs.org/react-native-tracking-transparency/-/react-native-tracking-transparency-0.1.1.tgz"

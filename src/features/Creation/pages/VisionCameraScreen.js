@@ -503,7 +503,7 @@ const insets = useSafeAreaInsets()
       // console.log(evt.nativeEvent.pageY) 
       const buttonBottom = windowHeight - (65 + insets.bottom)
 
-      const y = 1 + (( evt.nativeEvent.pageY )* ((16 - 1)/(windowHeight - (65 + insets.bottom))))
+      const y = 1 + (( evt.nativeEvent.pageY )* ((16 - 1)/(windowHeight - (60 + 65 + insets.bottom))))
       console.log(y)
       // setZoom(Math.max(16 - y, 1))
       onDrag(Math.max(16 - y, 1))

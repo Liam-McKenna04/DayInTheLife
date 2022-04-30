@@ -42,7 +42,7 @@
     "expo-sms": "~10.1.0",
     "expo-splash-screen": "~0.14.1",
     "expo-status-bar": "~1.2.0",
-    "expo-updates": "~0.11.6",
+    
     "expo-video-player": "^2.0.4",
     "expo-web-browser": "~10.1.0",
     "ffmpeg-kit-react-native": "^4.5.1",
@@ -54,7 +54,7 @@
     "react-native": "0.64.3",
     "react-native-ad-consent": "^5.1.0",
     "react-native-admob-native-ads": "^0.5.0",
-    "react-native-audio-recorder-player": "^3.4.0",
+    
     "react-native-fs": "^2.19.0",
     "react-native-gesture-handler": "~2.1.0",
     "react-native-image-picker": "^4.7.3",
@@ -70,10 +70,10 @@
     "react-native-screens": "~3.10.1",
     "react-native-share": "^7.3.7",
     "react-native-shared-element": "^0.8.4",
-    "react-native-story-share": "^0.6.0",
     "react-native-svg": "12.1.1",
     "react-native-swiper": "^1.6.0",
     "react-native-tab-view": "^3.1.1",
+   
     "react-native-tracking-transparency": "^0.1.1",
     "react-native-vector-icons": "^9.1.0",
     "react-native-vision-camera": "^2.13.1",
