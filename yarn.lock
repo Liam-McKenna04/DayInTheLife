@@ -1384,13 +1384,6 @@
     "@jridgewell/resolve-uri" "^3.0.3"
     "@jridgewell/sourcemap-codec" "^1.4.10"
 
-"@koale/useworker@^4.0.2":
-  "integrity" "sha512-xPIPADtom8/3/4FLNj7MvNcBM/Z2FleH85Fdx2O869eoKW8+PoEgtSVvoxWjCWMA46Sm9A5/R1TyzNGc+yM0wg=="
-  "resolved" "https://registry.npmjs.org/@koale/useworker/-/useworker-4.0.2.tgz"
-  "version" "4.0.2"
-  dependencies:
-    "dequal" "^1.0.0"
-
 "@miblanchard/react-native-slider@^2.1.0":
   "integrity" "sha512-5YRWaQjHl90Ue431RisN+5zr+380L//kWuabzYuo7mVI+CxbHaTQXDr7afkpGgNHCxkkzFlT3tWd+3/QbpgBLQ=="
   "resolved" "https://registry.npmjs.org/@miblanchard/react-native-slider/-/react-native-slider-2.1.0.tgz"
@@ -2692,11 +2685,6 @@
   "resolved" "https://registry.npmjs.org/depd/-/depd-2.0.0.tgz"
   "version" "2.0.0"
 
-"dequal@^1.0.0":
-  "integrity" "sha512-Fx8jxibzkJX2aJgyfSdLhr9tlRoTnHKrRJuu2XHlAgKioN2j19/Bcbe0d4mFXYZ3+wpE2KVobUVTfDutcD17xQ=="
-  "resolved" "https://registry.npmjs.org/dequal/-/dequal-1.0.1.tgz"
-  "version" "1.0.1"
-
 "destroy@1.2.0":
   "integrity" "sha512-2sJGJTaXIIaR1w4iJSNoN0hnMY7Gpc/n8D4qSCJw8QqFWXf7cuAgnEHxBpweaVcPevC2l3KpjYCx3NypQQgaJg=="
   "resolved" "https://registry.npmjs.org/destroy/-/destroy-1.2.0.tgz"
@@ -2909,15 +2897,6 @@
   "version" "11.1.0"
   dependencies:
     "@expo/config-plugins" "^4.0.14"
-
-"expo-camera@~12.1.2":
-  "integrity" "sha512-Rr0Evj1V3LGiZE5/YBuuVimuU9uSTwVoqtSBsZ8QoK11+g9vnu2NgBjFMb938yjWD5tqJiXRH8lVTM2mvzSmIQ=="
-  "resolved" "https://registry.npmjs.org/expo-camera/-/expo-camera-12.1.2.tgz"
-  "version" "12.1.2"
-  dependencies:
-    "@expo/config-plugins" "^4.0.2"
-    "@koale/useworker" "^4.0.2"
-    "invariant" "^2.2.4"
 
 "expo-constants@~13.0.0", "expo-constants@~13.0.2":
   "integrity" "sha512-vGs/kI65vplPFvG8z4W1ariGEtVHHp9Avl28G0zJprt2v/q1E/BnXjwvFSBPc1GB+Zb/7crWSHWRwjaFULBjsg=="
@@ -5460,7 +5439,7 @@
   "resolved" "https://registry.npmjs.org/react-refresh/-/react-refresh-0.4.3.tgz"
   "version" "0.4.3"
 
-"react@*", "react@^16.5.0 || ^17.0.0", "react@^16.8.0", "react@^17.0.0", "react@^18.0.0", "react@>= 16.x", "react@>=16.8", "react@>=17.0.1", "react@16 || 17", "react@17.0.1":
+"react@*", "react@^16.5.0 || ^17.0.0", "react@^17.0.0", "react@^18.0.0", "react@>= 16.x", "react@>=16.8", "react@>=17.0.1", "react@16 || 17", "react@17.0.1":
   "integrity" "sha512-lG9c9UuMHdcAexXtigOZLX8exLWkW0Ku29qPRU8uhF2R9BN96dLCt0psvzPLlHc5OWkgymP3qwTRgbnw5BKx3w=="
   "resolved" "https://registry.npmjs.org/react/-/react-17.0.1.tgz"
   "version" "17.0.1"
