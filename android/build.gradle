@@ -2,10 +2,10 @@
 
 buildscript {
     ext {
-        buildToolsVersion = "30.0.2"
+        buildToolsVersion = "29.0.3"
         minSdkVersion = 24
-        compileSdkVersion = 31
-        targetSdkVersion = 31
+        compileSdkVersion = 30
+        targetSdkVersion = 30
     }
     repositories {
         google()
@@ -14,7 +14,7 @@ buildscript {
     }
     dependencies {
         classpath("com.android.tools.build:gradle:4.1.0")
-        
+
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
@@ -38,9 +38,3 @@ allprojects {
         maven { url 'https://www.jitpack.io' }
     }
 }
-// @generated begin expo-camera-import - expo prebuild (DO NOT MODIFY) sync-f244f4f3d8bf7229102e8f992b525b8602c74770
-def expoCameraMavenPath = new File(["node", "--print", "require.resolve('expo-camera/package.json')"].execute(null, rootDir).text.trim(), "../android/maven")
-allprojects { repositories { maven { url(expoCameraMavenPath) } } }
-// @generated end expo-camera-import// @generated begin ffmpeg-kit-react-native-package - expo prebuild (DO NOT MODIFY) sync-8bd29037bc3f22a8b99eba676388b6e075bb5d28
-ext { ffmpegKitPackage = "full-gpl" }
-// @generated end ffmpeg-kit-react-native-package

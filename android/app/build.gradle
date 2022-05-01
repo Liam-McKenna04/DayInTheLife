@@ -132,11 +132,11 @@ android {
     }
 
     defaultConfig {
-        applicationId 'com.liammckenna04.dayinthelife'
+        applicationId "com.jot"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
-        versionName "1.0.0"
+        versionName "1.0"
     }
     splits {
         abi {
@@ -187,7 +187,6 @@ dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
     //noinspection GradleDynamicVersion
     implementation "com.facebook.react:react-native:+"  // From node_modules
-    implementation 'com.google.android.gms:play-services-ads:20.6.0'
 
     def isGifEnabled = (findProperty('expo.gif.enabled') ?: "") == "true";
     def isWebpEnabled = (findProperty('expo.webp.enabled') ?: "") == "true";

@@ -1,6 +1,4 @@
-package com.liammckenna04.dayinthelife;
-import expo.modules.updates.UpdatesDevLauncherController;
-import expo.modules.devlauncher.DevLauncherController;
+package com.jot;
 
 import android.app.Application;
 import android.content.Context;
@@ -28,7 +26,7 @@ public class MainApplication extends Application implements ReactApplication {
     new ReactNativeHost(this) {
     @Override
     public boolean getUseDeveloperSupport() {
-      return DevLauncherController.getInstance().getUseDeveloperSupport();
+      return BuildConfig.DEBUG;
     }
 
     @Override
@@ -56,10 +54,6 @@ public class MainApplication extends Application implements ReactApplication {
     super.onCreate();
     SoLoader.init(this, /* native exopackage */ false);
 
-    DevLauncherController.initialize(this, getReactNativeHost());
-    if (BuildConfig.DEBUG) {
-      DevLauncherController.getInstance().setUpdatesInterface(UpdatesDevLauncherController.initialize(this));
-    }
     initializeFlipper(this, getReactNativeHost().getReactInstanceManager());
     ApplicationLifecycleDispatcher.onApplicationCreate(this);
   }
@@ -85,7 +79,7 @@ public class MainApplication extends Application implements ReactApplication {
          We use reflection here to pick up the class that initializes Flipper,
         since Flipper library is not available in release mode
         */
-        Class<?> aClass = Class.forName("com.liammckenna04.dayinthelife.ReactNativeFlipper");
+        Class<?> aClass = Class.forName("com.jot.ReactNativeFlipper");
         aClass
             .getMethod("initializeFlipper", Context.class, ReactInstanceManager.class)
             .invoke(null, context, reactInstanceManager);
