@@ -7,11 +7,14 @@
  
       "distribution": "internal",
       "cache": {"key": "aaa"},
-
+      
       "android": {
-        "gradleCommand": ":app:assembleDebug"
+        "gradleCommand": ":app:assembleDebug",
+        "image": "latest"
+
       },
       "ios": {
+
 
         "cocoapods": "1.11.2",
         "buildConfiguration": "Debug"
@@ -20,7 +23,9 @@
     "preview": {
       "distribution": "internal"
     },
-    "production": {}
+    "production": {
+      "extends": "development"
+    }
   },
   "submit": {
     "production": {}

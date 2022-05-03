@@ -4,9 +4,10 @@ buildscript {
     ext {
         buildToolsVersion = "29.0.3"
         minSdkVersion = 24
-        compileSdkVersion = 30
-        targetSdkVersion = 30
+        compileSdkVersion = 31
+        targetSdkVersion = 31
         kotlinVersion = "1.6.21"
+        ffmpegKitPackage = "full-gpl"
     }
     repositories {
         google()

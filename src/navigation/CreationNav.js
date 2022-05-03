@@ -36,7 +36,7 @@ const CreationNav = ({Recording, setRecording}) => {
 
     <Swiper onIndexChanged={(index)=>{setCurrentScreen(index)}} scrollEnabled={!Recording} ref={swiperRef} showsButtons={false} horizontal={false} loop={false} showsPagination={false} onTouchStartCapture={()=> {Keyboard.dismiss()}} >
 
-        <VisionCameraScreen Recording={Recording} setRecording={setRecording} swiperRef={swiperRef}/>
+        <VisionCameraScreen Recording={Recording} setRecording={setRecording} swiperRef={swiperRef} currentScreen={currentScreen}/>
 
         <NoteTakingScreen swiperRef={swiperRef} />
 

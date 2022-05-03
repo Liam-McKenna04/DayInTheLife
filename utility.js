@@ -124,6 +124,8 @@ export const SetTodayNotes = async(NotesList) => {
             console.log(newToday)
         } else {
             //Day don't exist
+            const emptyday = JSON.stringify({day: DateTime.now(), video: "", thumbnail: "", notes: [], id: uuid()})
+            await AsyncStorage.setItem('today', emptyday)
             console.log("today doesn't exist, err")
         }
     
