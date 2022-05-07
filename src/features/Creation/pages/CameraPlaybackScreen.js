@@ -1,49 +1,18 @@
-import {
-  StyleSheet,
-  Text,
-  View,
-  Button,
-  Pressable,
-  TouchableOpacity,
-  Platform,
-} from "react-native";
+import { StyleSheet, View, TouchableOpacity, Platform } from "react-native";
 import React from "react";
-import { useRef, useState, useEffect } from "react";
-import { Audio, Video } from "expo-av";
+import { useState, useEffect } from "react";
 import * as FileSystem from "expo-file-system";
-import { SafeAreaView } from "react-native-safe-area-context";
-import * as MediaLibrary from "expo-media-library";
-import { FFmpegKit, FFprobeKit } from "ffmpeg-kit-react-native";
+import { FFmpegKit } from "ffmpeg-kit-react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { FontAwesome } from "@expo/vector-icons";
-import { useIsFocused } from "@react-navigation/native";
-import { useFocusEffect } from "@react-navigation/native";
-import { LinearGradient } from "expo-linear-gradient";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
-import { Slider } from "@miblanchard/react-native-slider";
 import { useNavigation } from "@react-navigation/native";
-import { DateTime } from "luxon";
-import { v4 as uuid } from "uuid";
-import {
-  faPenToSquare,
-  faRotate,
-  faNoteSticky,
-  faCircleCheck,
-  faArrowRotateLeft,
-  faPen,
-  faPenClip,
-  faEye,
-  faPause,
-  faVolumeMute,
-  faPlay,
-  faVolumeHigh,
-  faMicrophone,
-  faClapperboard,
-  faShare,
-  faArrowUpRightFromSquare,
-} from "@fortawesome/free-solid-svg-icons";
+import { faArrowUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
 import ShareMenu from "../../../features/Gallery/components/dayView/ShareMenu";
-
+import VideoPlayer from "../components/VideoPlayer";
+import { StatusBar, setStatusBarStyle } from "expo-status-bar";
+import { OpenFunc } from "../../../features/Gallery/components/dayView/ShareMenu";
+// const RNVP = require("react-native-video-processing");
 var RNFS = require("react-native-fs");
 
 const writeTextFileWithAllAudioFiles = async (filePaths) => {
@@ -57,28 +26,12 @@ const writeTextFileWithAllAudioFiles = async (filePaths) => {
       (e) => console.log("f")
     );
   }
-  // if (Platform.OS == "android"){
-  // for (let i = 0 ; i < filePaths.length; i++){
-  //   console.log(filePaths)
-  //   const id = uuid()
-  //   const path = FileSystem.documentDirectory + "vid" + id + ".ts"
-  //   const prePath = FileSystem.documentDirectory + filePaths[i].uri
 
-  //   console.log(path)
-  //   console.log(prePath)
-  //   await FFmpegKit.execute(`-i ${prePath} -codec copy -bsf:v h264_mp4toannexb ${path}`)
-  //   fileContent+= `file '${path}'\n`
-
-  //   }
-  // } else {
   filePaths.forEach((item) => {
-    console.log("ITEM ITEM");
-    FFmpegKit.execute(`-i ${FileSystem.documentDirectory + item.uri} -f null`);
-    // console.log(path)
     const path = FileSystem.documentDirectory + item.uri;
+
     fileContent += `file '${path}'\n`;
   });
-  // }
 
   const filePath = RNFS.DocumentDirectoryPath + "/audioList.txt";
   try {
@@ -87,148 +40,6 @@ const writeTextFileWithAllAudioFiles = async (filePaths) => {
   } catch (error) {
     return error;
   }
-};
-
-const VideoPlayer = ({ VideoURI }) => {
-  const video = useRef(null);
-  const [status, setStatus] = useState({});
-  const [shouldPlay, setShouldPlay] = useState(true);
-  // console.log(VideoURI)
-
-  useFocusEffect(
-    React.useCallback(() => {
-      // Do something when the screen is focused
-      setShouldPlay(true);
-      return () => {
-        setShouldPlay(false);
-      };
-    }, [])
-  );
-
-  return (
-    <View style={{ flex: 1, backgroundColor: "black", alignItems: "center" }}>
-      <Video
-        ref={video}
-        style={{
-          height: "100%",
-          aspectRatio: 9 / 16,
-          position: "absolute",
-          display: "flex",
-        }}
-        source={{
-          uri: FileSystem.documentDirectory + VideoURI,
-        }}
-        rate={1}
-        useNativeControls={false}
-        resizeMode="cover"
-        isLooping={true}
-        shouldPlay={shouldPlay}
-        progressUpdateIntervalMillis={50}
-        onPlaybackStatusUpdate={(status) => setStatus(() => status)}
-      />
-      <View
-        style={{
-          position: "absolute",
-          bottom: 15,
-          zIndex: 1,
-          height: 100,
-          width: "100%",
-          display: "flex",
-          flexDirection: "row",
-          alignItems: "center",
-        }}
-      >
-        <Slider
-          disabled={true}
-          maximumValue={status.durationMillis}
-          trackStyle={{ backgroundColor: "white", height: 10, borderRadius: 3 }}
-          minimumTrackTintColor="#00468B"
-          renderThumbComponent={() => {
-            <View />;
-          }}
-          animateTransitions={false}
-          animationType="timing"
-          value={status.positionMillis}
-          containerStyle={{ width: "60%", marginHorizontal: 10 }}
-        ></Slider>
-        <View
-          style={{
-            flex: 1,
-            flexDirection: "row",
-            alignItems: "center",
-            justifyContent: "space-between",
-            marginRight: 20,
-            marginLeft: 10,
-          }}
-        >
-          <TouchableOpacity
-            style={{
-              alignItems: "center",
-              justifyContent: "center",
-              width: 40,
-              height: 40,
-              backgroundColor: "rgba(0,0,0,0.5)",
-              borderRadius: 50,
-              marginLeft: 10,
-            }}
-            onPress={async () => {
-              if (status.isPlaying) {
-                await video.current.pauseAsync();
-              } else {
-                await video.current.playAsync();
-              }
-            }}
-          >
-            {status.isPlaying ? (
-              <FontAwesomeIcon
-                icon={faPause}
-                size={22}
-                color="#FFF"
-              ></FontAwesomeIcon>
-            ) : (
-              <FontAwesomeIcon
-                icon={faPlay}
-                size={22}
-                color="#FFF"
-              ></FontAwesomeIcon>
-            )}
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={{
-              alignItems: "center",
-              justifyContent: "center",
-              width: 40,
-              height: 40,
-              backgroundColor: "rgba(0,0,0,0.5)",
-              borderRadius: 50,
-              marginLeft: 10,
-            }}
-            onPress={async () => {
-              if (status.isMuted) {
-                await video.current.setIsMutedAsync(false);
-              } else {
-                await video.current.setIsMutedAsync(true);
-              }
-            }}
-          >
-            {status.isMuted ? (
-              <FontAwesomeIcon
-                icon={faVolumeMute}
-                size={22}
-                color="#FFF"
-              ></FontAwesomeIcon>
-            ) : (
-              <FontAwesomeIcon
-                icon={faVolumeHigh}
-                size={22}
-                color="#FFF"
-              ></FontAwesomeIcon>
-            )}
-          </TouchableOpacity>
-        </View>
-      </View>
-    </View>
-  );
 };
 
 const buttonStyle = (EditorStatus, setting) => {
@@ -271,11 +82,6 @@ const CameraPlaybackScreen = () => {
     setLoaded(true);
   }, []);
 
-  useEffect(() => {
-    console.log("VIDEOURI CHANGED");
-    console.log(VideoURI);
-  }, [VideoURI]);
-
   useEffect(async () => {
     if (VideoList.length != 0 || Loaded) {
       const textfile = await writeTextFileWithAllAudioFiles(VideoList);
@@ -298,17 +104,18 @@ const CameraPlaybackScreen = () => {
       const outputFile = FileSystem.documentDirectory + outputTAG;
 
       FileSystem.deleteAsync(outputFile, { idempotent: true });
+      let command = "";
+      if (Platform.OS === "android") {
+        command = `-f concat -safe 0 -i ${textfile} -c:v copy -c:a mp3 ${outputFile}`;
+      } else {
+        command = `-f concat -safe 0 -i ${textfile} -c copy ${outputFile}`;
+      }
 
-      const command = `-f concat -safe 0 -i ${textfile} -c:v copy -c:a aac ${outputFile}`;
-      // console.log('aaaaaaaaaaaaaaaaaaa')
-
-      // await FFprobeKit.execute(`-v error -select_streams v:0 -show_entries stream=codec_name -of default=noprint_wrappers=1:nokey=1 ${VideoList[1]}`)
-      // await FFprobeKit.execute(`-v error -show_entries stream=width,height -of default=noprint_wrappers=1 ${VideoList[1]}`)
-      // await FFprobeKit.execute(`-v error -select_streams v:0 -show_entries stream=avg_frame_rate -of default=noprint_wrappers=1:nokey=1 ${VideoList[0]}`)
-
+      console.log(FileSystem.documentDirectory + VideoList[0].uri);
       const x = await FFmpegKit.execute(command).then(() => {
         setVideoURI(outputTAG);
       });
+      // setVideoURI(VideoList[0].uri);
     }
   }, [VideoList]);
 
@@ -318,6 +125,7 @@ const CameraPlaybackScreen = () => {
 
   return (
     <View style={{ flex: 1 }}>
+      <StatusBar style="light"></StatusBar>
       <View
         style={{
           height: 150,
@@ -348,7 +156,7 @@ const CameraPlaybackScreen = () => {
           <TouchableOpacity
             style={buttonStyle(EditorStatus, "Preview")}
             onPress={async () => {
-              setShareVisable(true);
+              OpenFunc({ video: VideoURI });
             }}
           >
             <FontAwesomeIcon
@@ -380,16 +188,14 @@ const CameraPlaybackScreen = () => {
           VideoPlaying={true}
         />
       ) : (
-        <View>
-          <Text style={{ color: "white" }}>You shouldn't be reading this</Text>
-        </View>
+        <View></View>
       )}
 
-      <ShareMenu
+      {/* <ShareMenu
         ShareVisable={ShareVisable}
         setShareVisable={setShareVisable}
         dayObject={{ video: VideoURI }}
-      />
+      /> */}
     </View>
   );
 };

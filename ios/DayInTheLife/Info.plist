@@ -4,8 +4,8 @@
 
   <dict>
    <key>GADApplicationIdentifier</key>
-    <string>ca-app-pub-3940256099942544~1458002511</string>
-<!-- <string>ca-app-pub-4572817562844546~8046878342</string> Production -->
+    <!-- <string>ca-app-pub-3940256099942544~1458002511</string> Test -->
+<string>ca-app-pub-4572817562844546~8046878342</string> 
   <key>SKAdNetworkItems</key>
   <array>
     <dict>
@@ -29,7 +29,7 @@
     <key>CFBundlePackageType</key>
     <string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>
     <key>CFBundleShortVersionString</key>
-    <string>1.0.0</string>
+    <string>1.0.1</string>
     <key>CFBundleSignature</key>
     <string>????</string>
     <key>CFBundleURLTypes</key>
@@ -48,7 +48,7 @@
       </dict>
     </array>
     <key>CFBundleVersion</key>
-    <string>2</string>
+    <string>7</string>
     <key>LSRequiresIPhoneOS</key>
     <true/>
     <key>NSAppTransportSecurity</key>
@@ -100,20 +100,20 @@
     <key>NSPhotoLibraryUsageDescription</key>
     <string>DayInTheLife needs access to your Camera Roll</string>
     <key>LSApplicationQueriesSchemes</key>
-<array>
+    <array>
 
-  <string>instagram</string>
-  <string>instagram-stories</string>
-  <string>whatsapp</string>
-  
-  <string>snapchat</string>
-  <string>twitter</string>
-  
-  <string>fb</string>
-  
-  <string>fb-messenger</string>
-  
-</array>
+    <string>instagram</string>
+    <string>instagram-stories</string>
+    <string>whatsapp</string>
+
+    <string>snapchat</string>
+    <string>twitter</string>
+
+    <string>fb</string>
+
+    <string>fb-messenger</string>
+
+  </array>
   </dict>
  
 </plist>

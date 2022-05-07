@@ -1,5 +1,4 @@
-import React from "react";
-import { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   StyleSheet,
   Text,
@@ -8,54 +7,40 @@ import {
   TouchableOpacity,
   Platform,
   PermissionsAndroid,
-  Image,
   Dimensions,
 } from "react-native";
 import { Camera, useCameraDevices } from "react-native-vision-camera";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { StatusBar } from "expo-status-bar";
 import * as FileSystem from "expo-file-system";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   faRotate,
-  faNoteSticky,
   faCircleCheck,
   faArrowRotateLeft,
-  faPen,
   faPenClip,
   faPlus,
 } from "@fortawesome/free-solid-svg-icons";
 import { v4 as uuid } from "uuid";
 import { useNavigation } from "@react-navigation/native";
-import Swiper from "react-native-swiper";
-import CameraRoll from "@react-native-community/cameraroll";
-import Svg, { Circle, Path } from "react-native-svg";
-import { Linking } from "react-native";
+import { capturePhoto } from "../utils/capturingFunctions/CapturePhoto";
+import Svg, { Circle } from "react-native-svg";
 import { FontAwesome } from "@expo/vector-icons";
-import { FFmpegKit, FFprobeKit } from "ffmpeg-kit-react-native";
+import { FFmpegKit } from "ffmpeg-kit-react-native";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
-import { launchCamera, launchImageLibrary } from "react-native-image-picker";
-import LoadingImage from "../../../../assets/images/logoTrans.png";
+import { launchImageLibrary } from "react-native-image-picker";
 import AppContext from "../../../../AppContext";
-import { useFocusEffect } from "@react-navigation/native";
-import { useIsFocused } from "@react-navigation/native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import PermissionDenied from "../components/PermissionDenied";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   useAnimatedProps,
   withTiming,
-  Easing,
-  interpolate,
   multiply,
-  Clock,
   Extrapolate,
-  interpolateNode,
-  useDerivedValue,
-  withRepeat,
 } from "react-native-reanimated";
-
+import RecordButton from "../utils/animaitons/RecordButton";
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 const ReanimatedCamera = Animated.createAnimatedComponent(Camera);
 Animated.addWhitelistedNativeProps({ zoom: true });
@@ -80,7 +65,6 @@ function VisionCameraScreen({
   swiperRef,
   currentScreen,
 }) {
-  const [rotateValue, setRotateValue] = useState(new Animated.Value(0));
   const insets = useSafeAreaInsets();
 
   // First set up animation
@@ -123,25 +107,6 @@ function VisionCameraScreen({
     return () => clearInterval(interval);
   }, [isActive, seconds]);
 
-  const rotationProgress = useSharedValue(0);
-
-  const rotationStyle = useAnimatedStyle(() => {
-    return {
-      transform: [{ rotate: rotationProgress.value + "deg" }],
-    };
-  }, []);
-
-  const rotateFunction = () => {
-    rotationProgress.value = withRepeat(
-      withTiming(360, { duration: 5000, easing: Easing.linear }),
-      -1
-    );
-  };
-
-  useEffect(() => {
-    rotateFunction();
-  }, []);
-
   //Refs
   const navigation = useNavigation();
   const devices = useCameraDevices();
@@ -151,20 +116,16 @@ function VisionCameraScreen({
   const [CameraHasPermission, setCameraHasPermission] = useState(null);
   const [MicHasPermission, setMicHasPermission] = useState(null);
   const [CameraOrientation, setCameraOrientation] = useState();
-  const [i, setI] = useState(0);
   //Options
-  const [LengthList, setLengthList] = useState([]);
+
   const [VideoLength, setVideoLength] = useState(0);
   const [MaxVideoLength, setMaxVideoLength] = useState(60);
-  const [Flash, setFlash] = useState("");
-  const [Locked, setLocked] = useState(false);
-  const [Zoom, setZoom] = useState(1);
+
   const [Previewable, setPreviewable] = useState(true);
   const [ClickedInButton, setClickedInButton] = useState(false);
   //Video Settings
   const [VideoList, setVideoList] = useState([]);
   const [Loaded, setLoaded] = useState(false);
-  const AnimatedCameraButton = Animated.createAnimatedComponent(Pressable);
   const [ShortPressable, setShortPressable] = useState(true);
   let photo = null;
   // console.log(VideoList)
@@ -175,8 +136,6 @@ function VisionCameraScreen({
   const onDrag = React.useCallback((zoomValue) => {
     zoom.value = zoomValue;
   }, []);
-
-  const devices1 = useCameraDevices();
 
   const cameraButtonStyle = useAnimatedStyle(() => {
     return {
@@ -274,126 +233,8 @@ function VisionCameraScreen({
       text =
         "Please provide us access to your Microphone, which is required to create days";
     }
-    return (
-      <View style={{ justifyContent: "center", alignItems: "center", flex: 1 }}>
-        <View style={{ height: 400, width: "100%", top: -50 }}>
-          <Text
-            style={{
-              fontFamily: "Sora_600SemiBold",
-              color: "#1A1A1A",
-              fontSize: 38,
-              marginLeft: 20,
-              alignItems: "center",
-              marginBottom: 5,
-            }}
-          >
-            {title}
-          </Text>
-          <Text
-            style={{
-              fontFamily: "Sora_400Regular",
-              color: "#1A1A1A",
-              fontSize: 22,
-              marginLeft: 20,
-              alignItems: "center",
-              marginBottom: 5,
-            }}
-          >
-            {text}
-          </Text>
-          <Pressable
-            onPress={() => {
-              Linking.openSettings();
-            }}
-            style={styles.press}
-          >
-            <View
-              style={{
-                flex: 1,
-                display: "flex",
-                flexDirection: "row",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              {/* <FontAwesomeIcon icon={faGear} size={24} style={{color: 'black'}}/> */}
-              <Text
-                style={{
-                  textAlign: "center",
-                  marginLeft: 13,
-                  fontFamily: "Sora_600SemiBold",
-                  fontSize: 18,
-                  color: "white",
-                }}
-              >
-                Go To Settings
-              </Text>
-            </View>
-            {/* <FontAwesomeIcon icon={faAngleRight} size={20} style={{color: 'black'}}/> */}
-          </Pressable>
-        </View>
-      </View>
-    );
+    return <PermissionDenied text={text} title={title} />;
   }
-
-  const capturePhoto = async (photo, imported, metadata) => {
-    setShortPressable(false);
-    let picType = "photo";
-    if (imported) {
-      picType = "photoImported";
-    }
-    console.log("infunc " + photo.path);
-    const photoPath = photo;
-    const photoID = uuid();
-    const length = 2;
-    let fileEnd = "mp4"; // check if this is right on android before releasing
-    if (Platform.OS === "ios") {
-      fileEnd = "mov";
-    }
-
-    const endingTag = "DayInTheLife/Today/" + photoID + "." + fileEnd;
-    const newURI =
-      FileSystem.documentDirectory +
-      "DayInTheLife/Today/" +
-      photoID +
-      "." +
-      fileEnd;
-    const cacheURI = FileSystem.cacheDirectory + photoID + "." + fileEnd;
-    const cacheURI2 =
-      FileSystem.cacheDirectory + photoID + "000" + "." + fileEnd;
-    if (imported && metadata.height > metadata.width) {
-      await FFmpegKit.execute(
-        `-y -i ${photoPath} -vf "transpose=1" ${photoPath} -loglevel quiet`
-      );
-    }
-
-    if (!imported) {
-      await FFmpegKit.execute(
-        `-y -i ${photoPath} -vf "transpose=1" ${photoPath} -loglevel quiet`
-      );
-    }
-    await FFmpegKit.execute(
-      `-framerate 1/2 -i ${photoPath} -c:v libx264 -t 2 -pix_fmt yuv420p -vf "scale=1080:1920:force_original_aspect_ratio=decrease,pad=1080:1920:-1:-1:color=black" ${cacheURI}`
-    );
-
-    await FFmpegKit.execute(
-      ` -f lavfi -i anullsrc=channel_layout=stereo:sample_rate=44100 -i ${cacheURI} -c:v copy -c:a aac -shortest  ${cacheURI2}`
-    );
-
-    await FFmpegKit.execute(
-      `-i ${cacheURI2} -map 0:0 -map 0:1 -ac 2 -c:a aac -ar 48000 -vf format=yuv420p,scale=1080x1920,yadif -video_track_timescale 600 -c:v libx264 ${newURI}`
-    );
-
-    console.log("aaa");
-    // await FileSystem.deleteAsync(photoPath)
-    setVideoList([
-      ...VideoList,
-      { uri: endingTag, type: picType, duration: 2 },
-    ]);
-    console.log(endingTag);
-
-    setShortPressable(true);
-  };
 
   const takeVideo = async () => {
     console.log("Maxvidlength: " + MaxVideoLength);
@@ -417,7 +258,14 @@ function VisionCameraScreen({
           photo = await camera.takePhoto({ qualityPrioritization: "speed" });
           console.log("photo " + photo.path);
           setRecording(false);
-          capturePhoto(photo.path, false, photo);
+          capturePhoto({
+            photo: photo.path,
+            imported: false,
+            metadata: photo,
+            setShortPressable: setShortPressable,
+            setVideoList: setVideoList,
+            VideoList: VideoList,
+          });
           return;
         }
         setRecording(false);
@@ -433,9 +281,20 @@ function VisionCameraScreen({
         const newURI = "DayInTheLife/Today/" + myUUID + "." + fileEnd;
         // await FFmpegKit.execute(`-i ${video.path} -video_track_timescale 60000 ${newURI}`)
         // await FFmpegKit.execute(`-i ${video.path} -preset ultrafast -video_track_timescale 30 ${newURI}`)
-
-        await RNFS.moveFile(video.path, FileSystem.documentDirectory + newURI);
-
+        if (Platform.OS === "android") {
+          await FFmpegKit.execute(
+            `-i ${
+              video.path
+            } -map 0:0 -map 0:1 -ac 2 -c:a mp3 -ar 48000 -vf format=yuv420p,scale=1080x1920,yadif -video_track_timescale 600 ${
+              FileSystem.documentDirectory + newURI
+            }`
+          );
+        } else {
+          await RNFS.moveFile(
+            video.path,
+            FileSystem.documentDirectory + newURI
+          );
+        }
         setRecord(newURI);
         setVideoList([
           ...VideoList,
@@ -452,7 +311,14 @@ function VisionCameraScreen({
         photo = await camera.takePhoto({ qualityPrioritization: "speed" });
         console.log("photo " + photo.path);
         setRecording(false);
-        capturePhoto(photo.path, false, photo);
+        capturePhoto({
+          photo: photo.path,
+          imported: false,
+          metadata: photo,
+          setShortPressable: setShortPressable,
+          setVideoList: setVideoList,
+          VideoList: VideoList,
+        });
       },
     });
 
@@ -467,7 +333,14 @@ function VisionCameraScreen({
       camera.stopRecording().catch(async () => {
         photo = await camera.takePhoto({ qualityPrioritization: "speed" });
         console.log("photo aa" + photo.path);
-        capturePhoto(photo.path, false, photo);
+        capturePhoto({
+          photo: photo.path,
+          imported: false,
+          metadata: photo,
+          setShortPressable: setShortPressable,
+          setVideoList: setVideoList,
+          VideoList: VideoList,
+        });
       });
 
       reset();
@@ -489,13 +362,6 @@ function VisionCameraScreen({
     extrapolate: Extrapolate.CLAMP,
   });
   const strokeDashoffset = multiply(alpha, radius);
-
-  // console.log(strokeDashoffset)
-  const strokeMarker = () => {};
-
-  const triggerRemount = () => {
-    setI((i) => i + 1);
-  };
 
   return (
     <View
@@ -671,11 +537,14 @@ function VisionCameraScreen({
                         return;
                       }
                       if (result.assets[0].type.includes("image")) {
-                        capturePhoto(
-                          result.assets[0].uri,
-                          true,
-                          result.assets[0]
-                        );
+                        capturePhoto({
+                          photo: result.assets[0].uri,
+                          imported: true,
+                          metadata: result.assets[0],
+                          setShortPressable: setShortPressable,
+                          setVideoList: setVideoList,
+                          VideoList: VideoList,
+                        });
                       } else if (result.assets[0].type.includes("video")) {
                         console.log(result.assets[0]);
                         console.log("------------------------");
@@ -690,6 +559,7 @@ function VisionCameraScreen({
                         await FFmpegKit.execute(
                           `-i ${result.assets[0].uri} -preset ultrafast -vf format=yuv420p,scale=1080x1920 -video_track_timescale 600 ${newURI}`
                         );
+
                         // await RNFS.moveFile(result.assets[0].uri, newURI)
 
                         setVideoList([
@@ -789,21 +659,7 @@ function VisionCameraScreen({
                     opacity: shutterOpacity,
                   },
                 ]}
-              >
-                {/* <Pressable 
-              // onPress={}
-              onPressIn={async() => {await takeVideo()}}
-                
-              onPressOut={async()=> stopVideo()}
-              
-              // onLongPress={}
-              // delayLongPress={}
-
-            
-              style={ {backgroundColor: 'transparent',  borderRadius: 100, position: 'absolute', left: -20, right: -20, top: -20, bottom: -20}}>
-
-                </Pressable> */}
-              </Animated.View>
+              ></Animated.View>
             </View>
 
             <View

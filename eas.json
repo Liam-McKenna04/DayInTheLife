@@ -24,7 +24,12 @@
       "distribution": "internal"
     },
     "production": {
-      "extends": "development"
+      "ios": {
+
+
+        "cocoapods": "1.11.2",
+        "buildConfiguration": "Release"
+      }
     }
   },
   "submit": {
