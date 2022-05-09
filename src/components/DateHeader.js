@@ -15,11 +15,14 @@ import {
 import { useNavigation } from "@react-navigation/native";
 import { surfaceColor, elevatedColor, text1 } from "../utils/colors";
 import { OpenFunc } from "../features/Gallery/components/dayView/ShareMenu";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 const DateHeader = ({ headerContent, setShareVisable, dayObject }) => {
   const navigation = useNavigation();
+  const insets = useSafeAreaInsets();
+
   return (
     <View style={{ alignItems: "center" }}>
-      <View style={styles.header}>
+      <View style={[styles.header, { marginTop: insets.top + 7 }]}>
         <FontAwesome.Button
           name="arrow-left"
           onPress={() => {
@@ -38,7 +41,8 @@ const DateHeader = ({ headerContent, setShareVisable, dayObject }) => {
             color: text1(),
             fontSize: 26,
             textAlign: "left",
-            top: 2,
+            top: -2,
+            left: -2,
           }}
         >
           {headerContent}
@@ -80,10 +84,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginTop: 46,
-
     paddingHorizontal: 15,
     width: "100%",
+    // textAlign: "center",
   },
 });
 

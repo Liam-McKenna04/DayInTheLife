@@ -8,6 +8,7 @@ import {
   Platform,
   PermissionsAndroid,
   Dimensions,
+  Image,
 } from "react-native";
 import { Camera, useCameraDevices } from "react-native-vision-camera";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -285,7 +286,7 @@ function VisionCameraScreen({
           await FFmpegKit.execute(
             `-i ${
               video.path
-            } -map 0:0 -map 0:1 -ac 2 -c:a mp3 -ar 48000 -vf format=yuv420p,scale=1080x1920,yadif -video_track_timescale 600 ${
+            } -map 0:0 -map 0:1 -ac 2 -c:a mp3 -ar 48000 -preset ultrafast -video_track_timescale 600 ${
               FileSystem.documentDirectory + newURI
             }`
           );
@@ -497,13 +498,15 @@ function VisionCameraScreen({
               flexDirection: "row",
               alignItems: "center",
               marginBottom: 65,
+              marginLeft: 20,
+              marginRight: 20,
             }}
           >
             <View
               style={{
                 flexDirection: "row",
                 flex: 1,
-                justifyContent: "space-between",
+                justifyContent: "flex-end",
               }}
             >
               {!Recording ? (
@@ -515,7 +518,6 @@ function VisionCameraScreen({
                     height: 40,
                     backgroundColor: "rgba(0,0,0,0.2)",
                     borderRadius: 50,
-                    marginLeft: 30,
                   }}
                   onPress={async () => {
                     setPreviewable(false);
@@ -549,15 +551,20 @@ function VisionCameraScreen({
                         console.log(result.assets[0]);
                         console.log("------------------------");
                         const myUuid = uuid();
-                        const fileEnd = await result.assets[0].fileName
-                          .split(".")
-                          .pop();
+                        let fileEnd = "mov";
+                        let begin = "";
+                        if (Platform.OS === "android") {
+                          fileEnd = "mp4";
+                          begin = "file:";
+                        }
                         const newTag =
                           "DayInTheLife/Today/" + myUuid + "." + fileEnd;
                         const newURI = FileSystem.documentDirectory + newTag;
 
                         await FFmpegKit.execute(
-                          `-i ${result.assets[0].uri} -preset ultrafast -vf format=yuv420p,scale=1080x1920 -video_track_timescale 600 ${newURI}`
+                          `-i ${
+                            begin + result.assets[0].uri
+                          } -preset ultrafast -c:a mp3 -vf format=yuv420p,scale=1080x1920 -video_track_timescale 600 ${newURI}`
                         );
 
                         // await RNFS.moveFile(result.assets[0].uri, newURI)
@@ -594,7 +601,8 @@ function VisionCameraScreen({
                     height: 40,
                     backgroundColor: "rgba(0,0,0,0.2)",
                     borderRadius: 50,
-                    marginRight: 20,
+                    marginLeft: 25,
+                    marginRight: 10,
                   }}
                   onPress={() => {
                     if (swiperRef.current) {
@@ -666,7 +674,7 @@ function VisionCameraScreen({
               style={{
                 flexDirection: "row",
                 flex: 1,
-                justifyContent: "space-between",
+                justifyContent: "flex-start",
               }}
             >
               {Previewable && VideoList.length > 0 && !Recording ? (
@@ -678,7 +686,8 @@ function VisionCameraScreen({
                     height: 40,
                     backgroundColor: "rgba(0,0,0,0.2)",
                     borderRadius: 50,
-                    marginLeft: 20,
+                    marginLeft: 10,
+                    marginRight: 25,
                   }}
                   onPress={async () => {
                     if (ShortPressable) {
@@ -713,7 +722,6 @@ function VisionCameraScreen({
                     height: 40,
                     backgroundColor: "rgba(0,0,0,0.2)",
                     borderRadius: 50,
-                    marginRight: 30,
                   }}
                   onPress={() => {
                     if (ShortPressable) {

@@ -62,7 +62,7 @@ const BigList = ({ navigation, dayObjects, objectCount }) => {
       allObjects = [...dayObjects];
       const length = dayObjects.length;
       const chunkSize = 10;
-      let pos = 5;
+      let pos = 1;
       const interval = 5;
 
       while (pos < length) {

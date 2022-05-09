@@ -8,6 +8,7 @@ import {
   Pressable,
   Modal,
   TouchableOpacity,
+  Dimensions,
 } from "react-native";
 import { Video, AVPlaybackStatus } from "expo-av";
 import Swipeable from "react-native-gesture-handler/Swipeable";
@@ -24,7 +25,8 @@ import { useFocusEffect } from "@react-navigation/native";
 import { InteractionManager } from "react-native";
 import * as FileSystem from "expo-file-system";
 import { surfaceColor } from "../../../../utils/colors";
-const HEADER_HEIGHT = 663;
+
+const HEADER_HEIGHT = Dimensions.get("window").height * 0.85;
 // await Audio.setAudioModeAsync({ playsInSilentModeIOS: true });
 // const playbackObject = new Audio.Sound();
 

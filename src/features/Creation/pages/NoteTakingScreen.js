@@ -35,7 +35,7 @@ import {
   colorScheme,
   placeholderColor,
 } from "../../../utils/colors";
-
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 const CompletedNote = ({
   FinishedEditing,
   title,
@@ -182,6 +182,7 @@ const TopLeftButton = ({
   IndexEditable,
   setIndexEditable,
   setAnyEditable,
+  swiperRef,
 }) => {
   const navigation = useNavigation();
   if (AnyEditable) {
@@ -197,6 +198,8 @@ const TopLeftButton = ({
           setNotes(filteredNotes);
           setIndexEditable(null);
           setAnyEditable(false);
+          Keyboard.dismiss();
+          swiperRef.current.scrollBy(1, true);
         }}
       >
         <FontAwesomeIcon icon={faTrash} size={22} color={text1()} />
@@ -252,6 +255,8 @@ const TopRightButton = ({
           setAnyEditable(false);
           setIndexEditable(null);
           setFinishedEditing(!FinishedEditing);
+          Keyboard.dismiss();
+          swiperRef.current.scrollBy(1, true);
         }}
       >
         <FontAwesomeIcon icon={faCheck} size={24} color={text1()} />
@@ -262,32 +267,34 @@ const TopRightButton = ({
     <View>
       <TouchableOpacity
         style={{ marginRight: 12, padding: 5 }}
-        onPress={
-          NoteTitle === "" && NoteText === ""
-            ? () => {
-                if (swiperRef.current) {
-                  swiperRef.current.scrollBy(-1, true);
-                  console.log("b");
-                } else {
-                  console.log("a");
-                }
-              }
-            : () => {
-                if (NoteTitle === "") {
-                  var SubmitTitle = "Note " + (Notes.length + 1);
-                } else {
-                  var SubmitTitle = NoteTitle;
-                }
+        onPress={() => {
+          if (NoteTitle === "" && NoteText === "") {
+            Keyboard.dismiss();
+            if (swiperRef.current) {
+              swiperRef.current.scrollBy(-1, true);
+            } else {
+              console.log("a");
+            }
+          } else {
+            Keyboard.dismiss();
 
-                setNotes([
-                  { title: SubmitTitle, text: NoteText, date: DateTime.now() },
-                  ...Notes,
-                ]);
-                setNoteText("");
-                setNoteTitle("");
-                Keyboard.dismiss();
-              }
-        }
+            if (NoteTitle === "") {
+              var SubmitTitle = "Note " + (Notes.length + 1);
+            } else {
+              var SubmitTitle = NoteTitle;
+            }
+            setNotes([
+              { title: SubmitTitle, text: NoteText, date: DateTime.now() },
+              ...Notes,
+            ]);
+            setNoteText("");
+            setNoteTitle("");
+            console.log("aaaaaaaaa");
+
+            swiperRef.current.scrollBy(1, true);
+            Keyboard.dismiss();
+          }
+        }}
       >
         <FontAwesomeIcon
           icon={NoteTitle === "" && NoteText === "" ? faVideoCamera : faCheck}
@@ -330,6 +337,7 @@ const Notetakingscreen = ({ swiperRef }) => {
       SetTodayNotes(Notes);
     }
   }, [Notes]);
+  const insets = useSafeAreaInsets();
   return (
     <View
       style={{ flex: 1, backgroundColor: surfaceColor() }}
@@ -337,7 +345,7 @@ const Notetakingscreen = ({ swiperRef }) => {
     >
       {/* <StatusBar style='dark'/> */}
       <View style={{ alignItems: "center" }}>
-        <View style={styles.header}>
+        <View style={[styles.header, { marginTop: insets.top + 7 }]}>
           <TopLeftButton
             setAnyEditable={setAnyEditable}
             setIndexEditable={setIndexEditable}
@@ -345,6 +353,7 @@ const Notetakingscreen = ({ swiperRef }) => {
             Notes={Notes}
             setNotes={setNotes}
             IndexEditable={IndexEditable}
+            swiperRef={swiperRef}
           />
 
           <Text
@@ -354,6 +363,9 @@ const Notetakingscreen = ({ swiperRef }) => {
               fontSize: 36,
               textAlign: "left",
               top: 2,
+            }}
+            onPress={() => {
+              Keyboard.dismiss();
             }}
           >
             Notes
@@ -390,6 +402,7 @@ const Notetakingscreen = ({ swiperRef }) => {
         style={{ width: "100%", flex: 1, paddingTop: 20 }}
         contentContainerStyle={{ alignItems: "flex-start" }}
         keyboardShouldPersistTaps={"always"}
+        nestedScrollEnabled={true}
       >
         <View
           style={{

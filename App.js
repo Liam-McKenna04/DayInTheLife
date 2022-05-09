@@ -17,10 +17,9 @@ import { DateTime } from "luxon";
 import Midnight from "react-native-midnight";
 import { FFmpegKit } from "ffmpeg-kit-react-native";
 import AppContext from "./AppContext";
-
+import { Platform } from "react-native";
 import Navigation from "./src/navigation/Navigation";
 var RNFS = require("react-native-fs");
-
 const writeTextFileWithAllVidFiles = async (filePaths) => {
   var fileContent = "";
   await RNFS.unlink(RNFS.DocumentDirectoryPath + "/audioList.txt", {
@@ -41,6 +40,7 @@ const writeTextFileWithAllVidFiles = async (filePaths) => {
 };
 
 const newDay = async (setDayObjects) => {
+  console.log("NEW DAY");
   const todaySTR = await AsyncStorage.getItem("today");
   const today = todaySTR != null ? JSON.parse(todaySTR) : [];
 
@@ -65,22 +65,35 @@ const newDay = async (setDayObjects) => {
       const inputFileInfo = await FileSystem.getInfoAsync(inputFile);
       console.log("finished file exists " + inputFileInfo.exists);
       const outputFile = "DayInTheLife/Days/" + myUuid + "." + endingSTR;
-      finishedinfo = await FileSystem.getInfoAsync(inputFile);
+      const finishedinfo = await FileSystem.getInfoAsync(inputFile);
+
       if (!finishedinfo.exists) {
         const vidSegsString = await AsyncStorage.getItem("videoSegments");
         const vidSegs = await JSON.parse(vidSegsString);
         const textfile = await writeTextFileWithAllVidFiles(vidSegs);
-        const command = `-f concat -safe 0 -i ${textfile} -c copy ${inputFile}`;
+        let command = "";
+        if (Platform.OS === "android") {
+          command = `-f concat -safe 0 -i ${textfile} -c:v copy -c:a mp3 ${
+            FileSystem.documentDirectory + outputFile
+          }`;
+        } else {
+          command = `-f concat -safe 0 -i ${textfile} -c copy ${
+            FileSystem.documentDirectory + outputFile
+          }`;
+        }
         await FFmpegKit.execute(command);
+      } else {
+        await FileSystem.moveAsync({
+          from: inputFile,
+          to: FileSystem.documentDirectory + outputFile,
+        });
       }
-      const thumbnail = await createThumbnail(inputFile);
+      const thumbnail = await createThumbnail(
+        FileSystem.documentDirectory + outputFile
+      );
       today.thumbnail = thumbnail;
       console.log(finishedinfo.exists);
 
-      await FileSystem.moveAsync({
-        from: inputFile,
-        to: FileSystem.documentDirectory + outputFile,
-      });
       today.video = outputFile;
     }
   }

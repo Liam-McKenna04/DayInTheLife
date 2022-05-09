@@ -141,7 +141,7 @@ function GalleryScreen() {
       <ScrollView>
         <SmallList dayObjects={ThisWeekObjects} navigation={navigation} />
         <BigList
-          dayObjects={NotthisWeekDays}
+          dayObjects={ThisWeekObjects}
           objectCount={DayObjects == null ? 0 : DayObjects.length}
           navigation={navigation}
         />
