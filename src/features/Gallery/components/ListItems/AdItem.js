@@ -6,7 +6,10 @@ import {
   ImageView,
   HeadlineView,
 } from "react-native-admob-native-ads";
-import { getTrackingStatus } from "react-native-tracking-transparency";
+import {
+  getTrackingStatus,
+  requestTrackingPermission,
+} from "react-native-tracking-transparency";
 import { LinearGradient } from "expo-linear-gradient";
 const AdItem = () => {
   const adId =
@@ -18,14 +21,14 @@ const AdItem = () => {
   const [UsingTracking, setUsingTracking] = useState(false);
   useEffect(async () => {
     const trackingStatus = await getTrackingStatus();
-    console.log(trackingStatus);
+    if (trackingStatus === "not-determined") {
+      trackingStatus = await requestTrackingPermission();
+    }
     if (trackingStatus === "authorized" || trackingStatus === "unavailable") {
       // enable tracking features
       setUsingTracking(true);
-      console.log("x");
     } else {
       setUsingTracking(false);
-      console.log("y");
     }
 
     nativeAdViewRef.current?.loadAd();

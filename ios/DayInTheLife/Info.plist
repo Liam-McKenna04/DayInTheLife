@@ -48,10 +48,10 @@
       </dict>
     </array>
     <key>CFBundleVersion</key>
-    <string>7</string>
+    <string>9</string>
     <key>LSRequiresIPhoneOS</key>
     <true/>
-    <key>NSAppTransportSecurity</key>
+    <key>NSAppTransportSecurity</key> 
     <dict>
       <key>NSAllowsArbitraryLoads</key>
       <true/>
@@ -65,9 +65,9 @@
       </dict>
     </dict>
     <key>NSCameraUsageDescription</key>
-    <string>$(PRODUCT_NAME) needs access to your Camera.</string>
+    <string>Jot needs access to your Camera record video to be used in your video journal.</string>
     <key>NSMicrophoneUsageDescription</key>
-    <string>$(PRODUCT_NAME) needs access to your Microphone.</string>
+    <string>Jot needs access to your Microphone to record audio to be used in your video journal.</string>
     <key>NSUserTrackingUsageDescription</key>
     <string>This identifier will be used to deliver personalized ads to you.</string>
     
@@ -92,11 +92,11 @@
       <string>UIInterfaceOrientationPortraitUpsideDown</string>
     </array>
     <key>UIUserInterfaceStyle</key>
-    <string>unspecified</string>
+    <string>Automatic</string>
     <key>UIViewControllerBasedStatusBarAppearance</key>
     <false/>
     <key>NSPhotoLibraryUsageDescription</key>
-    <string>DayInTheLife needs access to your Camera Roll</string>
+    <string>Jot needs access to your Camera Roll to import them into your day</string>
     <key>LSApplicationQueriesSchemes</key>
     <array>
 

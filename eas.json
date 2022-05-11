@@ -29,6 +29,10 @@
 
         "cocoapods": "1.11.2",
         "buildConfiguration": "Release"
+      },
+      "android": {
+        "image": "latest"
+
       }
     }
   },

@@ -66,7 +66,7 @@ const BigList = ({ navigation, dayObjects, objectCount }) => {
       const interval = 5;
 
       while (pos < length) {
-        const uuid = uuidv4();
+        const uuid = new uuidv4();
         allObjects.splice(pos, 0, { ad: true, id: uuid });
         pos += interval;
       }
@@ -75,6 +75,7 @@ const BigList = ({ navigation, dayObjects, objectCount }) => {
       setAllObjects(allObjects);
       // console.log(allObjects);
     }
+    // console.log(allObjects);
   }, [dayObjects]);
 
   return (

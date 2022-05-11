@@ -24,7 +24,7 @@ import {
 import { v4 as uuid } from "uuid";
 import { useNavigation } from "@react-navigation/native";
 import { capturePhoto } from "../utils/capturingFunctions/CapturePhoto";
-import Svg, { Circle } from "react-native-svg";
+import Svg, { Circle, Path } from "react-native-svg";
 import { FontAwesome } from "@expo/vector-icons";
 import { FFmpegKit } from "ffmpeg-kit-react-native";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
@@ -41,6 +41,8 @@ import Animated, {
   multiply,
   Extrapolate,
 } from "react-native-reanimated";
+import { withAnchorPoint } from "react-native-anchor-point";
+
 import RecordButton from "../utils/animaitons/RecordButton";
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 const ReanimatedCamera = Animated.createAnimatedComponent(Camera);
@@ -48,6 +50,7 @@ Animated.addWhitelistedNativeProps({ zoom: true });
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
 var RNFS = require("react-native-fs");
+
 async function hasAndroidPermission() {
   const permission = PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE;
 
@@ -128,6 +131,8 @@ function VisionCameraScreen({
   const [VideoList, setVideoList] = useState([]);
   const [Loaded, setLoaded] = useState(false);
   const [ShortPressable, setShortPressable] = useState(true);
+  const [DurationTicks, setDurationTicks] = useState([]);
+
   let photo = null;
   // console.log(VideoList)
   const { DayObjects, setDayObjects } = useContext(AppContext);
@@ -218,6 +223,29 @@ function VisionCameraScreen({
     console.log(VideoList);
 
     // await FFprobeKit.execute(`-v error -show_forma t -show_streams ${VideoList[0].uri}`)
+
+    let positions = VideoList.map((value, index) => {
+      // console.log(value);
+
+      const computedPositionList = [];
+      for (let i = index; i >= 0; i--) {
+        const ClipDuration = VideoList[i].duration;
+        const FullDuration = MaxVideoLength;
+        const PercentLength = ClipDuration / FullDuration;
+        const onePosition = PercentLength * 360;
+        computedPositionList.push(onePosition);
+      }
+      const computedPosition = computedPositionList.reduce(
+        (partialSum, a) => partialSum + a,
+        0
+      );
+      if (computedPosition) {
+        // console.log(computedPosition);
+        return computedPosition;
+      }
+    });
+
+    setDurationTicks(positions);
   }, [VideoList]);
 
   if (CameraHasPermission === null || MicHasPermission === null) {
@@ -542,7 +570,10 @@ function VisionCameraScreen({
                         capturePhoto({
                           photo: result.assets[0].uri,
                           imported: true,
-                          metadata: result.assets[0],
+                          metadata: {
+                            asset: result.assets[0],
+                            metadata: { Orientation: 1 },
+                          },
                           setShortPressable: setShortPressable,
                           setVideoList: setVideoList,
                           VideoList: VideoList,
@@ -552,27 +583,36 @@ function VisionCameraScreen({
                         console.log("------------------------");
                         const myUuid = uuid();
                         let fileEnd = "mov";
-                        let begin = "";
+
                         if (Platform.OS === "android") {
                           fileEnd = "mp4";
-                          begin = "file:";
                         }
                         const newTag =
                           "DayInTheLife/Today/" + myUuid + "." + fileEnd;
+                        const Uri2 =
+                          "DayInTheLife/Today/" + myUuid + "0" + "." + fileEnd;
                         const newURI = FileSystem.documentDirectory + newTag;
-
-                        await FFmpegKit.execute(
-                          `-i ${
-                            begin + result.assets[0].uri
-                          } -preset ultrafast -c:a mp3 -vf format=yuv420p,scale=1080x1920 -video_track_timescale 600 ${newURI}`
-                        );
-
-                        // await RNFS.moveFile(result.assets[0].uri, newURI)
+                        if (Platform.OS === "android") {
+                          // await FFmpegKit.execute(
+                          //   `-i ${result.assets[0].uri} -preset ultrafast -c:v copy -c:a mp3 -vf format=yuv420p,scale=1080x1920 -video_track_timescale 600 ${newURI}`
+                          // );
+                          await RNFS.moveFile(result.assets[0].uri, newURI);
+                          await FFmpegKit.execute(
+                            `-i ${newURI} -map 0:0 -map 0:1 -ac 2 -c:a mp3 -ar 48000 -preset ultrafast -video_track_timescale 600 ${
+                              FileSystem.documentDirectory + Uri2
+                            }`
+                          );
+                        } else {
+                          await FFmpegKit.execute(
+                            `-i ${result.assets[0].uri} -preset ultrafast -c:a aac -vf format=yuv420p,scale=1080x1920 -video_track_timescale 600 ${newURI}`
+                          );
+                        }
+                        // await RNFS.moveFile(result.assets[0].uri, newURI);
 
                         setVideoList([
                           ...VideoList,
                           {
-                            uri: newTag,
+                            uri: Uri2,
                             type: "importedVideo",
                             duration: result.assets[0].duration,
                           },
@@ -652,7 +692,6 @@ function VisionCameraScreen({
                     strokeDasharray={`${circumference} ${circumference}`}
                     {...{ strokeWidth }}
                   ></AnimatedCircle>
-                  {/* <Path d={`M64 64 L75 75`} fill="none" stroke="red"/> */}
                 </Svg>
               }
 
@@ -668,6 +707,36 @@ function VisionCameraScreen({
                   },
                 ]}
               ></Animated.View>
+              {/* {DurationTicks?.map((value, index) => {
+                if (!isNaN(value) && index != DurationTicks.length - 1) {
+                  return (
+                    <View
+                      style={[
+                        {
+                          position: "absolute",
+                          width: 3,
+                          height: 124,
+                          backgroundColor: "transparent",
+                          left: 60,
+                          bottom: 0,
+                        },
+                        withAnchorPoint({
+                          transform: [{ rotate: value + "deg" }],
+                        }),
+                      ]}
+                    >
+                      <View
+                        style={{
+                          backgroundColor: "rgba(255,255,255,1)",
+                          width: 2,
+                          height: 12,
+                          // borderRadius: 4,
+                        }}
+                      />
+                    </View>
+                  );
+                }
+              })} */}
             </View>
 
             <View

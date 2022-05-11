@@ -1,6 +1,6 @@
 import { View, TouchableOpacity } from "react-native";
 import React from "react";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { Video } from "expo-av";
 import * as FileSystem from "expo-file-system";
 import { useFocusEffect } from "@react-navigation/native";
@@ -12,12 +12,15 @@ import {
   faPlay,
   faVolumeHigh,
 } from "@fortawesome/free-solid-svg-icons";
-const VideoPlayer = ({ VideoURI }) => {
+import { v4 as uuid } from "uuid";
+const VideoPlayer = ({ VideoURI, videoURIList }) => {
   const video = useRef(null);
+  const slider = useRef(null);
   const [status, setStatus] = useState({});
   const [shouldPlay, setShouldPlay] = useState(true);
-  // console.log(VideoURI)
-
+  const [DurationTicks, setDurationTicks] = useState([]);
+  // console.log(slider?.current?._containerSize?.width);
+  // console.log(videoURIList);
   useFocusEffect(
     React.useCallback(() => {
       // Do something when the screen is focused
@@ -27,6 +30,31 @@ const VideoPlayer = ({ VideoURI }) => {
       };
     }, [])
   );
+  useEffect(() => {
+    let positions = videoURIList.map((value, index) => {
+      // console.log(value);
+
+      const computedPositionList = [];
+      for (let i = index; i >= 0; i--) {
+        const ClipDuration = videoURIList[i].duration;
+        const FullDuration = status?.durationMillis / 1000;
+        const PercentLength = ClipDuration / FullDuration;
+        const onePosition =
+          PercentLength * slider?.current?._containerSize?.width;
+        computedPositionList.push(onePosition);
+      }
+      const computedPosition = computedPositionList.reduce(
+        (partialSum, a) => partialSum + a,
+        0
+      );
+      if (computedPosition) {
+        // console.log(computedPosition);
+        return computedPosition;
+      }
+    });
+    // console.log(positions);
+    setDurationTicks(positions);
+  }, [status?.durationMillis]);
 
   return (
     <View style={{ flex: 1, backgroundColor: "black", alignItems: "center" }}>
@@ -71,8 +99,13 @@ const VideoPlayer = ({ VideoURI }) => {
       >
         <Slider
           disabled={true}
+          ref={slider}
           maximumValue={status.durationMillis}
-          trackStyle={{ backgroundColor: "white", height: 10, borderRadius: 3 }}
+          trackStyle={{
+            backgroundColor: "rgba(255,255,255,0.4)",
+            height: 10,
+            borderRadius: 3,
+          }}
           minimumTrackTintColor="#00468B"
           renderThumbComponent={() => {
             <View />;
@@ -82,6 +115,25 @@ const VideoPlayer = ({ VideoURI }) => {
           value={status.positionMillis}
           containerStyle={{ width: "60%", marginHorizontal: 10 }}
         ></Slider>
+
+        {DurationTicks?.map((value, index) => {
+          // console.log(value);
+          if (!isNaN(value) && index != DurationTicks.length - 1) {
+            return (
+              <View
+                key={new uuid()}
+                style={{
+                  position: "absolute",
+                  height: 10,
+                  width: 3,
+                  backgroundColor: "white",
+                  left: 10 + value,
+                  zIndex: 1,
+                }}
+              />
+            );
+          } else return <View />;
+        })}
         <View
           style={{
             flex: 1,

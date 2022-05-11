@@ -20,10 +20,19 @@ import AppContext from "./AppContext";
 import { Platform } from "react-native";
 import Navigation from "./src/navigation/Navigation";
 var RNFS = require("react-native-fs");
+import { getTrackingStatus } from "react-native-tracking-transparency";
+const schedule = require("node-schedule");
+if (!__DEV__) {
+  console.log = () => {};
+  console.warn = () => {};
+  console.error = () => {};
+}
 const writeTextFileWithAllVidFiles = async (filePaths) => {
   var fileContent = "";
   await RNFS.unlink(RNFS.DocumentDirectoryPath + "/audioList.txt", {
     idempotent: true,
+  }).catch((err) => {
+    console.log(err.message);
   });
   filePaths.forEach((item) => {
     // console.log(path)
@@ -92,7 +101,7 @@ const newDay = async (setDayObjects) => {
         FileSystem.documentDirectory + outputFile
       );
       today.thumbnail = thumbnail;
-      console.log(finishedinfo.exists);
+      // console.log(finishedinfo.exists);
 
       today.video = outputFile;
     }
@@ -103,7 +112,6 @@ const newDay = async (setDayObjects) => {
   //Destroys videosegment list
   const emptylist = JSON.stringify([]);
   await AsyncStorage.setItem("videoSegments", emptylist);
-  console.log("deleting today");
   await FileSystem.deleteAsync(
     FileSystem.documentDirectory + "DayInTheLife/Today"
   );
@@ -129,15 +137,18 @@ const newDay = async (setDayObjects) => {
     if (PastDays === null) {
       const stringToday = JSON.stringify([today]);
       await AsyncStorage.setItem("PastDays", stringToday);
+      setDayObjects([today]);
     } else {
       PastDays.push(today);
       const PastDaysString = JSON.stringify(PastDays);
       await AsyncStorage.setItem("PastDays", PastDaysString);
+      setDayObjects(PastDays);
     }
   } else {
     console.log("DIDNT PUSH, NO DATA");
+    setDayObjects(PastDays);
   }
-  setDayObjects(PastDays);
+  console.log(PastDays);
 };
 
 const createThumbnail = async (videoURI) => {
@@ -156,7 +167,10 @@ export default function App() {
     Sora_600SemiBold,
   });
   const [DayObjects, setDayObjects] = useState([]);
-
+  useEffect(() => {
+    console.log("dayobjects");
+    console.log(DayObjects);
+  }, [DayObjects]);
   //On app load
   useEffect(async () => {
     createDirectory("DayInTheLife/Days/");
@@ -179,28 +193,13 @@ export default function App() {
     // await FileSystem.getInfoAsync(DayObjects[0].video)
     // await AsyncStorage.setItem("PastDays", "[]");
     // newDay(setDayObjects);
-
-    return () => listener.remove();
   }, []);
   const MINUTE_MS = 600000;
 
-  useEffect(() => {
-    const interval = setInterval(async () => {
-      console.log("TEN MINUTES");
-      await CreateToday();
-      today = await GetToday();
-      if (
-        +DateTime.fromISO(today.day).startOf("day") ===
-        +DateTime.now().startOf("day")
-      ) {
-        console.log("xdddd");
-      } else {
-        newDay(setDayObjects);
-      }
-    }, MINUTE_MS);
-
-    return () => clearInterval(interval); // This represents the unmount function, in which you need to clear your interval to prevent memory leaks.
-  }, []);
+  const job = schedule.scheduleJob("0 0 0 * * *", () => {
+    console.log("newday");
+    newDay(setDayObjects);
+  });
 
   if (!fontsLoaded) {
     return <AppLoading />;

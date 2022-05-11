@@ -76,7 +76,7 @@ const CompletedNote = ({
           },
           shadowOpacity: 0.15,
           shadowRadius: 10,
-          elevation: 5,
+          elevation: 0,
         }}
         onPress={() => {
           if (AnyEditable) {
@@ -151,7 +151,7 @@ const CompletedNote = ({
           onChangeText={setEditTitle}
           value={EditTitle}
           blurOnSubmit={true}
-          autoFocus={true}
+          // autoFocus={true}
           keyboardAppearance={Appearance.getColorScheme()}
           onSubmitEditing={() => editTextBody.current.focus()}
           autoCapitalize="sentences"
@@ -294,6 +294,7 @@ const TopRightButton = ({
             swiperRef.current.scrollBy(1, true);
             Keyboard.dismiss();
           }
+          Keyboard.dismiss();
         }}
       >
         <FontAwesomeIcon
