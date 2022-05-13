@@ -15,7 +15,7 @@
     <key>CFBundleDevelopmentRegion</key>
     <string>$(DEVELOPMENT_LANGUAGE)</string>
     <key>CFBundleDisplayName</key>
-    <string>DayInTheLife&#x2007;|&#x2007;Video&#x2007;Journal</string>
+    <string>Jot&#x2007;|&#x2007;Video&#x2007;Journal</string>
     <key>CFBundleExecutable</key>
     <string>$(EXECUTABLE_NAME)</string>
     <key>CFBundleIdentifier</key>
