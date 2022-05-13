@@ -1,7 +1,6 @@
 import { Appearance } from "react-native";
 import { useState } from "react";
 
-export const colorScheme = Appearance.getColorScheme();
 const surfaceDark = "#121212";
 const surfaceLight = "#EEEEEE";
 const elevatedDark = "rgba(255,255,255, 0.08)";
@@ -18,6 +17,7 @@ const highlight1 = "#FFE45C";
 
 export const surfaceColor = () => {
   // console.log("scheme: " + colorScheme)
+  const colorScheme = Appearance.getColorScheme();
   if (colorScheme === "light") {
     return surfaceLight;
   } else {
@@ -26,6 +26,8 @@ export const surfaceColor = () => {
 };
 
 export const elevatedColor = () => {
+  const colorScheme = Appearance.getColorScheme();
+
   if (colorScheme === "light") {
     return light1;
   } else {
@@ -34,6 +36,8 @@ export const elevatedColor = () => {
 };
 
 export const neutral2 = () => {
+  const colorScheme = Appearance.getColorScheme();
+
   if (colorScheme === "light") {
     return light1;
   } else {
@@ -42,6 +46,7 @@ export const neutral2 = () => {
 };
 
 export const text1 = () => {
+  const colorScheme = Appearance.getColorScheme();
   if (colorScheme === "light") {
     return dark1;
   } else {
@@ -50,6 +55,8 @@ export const text1 = () => {
 };
 
 export const text2 = () => {
+  const colorScheme = Appearance.getColorScheme();
+
   if (colorScheme === "light") {
     return dark3;
   } else {
@@ -58,6 +65,8 @@ export const text2 = () => {
 };
 
 export const revNeutral2 = () => {
+  const colorScheme = Appearance.getColorScheme();
+
   if (colorScheme === "light") {
     return dark2;
   } else {
@@ -66,6 +75,8 @@ export const revNeutral2 = () => {
 };
 
 export const placeholderColor = () => {
+  const colorScheme = Appearance.getColorScheme();
+
   if (colorScheme === "light") {
     return "#a9a9a9";
   } else {

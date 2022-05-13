@@ -1,0 +1,29 @@
+diff --git a/node_modules/react-native-admob-native-ads/android/build.gradle b/node_modules/react-native-admob-native-ads/android/build.gradle
+index 30f14f2..774c181 100755
+--- a/node_modules/react-native-admob-native-ads/android/build.gradle
++++ b/node_modules/react-native-admob-native-ads/android/build.gradle
+@@ -28,7 +28,7 @@ buildscript {
+ }
+ 
+ apply plugin: 'com.android.library'
+-apply plugin: 'maven'
++apply plugin: 'maven-publish'
+ 
+ android {
+     compileSdkVersion safeExtGet('compileSdkVersion', DEFAULT_COMPILE_SDK_VERSION)
+@@ -136,10 +136,10 @@ afterEvaluate { project ->
+ 
+     task installArchives(type: Upload) {
+         configuration = configurations.archives
+-        repositories.mavenDeployer {
+-            // Deploy to react-native-event-bridge/maven, ready to publish to npm
+-            repository url: "file://${projectDir}/../android/maven"
+-            configureReactNativePom pom
+-        }
++        // repositories.mavenDeployer {
++        //     // Deploy to react-native-event-bridge/maven, ready to publish to npm
++        //     repository url: "file://${projectDir}/../android/maven"
++        //     configureReactNativePom pom
++        // }
+     }
+ }

@@ -3,15 +3,7 @@ import { View, StyleSheet, Text, TouchableOpacity } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 
-import {
-  faAnglesUp,
-  faAngleRight,
-  faShare,
-  faUserGroup,
-  faComment,
-  faArrowUpFromBracket,
-  faArrowUpRightFromSquare,
-} from "@fortawesome/free-solid-svg-icons";
+import { faArrowUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
 import { useNavigation } from "@react-navigation/native";
 import { surfaceColor, elevatedColor, text1 } from "../utils/colors";
 import { OpenFunc } from "../features/Gallery/components/dayView/ShareMenu";

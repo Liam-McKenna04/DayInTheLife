@@ -152,100 +152,93 @@ function VisionCameraScreen({
     };
   });
 
-  useEffect(async () => {
-    const vidSegsString = await AsyncStorage.getItem("videoSegments");
-    const vidSegs = await JSON.parse(vidSegsString);
+  useEffect(() => {
+    const loadList = async () => {
+      const vidSegsString = await AsyncStorage.getItem("videoSegments");
+      const vidSegs = await JSON.parse(vidSegsString);
 
-    if (vidSegs === null) {
-      await AsyncStorage.setItem("videoSegments", "[]");
-      setVideoList([]);
-    } else {
-      // for (let i = vidSegs.length - 1; i > -1; i--){
-      // let response = await FileSystem.getInfoAsync(vidSegs[i])
-      // if (response.exists === false){
-      //   vidSegs.splice(i, 1)
-      // }
-      // }
-      setVideoList(vidSegs);
-    }
+      if (vidSegs === null) {
+        await AsyncStorage.setItem("videoSegments", "[]");
+        setVideoList([]);
+      } else {
+        setVideoList(vidSegs);
+      }
+    };
+    loadList();
   }, [DayObjects]);
 
-  useEffect(async () => {
-    const vidSegsString = await AsyncStorage.getItem("videoSegments");
-    const vidSegs = await JSON.parse(vidSegsString);
-    // console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAa")
-    if (vidSegs === null) {
-      console.log("null");
-      await AsyncStorage.setItem("videoSegments", "[]");
-      setVideoList([]);
-    } else {
-      // for (let i = vidSegs.length - 1; i > -1; i--){
-      // let response = await FileSystem.getInfoAsync(vidSegs[i])
-      // if (response.exists === false){
-      //   vidSegs.splice(i, 1)
-      // }
-      // }
-      console.log("VIDSEGS " + vidSegs);
+  useEffect(() => {
+    const loadCamera = async () => {
+      let camStatus = await Camera.getCameraPermissionStatus();
+      let micStatus = await Camera.getMicrophonePermissionStatus();
+      camStatus = await Camera.requestCameraPermission();
+      micStatus = await Camera.requestMicrophonePermission();
 
-      setVideoList(vidSegs);
-    }
-    setLoaded(true);
+      setCameraHasPermission(camStatus === "authorized");
+      setMicHasPermission(micStatus === "authorized");
+
+      const vidSegsString = await AsyncStorage.getItem("videoSegments");
+      const vidSegs = await JSON.parse(vidSegsString);
+      // console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAa")
+      if (vidSegs === null) {
+        console.log("null");
+        await AsyncStorage.setItem("videoSegments", "[]");
+        setVideoList([]);
+      } else {
+        console.log("VIDSEGS " + vidSegs);
+
+        setVideoList(vidSegs);
+      }
+      setLoaded(true);
+    };
+
+    loadCamera();
   }, []);
 
   useEffect(() => {
     setCameraOrientation(devices.back);
   }, [devices]);
 
-  useEffect(async () => {
-    let camStatus = await Camera.getCameraPermissionStatus();
-    let micStatus = await Camera.getMicrophonePermissionStatus();
-    camStatus = await Camera.requestCameraPermission();
-    micStatus = await Camera.requestMicrophonePermission();
-
-    setCameraHasPermission(camStatus === "authorized");
-    setMicHasPermission(micStatus === "authorized");
-  }, []);
-
-  useEffect(async () => {
-    console.log("VIDEOLIST");
-    console.log(VideoList);
-
-    const lengths = [];
-    for (let i = 0; i < VideoList.length; i++) {
-      console.log(VideoList[i]);
-      lengths.push(VideoList[i].duration);
-    }
-
-    const sum = lengths.reduce((a, b) => a + b, 0);
-    setVideoLength(sum);
-    setDelta(0);
-    await AsyncStorage.setItem("videoSegments", JSON.stringify(VideoList));
-    console.log(VideoList);
-
-    // await FFprobeKit.execute(`-v error -show_forma t -show_streams ${VideoList[0].uri}`)
-
-    let positions = VideoList.map((value, index) => {
-      // console.log(value);
-
-      const computedPositionList = [];
-      for (let i = index; i >= 0; i--) {
-        const ClipDuration = VideoList[i].duration;
-        const FullDuration = MaxVideoLength;
-        const PercentLength = ClipDuration / FullDuration;
-        const onePosition = PercentLength * 360;
-        computedPositionList.push(onePosition);
+  useEffect(() => {
+    const ComputeTicks = async () => {
+      const lengths = [];
+      for (let i = 0; i < VideoList.length; i++) {
+        console.log(VideoList[i]);
+        lengths.push(VideoList[i].duration);
       }
-      const computedPosition = computedPositionList.reduce(
-        (partialSum, a) => partialSum + a,
-        0
-      );
-      if (computedPosition) {
-        // console.log(computedPosition);
-        return computedPosition;
-      }
-    });
 
-    setDurationTicks(positions);
+      const sum = lengths.reduce((a, b) => a + b, 0);
+      setVideoLength(sum);
+      setDelta(0);
+      await AsyncStorage.setItem("videoSegments", JSON.stringify(VideoList));
+      console.log(VideoList);
+
+      // await FFprobeKit.execute(`-v error -show_forma t -show_streams ${VideoList[0].uri}`)
+
+      let positions = VideoList.map((value, index) => {
+        // console.log(value);
+
+        const computedPositionList = [];
+        for (let i = index; i >= 0; i--) {
+          const ClipDuration = VideoList[i].duration;
+          const FullDuration = MaxVideoLength;
+          const PercentLength = ClipDuration / FullDuration;
+          const onePosition = PercentLength * 360;
+          computedPositionList.push(onePosition);
+        }
+        const computedPosition = computedPositionList.reduce(
+          (partialSum, a) => partialSum + a,
+          0
+        );
+        if (computedPosition) {
+          // console.log(computedPosition);
+          return computedPosition;
+        }
+      });
+
+      setDurationTicks(positions);
+    };
+    ComputeTicks();
   }, [VideoList]);
 
   if (CameraHasPermission === null || MicHasPermission === null) {

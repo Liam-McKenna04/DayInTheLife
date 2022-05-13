@@ -49,7 +49,7 @@ const VideoPlayer = ({ VideoURI, videoURIList }) => {
       );
       if (computedPosition) {
         // console.log(computedPosition);
-        return computedPosition;
+        return { position: computedPosition, id: uuid() };
       }
     });
     // console.log(positions);
@@ -117,17 +117,18 @@ const VideoPlayer = ({ VideoURI, videoURIList }) => {
         ></Slider>
 
         {DurationTicks?.map((value, index) => {
-          // console.log(value);
-          if (!isNaN(value) && index != DurationTicks.length - 1) {
+          console.log(value);
+
+          if (!isNaN(value?.position) && index != DurationTicks.length - 1) {
             return (
               <View
-                key={new uuid()}
+                key={value.id}
                 style={{
                   position: "absolute",
                   height: 10,
                   width: 3,
                   backgroundColor: "white",
-                  left: 10 + value,
+                  left: 10 + value?.position,
                   zIndex: 1,
                 }}
               />

@@ -19,20 +19,30 @@ const AdItem = () => {
   console.log("ad");
   const nativeAdViewRef = useRef();
   const [UsingTracking, setUsingTracking] = useState(false);
-  useEffect(async () => {
-    const trackingStatus = await getTrackingStatus();
-    if (trackingStatus === "not-determined") {
-      trackingStatus = await requestTrackingPermission();
-    }
-    if (trackingStatus === "authorized" || trackingStatus === "unavailable") {
-      // enable tracking features
-      setUsingTracking(true);
-    } else {
-      setUsingTracking(false);
-    }
 
-    nativeAdViewRef.current?.loadAd();
+  useEffect(() => {
+    let isMounted = true;
+    const loadsAd = async () => {
+      const trackingStatus = await getTrackingStatus();
+
+      if (trackingStatus === "not-determined") {
+        trackingStatus = await requestTrackingPermission();
+      }
+      if (trackingStatus === "authorized" || trackingStatus === "unavailable") {
+        // enable tracking features
+        await setUsingTracking(true);
+      } else {
+        await setUsingTracking(false);
+      }
+      nativeAdViewRef.current?.loadAd();
+    };
+    if (isMounted) {
+      loadsAd();
+    }
     // console.log(nativeAdViewRef);
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   return (

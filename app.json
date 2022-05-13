@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Jot",
-    "slug": "Jot",
+    "name": "DayInTheLife",
+    "slug": "DayInTheLife",
     "version": "0.1.0",
     "orientation": "portrait",
     
@@ -13,18 +13,18 @@
       "**/*"
     ],
     "ios": {
-      "icon": "./assets/icons/logo.png",
+      "icon": "./assets/icons/logo1.png",
       "supportsTablet": false,
       "infoPlist": {
         "NSCameraUsageDescription": "$(PRODUCT_NAME) needs access to your Camera.",
         "NSMicrophoneUsageDescription": "$(PRODUCT_NAME) needs access to your Microphone."
       },
-      "bundleIdentifier": "com.liammckenna04.Jot",
+      "bundleIdentifier": "com.liammckenna04.DayInTheLife",
       "buildNumber": "6"
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/icons/logo.png",
+        "foregroundImage": "./assets/icons/logo1.png",
         "backgroundColor": "#FFFFFF"
       },
       "permissions": [

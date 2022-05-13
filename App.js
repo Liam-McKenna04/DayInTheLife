@@ -5,7 +5,6 @@ import { v4 as uuid } from "uuid";
 
 import { NavigationContainer } from "@react-navigation/native";
 
-import AppLoading from "expo-app-loading";
 import {
   useFonts,
   Sora_400Regular,
@@ -22,6 +21,9 @@ import Navigation from "./src/navigation/Navigation";
 var RNFS = require("react-native-fs");
 import { getTrackingStatus } from "react-native-tracking-transparency";
 const schedule = require("node-schedule");
+import * as SplashScreen from "expo-splash-screen";
+import AppLoading from "expo-app-loading";
+
 if (!__DEV__) {
   console.log = () => {};
   console.warn = () => {};
@@ -161,40 +163,51 @@ const createThumbnail = async (videoURI) => {
   return outputfilepath;
 };
 
+// Prevent native splash screen from autohiding before App component declaration
+SplashScreen.preventAutoHideAsync()
+  .then((result) =>
+    console.log(`SplashScreen.preventAutoHideAsync() succeeded: ${result}`)
+  )
+  .catch(console.warn); // it's good to explicitly catch and inspect any error
+
 export default function App() {
   let [fontsLoaded] = useFonts({
     Sora_400Regular,
     Sora_600SemiBold,
   });
+
   const [DayObjects, setDayObjects] = useState([]);
   useEffect(() => {
     console.log("dayobjects");
     console.log(DayObjects);
   }, [DayObjects]);
   //On app load
-  useEffect(async () => {
-    createDirectory("DayInTheLife/Days/");
-    createDirectory("DayInTheLife/Today/");
-    createDirectory("DayInTheLife/TodayFinished/");
+  useEffect(() => {
+    const AppLoad = async () => {
+      createDirectory("DayInTheLife/Days/");
+      createDirectory("DayInTheLife/Today/");
+      createDirectory("DayInTheLife/TodayFinished/");
 
-    await CreateToday();
-    today = await GetToday();
+      await CreateToday();
+      today = await GetToday();
 
-    if (
-      +DateTime.fromISO(today.day).startOf("day") ===
-      +DateTime.now().startOf("day")
-    ) {
-      console.log("x");
-    } else {
-      console.log("y");
+      if (
+        +DateTime.fromISO(today.day).startOf("day") ===
+        +DateTime.now().startOf("day")
+      ) {
+        console.log("x");
+      } else {
+        console.log("y");
+        newDay(setDayObjects);
+      }
+      // await FileSystem.getInfoAsync(DayObjects[0].video)
+      // await AsyncStorage.setItem("PastDays", "[]");
       newDay(setDayObjects);
-    }
 
-    // await FileSystem.getInfoAsync(DayObjects[0].video)
-    // await AsyncStorage.setItem("PastDays", "[]");
-    // newDay(setDayObjects);
+      await SplashScreen.hideAsync();
+    };
+    AppLoad();
   }, []);
-  const MINUTE_MS = 600000;
 
   const job = schedule.scheduleJob("0 0 0 * * *", () => {
     console.log("newday");

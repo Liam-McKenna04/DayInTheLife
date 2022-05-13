@@ -1,6 +1,3 @@
 {
-  "expo.jsEngine": "jsc",
-  "ffmpeg-kit-react-native.subspecs": [
-    "full-gpl"
-  ]
+  "expo.jsEngine": "jsc"
 }

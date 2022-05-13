@@ -35,10 +35,11 @@ const GalleryNav = () => {
         sharedElements={(route, otherRoute, showing) => {
           const { dayObject } = otherRoute.params;
           console.log(showing);
-          if (Platform.OS === "android") {
+          if (dayObject.id) {
+            return [dayObject.id];
+          } else {
             return;
           }
-          return [dayObject.id];
         }}
       />
     </GalleryStack.Navigator>

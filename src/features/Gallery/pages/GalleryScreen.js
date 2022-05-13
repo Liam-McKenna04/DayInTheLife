@@ -59,38 +59,43 @@ function GalleryScreen() {
   // })
   // const notThisWeekObjects = WeekObjects.filter(x => !((x[0].day.weekNumber === DateTime.now().weekNumber) && (x[0].day.year === DateTime.now().year)))
 
-  useEffect(async () => {
-    const pastDaysSTR = await AsyncStorage.getItem("PastDays");
-    const pastDays = await JSON.parse(pastDaysSTR);
-    setDayObjects(pastDays);
+  useEffect(() => {
+    const loadPastDays = async () => {
+      const pastDaysSTR = await AsyncStorage.getItem("PastDays");
+      const pastDays = await JSON.parse(pastDaysSTR);
+      setDayObjects(pastDays);
+    };
+    loadPastDays();
   }, []);
 
-  useEffect(async () => {
-    console.log("DAYOBJECTS");
-    console.log(DayObjects);
-    //  await FileSystem.getInfoAsync(DayObjects[0].video)
-    console.log("-----");
-    if (DayObjects != null) {
-      setThisWeekObjects(
-        DayObjects.filter(
-          (Day) =>
-            DateTime.fromISO(Day.day).weekNumber ===
-              DateTime.now().weekNumber &&
-            DateTime.fromISO(Day.day).year === DateTime.now().year
-        )
-      );
-      setNotthisWeekDays(
-        DayObjects.filter(
-          (Day) =>
-            !(
+  useEffect(() => {
+    const ConfigureLists = async () => {
+      console.log("DAYOBJECTS");
+      console.log(DayObjects);
+      //  await FileSystem.getInfoAsync(DayObjects[0].video)
+      console.log("-----");
+      if (DayObjects != null) {
+        setThisWeekObjects(
+          DayObjects.filter(
+            (Day) =>
               DateTime.fromISO(Day.day).weekNumber ===
                 DateTime.now().weekNumber &&
               DateTime.fromISO(Day.day).year === DateTime.now().year
-            )
-        )
-      );
-    }
-
+          )
+        );
+        setNotthisWeekDays(
+          DayObjects.filter(
+            (Day) =>
+              !(
+                DateTime.fromISO(Day.day).weekNumber ===
+                  DateTime.now().weekNumber &&
+                DateTime.fromISO(Day.day).year === DateTime.now().year
+              )
+          )
+        );
+      }
+    };
+    ConfigureLists();
     // console.log(ThisWeekObjects.length)
   }, [DayObjects]);
 

@@ -137,6 +137,7 @@ export const CreateToday = async () => {
         video: "",
         thumbnail: "",
         notes: [],
+        id: uuid(),
       })
     );
     //Day don't exist

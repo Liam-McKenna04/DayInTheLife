@@ -53,7 +53,7 @@ export default SpecialItem;
 
 const styles = StyleSheet.create({
   GalleryItemContainer: {
-    backgroundColor: "white",
+    backgroundColor: "transparent",
     width: 165,
     height: 205,
     borderRadius: 10,

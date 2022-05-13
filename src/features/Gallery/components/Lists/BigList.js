@@ -18,64 +18,69 @@ const BigList = ({ navigation, dayObjects, objectCount }) => {
 
   const [AllObjects, setAllObjects] = useState([]);
   let allObjects = [];
-  useEffect(async () => {
-    if (dayObjects === null) {
-      dayObjects = [];
-    }
-    dayObjects.sort((a, b) =>
-      compareLuxonDates(DateTime.fromISO(b.day), DateTime.fromISO(a.day))
-    );
-    if (objectCount === 0) {
-      const specialObject = {
-        specialObject: true,
-        text: "Example day",
-        onClick: () => {
-          navigation.navigate("CameraNav");
-        },
-        id: uuidv4(),
-      };
-      const adObject = { ad: true, id: uuidv4() };
-      allObjects = [...dayObjects, adObject];
-      setAllObjects(allObjects);
-    } else if (dayObjects.length === 0) {
-      const img = await Asset.loadAsync(
-        require("../../../../../assets/images/ShareWithFriends.jpg")
-      );
-      const specialObject = {
-        specialObject: true,
-        text: "Share with your friends",
-        image: img[0].localUri,
-        onClick: () => {
-          console.log(Share);
-          Share.open({
-            title: "Share jot",
-            message: "Hey, I think you might like this video journal app!\n\n",
-            url: "https://www.apple.com/us/app/Jot-|-Video-Journal/1616335485",
-          }).catch(() => {});
-        },
-      };
-      const adObject = { ad: true, id: uuidv4() };
-
-      allObjects = [...dayObjects, specialObject, adObject];
-      setAllObjects(allObjects);
-    } else {
-      allObjects = [...dayObjects];
-      const length = dayObjects.length;
-      const chunkSize = 10;
-      let pos = 1;
-      const interval = 5;
-
-      while (pos < length) {
-        const uuid = new uuidv4();
-        allObjects.splice(pos, 0, { ad: true, id: uuid });
-        pos += interval;
+  useEffect(() => {
+    const organizeBigList = async () => {
+      if (dayObjects === null) {
+        dayObjects = [];
       }
+      dayObjects.sort((a, b) =>
+        compareLuxonDates(DateTime.fromISO(b.day), DateTime.fromISO(a.day))
+      );
+      if (objectCount === 0) {
+        const specialObject = {
+          specialObject: true,
+          text: "Example day",
+          onClick: () => {
+            navigation.navigate("CameraNav");
+          },
+          id: uuidv4(),
+        };
+        const adObject = { ad: true, id: uuidv4() };
+        allObjects = [...dayObjects, adObject];
+        setAllObjects(allObjects);
+      } else if (dayObjects.length === 0) {
+        const img = await Asset.loadAsync(
+          require("../../../../../assets/images/ShareWithFriends.jpg")
+        );
+        console.log(img);
+        const specialObject = {
+          specialObject: true,
+          text: "Share with your friends",
+          image: img[0].localUri,
+          onClick: () => {
+            console.log(Share);
+            Share.open({
+              title: "Share jot",
+              message:
+                "Hey, I think you might like this video journal app!\n\n",
+              url: "https://www.apple.com/us/app/Jot-|-Video-Journal/1616335485",
+            }).catch(() => {});
+          },
+          id: uuidv4(),
+        };
+        const adObject = { ad: true, id: uuidv4() };
 
-      // allObjects.splice(1, 0, { ad: true, id: uuidv4() });
-      setAllObjects(allObjects);
-      // console.log(allObjects);
-    }
-    // console.log(allObjects);
+        allObjects = [...dayObjects, specialObject, adObject];
+        setAllObjects(allObjects);
+      } else {
+        allObjects = [...dayObjects];
+        const length = dayObjects.length;
+        const chunkSize = 10;
+        let pos = 1;
+        const interval = 5;
+
+        while (pos < length) {
+          const uuid = new uuidv4();
+          allObjects.splice(pos, 0, { ad: true, id: uuid });
+          pos += interval;
+        }
+
+        // allObjects.splice(1, 0, { ad: true, id: uuidv4() });
+        setAllObjects(allObjects);
+        // console.log(allObjects);
+      }
+    };
+    organizeBigList();
   }, [dayObjects]);
 
   return (
@@ -101,6 +106,7 @@ const BigList = ({ navigation, dayObjects, objectCount }) => {
       <View style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={styles.container}>
           {AllObjects.map((x) => {
+            console.log(x);
             if (x.ad) {
               return <AdItem key={x.id} />;
             } else if (x.specialObject) {

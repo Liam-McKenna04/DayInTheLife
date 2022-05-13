@@ -73,55 +73,61 @@ const CameraPlaybackScreen = () => {
   const [Loaded, setLoaded] = useState(false);
   const navigation = useNavigation();
   const [EditorStatus, setEditorStatus] = useState("none");
-  useEffect(async () => {
-    const vidSegsString = await AsyncStorage.getItem("videoSegments");
-    const vidSegs = await JSON.parse(vidSegsString);
+  useEffect(() => {
+    const getVidSegs = async () => {
+      const vidSegsString = await AsyncStorage.getItem("videoSegments");
+      const vidSegs = await JSON.parse(vidSegsString);
 
-    console.log(vidSegs);
-    setVideoList(vidSegs);
-    setLoaded(true);
+      // console.log(vidSegs);
+      setVideoList(vidSegs);
+      setLoaded(true);
+    };
+    getVidSegs();
+
+    return () => {
+      setLoaded(false);
+    };
   }, []);
-
-  useEffect(async () => {
-    if (VideoList.length != 0 || Loaded) {
-      const textfile = await writeTextFileWithAllAudioFiles(VideoList);
-
-      let listlength = VideoList.length;
-      let StringToText = "";
-      let FilterString = "";
-      // console.log(VideoList.length)
-      for (let i = 0; i < VideoList.length; i++) {
-        console.log(VideoList[i].uri);
-        StringToText = StringToText.concat(
-          "-i " + FileSystem.documentDirectory + VideoList[i].uri + " "
-        );
-        FilterString = FilterString.concat(`[${i}:v] [${i}:a] `);
-      }
-      const endingTAG = VideoList[0].uri;
-      const endingSTR = endingTAG.split(".").pop();
-      const outputTAG =
-        "DayInTheLife/TodayFinished/" + "finished" + "." + endingSTR;
-      const outputFile = FileSystem.documentDirectory + outputTAG;
-
-      FileSystem.deleteAsync(outputFile, { idempotent: true });
-      let command = "";
-      if (Platform.OS === "android") {
-        command = `-f concat -safe 0 -i ${textfile} -c:v copy -c:a mp3 ${outputFile}`;
-      } else {
-        command = `-f concat -safe 0 -i ${textfile} -c copy ${outputFile}`;
-      }
-
-      console.log(FileSystem.documentDirectory + VideoList[0].uri);
-      const x = await FFmpegKit.execute(command).then(() => {
-        setVideoURI(outputTAG);
-      });
-      // setVideoURI(VideoList[0].uri);
-    }
-  }, [VideoList]);
 
   useEffect(() => {
-    console.log("a");
-  }, []);
+    const onVideoListChange = async () => {
+      if (VideoList.length != 0 || Loaded) {
+        const textfile = await writeTextFileWithAllAudioFiles(VideoList);
+
+        let listlength = VideoList.length;
+        let StringToText = "";
+        let FilterString = "";
+        // console.log(VideoList.length)
+        for (let i = 0; i < VideoList.length; i++) {
+          console.log(VideoList[i].uri);
+          StringToText = StringToText.concat(
+            "-i " + FileSystem.documentDirectory + VideoList[i].uri + " "
+          );
+          FilterString = FilterString.concat(`[${i}:v] [${i}:a] `);
+        }
+        const endingTAG = VideoList[0].uri;
+        const endingSTR = endingTAG.split(".").pop();
+        const outputTAG =
+          "DayInTheLife/TodayFinished/" + "finished" + "." + endingSTR;
+        const outputFile = FileSystem.documentDirectory + outputTAG;
+
+        FileSystem.deleteAsync(outputFile, { idempotent: true });
+        let command = "";
+        if (Platform.OS === "android") {
+          command = `-f concat -safe 0 -i ${textfile} -c:v copy -c:a mp3 ${outputFile}`;
+        } else {
+          command = `-f concat -safe 0 -i ${textfile} -c copy ${outputFile}`;
+        }
+
+        console.log(FileSystem.documentDirectory + VideoList[0].uri);
+        const x = await FFmpegKit.execute(command).then(() => {
+          setVideoURI(outputTAG);
+        });
+      }
+    };
+    onVideoListChange();
+    console.log(VideoList);
+  }, [VideoList]);
 
   return (
     <View style={{ flex: 1 }}>
