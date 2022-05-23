@@ -14,32 +14,35 @@ import DateHeader from "../../../components/DateHeader";
 import { surfaceColor, elevatedColor, text1 } from "../../../utils/colors";
 import BigList from "../components/Lists/BigList";
 import { DateTime } from "luxon";
-const WeekScreen = ({ route, navigation }) => {
+const MonthScreen = ({ route, navigation }) => {
   const { dayObject } = route.params;
   const days = dayObject.days;
-  console.log(route.params);
   // console.log(days[0].day.startOf('week').toISODate())
   const colorScheme = useColorScheme();
+  const [MonthCal, setMonthCal] = useState("day");
 
   return (
     <View style={{ flex: 1, backgroundColor: surfaceColor(colorScheme) }}>
       <DateHeader
         navigation={navigation}
         headerContent={DateTime.fromISO(dayObject.timeBegin).toFormat(
-          "'Week of' LLL dd yyyy"
+          "LLL yyyy"
         )}
-        type={"week"}
+        type={"month"}
+        MonthCal={MonthCal}
+        setMonthCal={setMonthCal}
       ></DateHeader>
       <BigList
         colorScheme={colorScheme}
         dayObjects={days}
         navigation={navigation}
-        type={"week"}
+        type={"month"}
+        MonthCal={MonthCal}
       ></BigList>
     </View>
   );
 };
 
-const styles = StyleSheet.create({});
+export default MonthScreen;
 
-export default WeekScreen;
+const styles = StyleSheet.create({});

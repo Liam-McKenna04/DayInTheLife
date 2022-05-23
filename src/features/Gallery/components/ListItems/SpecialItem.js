@@ -1,8 +1,8 @@
 import { StyleSheet, Text, View, Pressable, Image } from "react-native";
 import React from "react";
 const MainContentRenderer = ({ image }) => {
-  if (image) {
-    console.log(image);
+  if (true) {
+    // console.log(image);
     return (
       <Image
         style={{
@@ -12,7 +12,7 @@ const MainContentRenderer = ({ image }) => {
           borderRadius: 10,
         }}
         resizeMode="cover"
-        source={{ uri: image }}
+        source={require("../../../../../assets/images/ShareWithFriends.jpg")}
       />
     );
   } else {

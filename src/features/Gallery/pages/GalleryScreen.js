@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import {
   StyleSheet,
   Text,
@@ -8,6 +8,7 @@ import {
   ScrollView,
   TouchableOpacity,
   Button,
+  useColorScheme,
 } from "react-native";
 import BigList from "../components/Lists/BigList";
 import SmallList from "../components/Lists/SmallList";
@@ -51,14 +52,8 @@ function GalleryScreen() {
   // const [DayObjects, setDayObjects] = useState([]);
   const [ThisWeekObjects, setThisWeekObjects] = useState([]);
   const [NotthisWeekDays, setNotthisWeekDays] = useState([]);
-  //     let yearObjects = groupBy(DayObjects, (x) => x['day'].startOf('week').year)
-  //     let WeekObjects = []
-  //     yearObjects.forEach(yearList => {
-  //         let y = groupBy(yearList, (x) => x['day']['weekNumber'])
-  //         y.forEach(z => WeekObjects.push(z))
-  // })
-  // const notThisWeekObjects = WeekObjects.filter(x => !((x[0].day.weekNumber === DateTime.now().weekNumber) && (x[0].day.year === DateTime.now().year)))
-
+  const colorScheme = useColorScheme();
+  const scrollViewRef = useRef(null);
   useEffect(() => {
     const loadPastDays = async () => {
       const pastDaysSTR = await AsyncStorage.getItem("PastDays");
@@ -100,8 +95,14 @@ function GalleryScreen() {
   }, [DayObjects]);
 
   return (
-    <View navigation={navigation} style={styles.GalleryContainer}>
-      <View
+    <View
+      navigation={navigation}
+      style={[
+        styles.GalleryContainer,
+        { backgroundColor: surfaceColor(colorScheme) },
+      ]}
+    >
+      <Pressable
         navigation={navigation}
         style={{
           display: "flex",
@@ -113,6 +114,9 @@ function GalleryScreen() {
           marginBottom: 10,
           marginRight: 18,
         }}
+        onPress={() => {
+          scrollViewRef.current?.scrollTo({ y: 0, animated: true });
+        }}
       >
         <View style={{ flexDirection: "row", alignItems: "center" }}>
           {/* <TouchableOpacity style={{justifyContent: 'center', alignItems: 'center', padding: 10}} onPress={ () => navigation.navigate('ProfileNav')}>
@@ -121,7 +125,7 @@ function GalleryScreen() {
           <Text
             style={{
               fontFamily: "Sora_600SemiBold",
-              color: text1(),
+              color: text1(colorScheme),
               fontSize: 32,
               marginLeft: 10,
               alignItems: "center",
@@ -139,21 +143,29 @@ function GalleryScreen() {
           }}
           onPress={() => navigation.navigate("CameraNav")}
         >
-          <FontAwesomeIcon icon={faSquarePlus} size={20} color={text1()} />
+          <FontAwesomeIcon
+            icon={faSquarePlus}
+            size={20}
+            color={text1(colorScheme)}
+          />
         </TouchableOpacity>
-      </View>
+      </Pressable>
 
-      <ScrollView>
-        <SmallList dayObjects={ThisWeekObjects} navigation={navigation} />
+      <ScrollView ref={scrollViewRef}>
+        <SmallList
+          dayObjects={ThisWeekObjects}
+          navigation={navigation}
+          colorScheme={colorScheme}
+        />
         <BigList
           dayObjects={NotthisWeekDays}
           objectCount={DayObjects == null ? 0 : DayObjects.length}
           navigation={navigation}
+          colorScheme={colorScheme}
         />
         {DayObjects === null || DayObjects.length === 0 ? (
           <View
             style={{
-              flex: 1,
               justifyContent: "center",
               alignItems: "center",
               flexDirection: "column",
@@ -162,7 +174,7 @@ function GalleryScreen() {
             <Text
               style={{
                 fontFamily: "Sora_600SemiBold",
-                color: text1(),
+                color: text1(colorScheme),
                 fontSize: 28,
                 alignItems: "center",
                 textAlign: "center",
@@ -174,7 +186,7 @@ function GalleryScreen() {
             <Text
               style={{
                 fontFamily: "Sora_400Regular",
-                color: text1(),
+                color: text1(colorScheme),
                 fontSize: 14,
                 alignItems: "center",
                 textAlign: "center",
@@ -217,7 +229,6 @@ const styles = StyleSheet.create({
   GalleryContainer: {
     display: "flex",
     flexDirection: "column",
-    backgroundColor: surfaceColor(),
     flex: 1,
     justifyContent: "flex-start",
   },

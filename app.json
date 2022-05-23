@@ -14,7 +14,7 @@
     ],
     "ios": {
       "icon": "./assets/icons/logo1.png",
-      "supportsTablet": false,
+      "supportsTablet": true,
       "infoPlist": {
         "NSCameraUsageDescription": "$(PRODUCT_NAME) needs access to your Camera.",
         "NSMicrophoneUsageDescription": "$(PRODUCT_NAME) needs access to your Microphone."

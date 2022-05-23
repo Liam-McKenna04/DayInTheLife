@@ -46,7 +46,7 @@
       </dict>
     </array>
     <key>CFBundleVersion</key>
-    <string>12</string>
+    <string>22</string>
     <key>LSRequiresIPhoneOS</key>
     <true/>
     <key>NSAppTransportSecurity</key>
@@ -63,14 +63,14 @@
       </dict>
     </dict>
     <key>NSCameraUsageDescription</key>
-    <string>$(PRODUCT_NAME) needs access to your Camera to be used in your video journal</string>
+    <string>Jot needs access to your Camera to be used in your video journal</string>
     <key>NSMicrophoneUsageDescription</key>
-    <string>$(PRODUCT_NAME) needs access to your Microphone to be used in your video journal.</string>
+    <string>Jot needs access to your Microphone to be used in your video journal.</string>
     <key>NSPhotoLibraryAddUsageDescription</key>
-    <string>Allow $(PRODUCT_NAME) to save photos from your days</string>
+    <string>Allow Jot to save photos from your days</string>
     <key>NSPhotoLibraryUsageDescription</key>
-    <string>Allow $(PRODUCT_NAME) to access your photos to include in your day</string>
-        <key>NSUserTrackingUsageDescription</key>
+    <string>Allow Jot to access your photos to include in your day</string>
+    <key>NSUserTrackingUsageDescription</key>
     <string>This identifier will be used to deliver personalized ads to you.</string>
 
     <key>UILaunchStoryboardName</key>

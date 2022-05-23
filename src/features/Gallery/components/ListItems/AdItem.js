@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Platform } from "react-native";
+import { StyleSheet, Text, View, Platform, AppState } from "react-native";
 import React, { useEffect, useRef, useState } from "react";
 import NativeAdView from "react-native-admob-native-ads";
 import {
@@ -11,29 +11,53 @@ import {
   requestTrackingPermission,
 } from "react-native-tracking-transparency";
 import { LinearGradient } from "expo-linear-gradient";
+
 const AdItem = () => {
+  // const adId = "ca-app-pub-3940256099942544/2247696110";
   const adId =
     Platform.OS === "ios"
       ? "ca-app-pub-4572817562844546/2602979970"
       : "ca-app-pub-4572817562844546/1840848050";
-  console.log("ad");
   const nativeAdViewRef = useRef();
   const [UsingTracking, setUsingTracking] = useState(false);
 
   useEffect(() => {
+    if (Platform.OS !== "ios") {
+      return;
+    }
+
+    const updateTrackingStatus = (status) => {
+      if (status === "active") {
+        (async () => {
+          const trackingStatus = await getTrackingStatus();
+          setUsingTracking(trackingStatus);
+          if (trackingStatus === "not-determined") {
+            const trackingStatus = await requestTrackingPermission();
+            setUsingTracking(trackingStatus);
+          }
+        })();
+      }
+    };
+
+    // Ready to check the permission now
+    if (AppState.currentState === "active") {
+      updateTrackingStatus(AppState.currentState);
+    } else {
+      // Need to wait until the app is ready before checking the permission
+      const subscription = AppState.addEventListener(
+        "change",
+        updateTrackingStatus
+      );
+
+      return () => {
+        subscription.remove();
+      };
+    }
+  }, [AppState.currentState]);
+
+  useEffect(() => {
     let isMounted = true;
     const loadsAd = async () => {
-      const trackingStatus = await getTrackingStatus();
-
-      if (trackingStatus === "not-determined") {
-        trackingStatus = await requestTrackingPermission();
-      }
-      if (trackingStatus === "authorized" || trackingStatus === "unavailable") {
-        // enable tracking features
-        await setUsingTracking(true);
-      } else {
-        await setUsingTracking(false);
-      }
       nativeAdViewRef.current?.loadAd();
     };
     if (isMounted) {
@@ -49,11 +73,18 @@ const AdItem = () => {
     <NativeAdView
       ref={nativeAdViewRef}
       mediaAspectRatio="portrait"
-      adUnitID="ca-app-pub-3940256099942544/2247696110"
+      adUnitID={adId}
       enableTestMode={true}
       style={styles.GalleryItemContainer}
       adChoicesPlacement="bottomRight"
-      requestNonPersonalizedAdsOnly={UsingTracking}
+      requestNonPersonalizedAdsOnly={!UsingTracking}
+      onAdLoaded={() => {
+        console.log("ad loaded");
+      }}
+      onAdFailedToLoad={(event) => {
+        console.log(event);
+        console.log("eee");
+      }}
     >
       {/* <HeadlineView style={{fontFamily: "Sora_600SemiBold", fontSize: 15, textAlign: 'left', position: 'absolute',  top: 12, left: 12, width: '90%', zIndex: 4}}/> */}
 
@@ -62,7 +93,7 @@ const AdItem = () => {
           width: "100%",
           height: "100%",
           borderRadius: 7,
-          resizeMode: "stretch",
+          // resizeMode: "stretch",
         }}
       ></ImageView>
     </NativeAdView>

@@ -20,6 +20,8 @@ import {
   faArrowRotateLeft,
   faPenClip,
   faPlus,
+  faBoltLightning,
+  faBolt,
 } from "@fortawesome/free-solid-svg-icons";
 import { v4 as uuid } from "uuid";
 import { useNavigation } from "@react-navigation/native";
@@ -30,7 +32,7 @@ import { FFmpegKit } from "ffmpeg-kit-react-native";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { launchImageLibrary } from "react-native-image-picker";
 import AppContext from "../../../../AppContext";
-
+import TimerImage from "../components/TimerImage";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import PermissionDenied from "../components/PermissionDenied";
 import Animated, {
@@ -94,8 +96,8 @@ function VisionCameraScreen({
         // console.log(seconds / 10)
         var delta = new Date().getTime() - startTime;
 
-        if (delta / 1000 + VideoLength > MaxVideoLength) {
-          stopVideo();
+        if (delta / 1000 + VideoLength >= MaxVideoLength + 0.5) {
+          stopVideo({ timerRanOut: true });
           setIsActive(false);
         }
         if (delta > 600) {
@@ -124,6 +126,7 @@ function VisionCameraScreen({
 
   const [VideoLength, setVideoLength] = useState(0);
   const [MaxVideoLength, setMaxVideoLength] = useState(60);
+  const [Flash, setFlash] = useState("off");
 
   const [Previewable, setPreviewable] = useState(true);
   const [ClickedInButton, setClickedInButton] = useState(false);
@@ -261,7 +264,7 @@ function VisionCameraScreen({
   const takeVideo = async () => {
     console.log("Maxvidlength: " + MaxVideoLength);
     console.log("vidlength: " + VideoLength);
-    if (MaxVideoLength < VideoLength) {
+    if (MaxVideoLength <= VideoLength) {
       console.log("TOO LONG");
       return false;
     }
@@ -271,13 +274,17 @@ function VisionCameraScreen({
 
     await camera.startRecording({
       videoCodec: "h264",
+      flash: Flash,
       onRecordingFinished: async (video) => {
         const delta = new Date().getTime() - startTime;
         if (delta < 500) {
           console.log("a");
           setDelta(0);
           reset();
-          photo = await camera.takePhoto({ qualityPrioritization: "speed" });
+          photo = await camera.takePhoto({
+            qualityPrioritization: "speed",
+            flash: Flash,
+          });
           console.log("photo " + photo.path);
           setRecording(false);
           capturePhoto({
@@ -330,7 +337,10 @@ function VisionCameraScreen({
         console.log("a");
         setDelta(0);
         reset();
-        photo = await camera.takePhoto({ qualityPrioritization: "speed" });
+        photo = await camera.takePhoto({
+          qualityPrioritization: "speed",
+          flash: Flash,
+        });
         console.log("photo " + photo.path);
         setRecording(false);
         capturePhoto({
@@ -348,21 +358,29 @@ function VisionCameraScreen({
     // setDelta(0)
   };
 
-  const stopVideo = async () => {
+  const stopVideo = async ({ timerRanOut }) => {
     if (ClickedInButton) {
       console.log("video length: " + VideoLength);
 
       camera.stopRecording().catch(async () => {
-        photo = await camera.takePhoto({ qualityPrioritization: "speed" });
-        console.log("photo aa" + photo.path);
-        capturePhoto({
-          photo: photo.path,
-          imported: false,
-          metadata: photo,
-          setShortPressable: setShortPressable,
-          setVideoList: setVideoList,
-          VideoList: VideoList,
-        });
+        console.log("bbb");
+        console.log(timerRanOut);
+        if (!timerRanOut) {
+          photo = await camera.takePhoto({
+            qualityPrioritization: "speed",
+            flash: Flash,
+          });
+
+          console.log("photo aa" + photo.path);
+          capturePhoto({
+            photo: photo.path,
+            imported: false,
+            metadata: photo,
+            setShortPressable: setShortPressable,
+            setVideoList: setVideoList,
+            VideoList: VideoList,
+          });
+        }
       });
 
       reset();
@@ -401,7 +419,8 @@ function VisionCameraScreen({
           X > center - 60 &&
           X < center + 60 &&
           Y < buttonBottom &&
-          Y > buttonBottom - 120
+          Y > buttonBottom - 120 &&
+          VideoLength < MaxVideoLength
         ) {
           setClickedInButton(true);
           setRecording(true);
@@ -410,7 +429,7 @@ function VisionCameraScreen({
         return true;
       }}
       onResponderRelease={async () => {
-        stopVideo();
+        stopVideo({ timerRanOut: true });
         setClickedInButton(false);
         zoom.value = 1;
       }}
@@ -483,15 +502,28 @@ function VisionCameraScreen({
           ) : (
             <View />
           )}
-          {!Recording ? (
+
+          <View
+            style={[
+              {
+                backgroundColor: "rgba(0,0,0,0.2)",
+                width: 40,
+                borderRadius: 100,
+                paddingVertical: 2,
+                // display: "none",
+              },
+              Recording && { display: "none" },
+            ]}
+          >
             <TouchableOpacity
               style={{
                 alignItems: "center",
                 justifyContent: "center",
                 width: 40,
                 height: 40,
-                backgroundColor: "rgba(0,0,0,0.2)",
+                backgroundColor: "transparent",
                 borderRadius: 50,
+                marginBottom: 5,
               }}
               onPress={() => {
                 setCameraOrientation(
@@ -507,9 +539,80 @@ function VisionCameraScreen({
                 color="#FFF"
               ></FontAwesomeIcon>
             </TouchableOpacity>
-          ) : (
-            <View />
-          )}
+            <TouchableOpacity
+              style={{
+                alignItems: "center",
+                justifyContent: "center",
+                width: 40,
+                height: 40,
+                backgroundColor: "transparent",
+                borderRadius: 50,
+                marginBottom: 5,
+              }}
+              onPress={() => {
+                switch (Flash) {
+                  case "on":
+                    setFlash("off");
+                    break;
+
+                  default:
+                    setFlash("on");
+                    break;
+                }
+              }}
+            >
+              {Flash === "on" ? (
+                <FontAwesomeIcon
+                  icon={faBolt}
+                  size={24}
+                  color="#FFF"
+                ></FontAwesomeIcon>
+              ) : (
+                <Image
+                  style={{ width: 25, height: 25 }}
+                  source={require("../../../../assets/images/BoltSlash.png")}
+                ></Image>
+              )}
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={{
+                alignItems: "center",
+                justifyContent: "center",
+                width: 40,
+                height: 40,
+
+                backgroundColor: "transparent",
+                borderRadius: 50,
+              }}
+              onPress={() => {
+                switch (MaxVideoLength) {
+                  case 60:
+                    if (VideoLength >= 10) {
+                      break;
+                    }
+                    setMaxVideoLength(10);
+                    break;
+
+                  case 10:
+                    if (VideoLength >= 2) {
+                      setMaxVideoLength(60);
+                      break;
+                    }
+                    setMaxVideoLength(2);
+                    break;
+                  case 2:
+                    setMaxVideoLength(60);
+                    break;
+
+                  default:
+                    setMaxVideoLength(60);
+                    break;
+                }
+              }}
+            >
+              <TimerImage MaxVideoLength={MaxVideoLength}></TimerImage>
+            </TouchableOpacity>
+          </View>
         </View>
 
         {Previewable ? (
@@ -553,7 +656,7 @@ function VisionCameraScreen({
                     }
                     if (result.assets) {
                       if (
-                        result.assets[0].duration >
+                        result.assets[0].duration >=
                         MaxVideoLength - VideoLength
                       ) {
                         console.log("Too long");
@@ -833,7 +936,7 @@ const styles = StyleSheet.create({
   press: {
     backgroundColor: "#00468B",
     width: "89%",
-    marginTop: 22,
+    marginTop: 10,
     marginLeft: 20,
     height: 66,
     display: "flex",

@@ -5,6 +5,7 @@ import {
   Pressable,
   Linking,
   Appearance,
+  useColorScheme,
 } from "react-native";
 import React from "react";
 import { useFocusEffect } from "@react-navigation/native";
@@ -13,8 +14,10 @@ import { StatusBar } from "expo-status-bar";
 import { text1, surfaceColor, elevatedColor } from "../../../utils/colors";
 const PermissionDenied = ({ text, title }) => {
   const [Focused, setFocused] = React.useState(false);
-  const statusBarStyle =
-    Appearance.getColorScheme() === "dark" ? "light" : "dark";
+  const colorScheme = useColorScheme();
+
+  const statusBarStyle = colorScheme === "dark" ? "light" : "dark";
+
   useFocusEffect(
     React.useCallback(() => {
       setFocused(true);
@@ -29,7 +32,7 @@ const PermissionDenied = ({ text, title }) => {
         justifyContent: "center",
         alignItems: "center",
         flex: 1,
-        backgroundColor: surfaceColor(),
+        backgroundColor: surfaceColor(colorScheme),
       }}
     >
       <StatusBar hidden={Focused}></StatusBar>
@@ -37,7 +40,7 @@ const PermissionDenied = ({ text, title }) => {
         <Text
           style={{
             fontFamily: "Sora_600SemiBold",
-            color: text1(),
+            color: text1(colorScheme),
             fontSize: 38,
             marginLeft: 20,
             alignItems: "center",
@@ -49,7 +52,7 @@ const PermissionDenied = ({ text, title }) => {
         <Text
           style={{
             fontFamily: "Sora_400Regular",
-            color: text1(),
+            color: text1(colorScheme),
             fontSize: 22,
             marginLeft: 20,
             alignItems: "center",

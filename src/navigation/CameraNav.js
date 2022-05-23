@@ -8,7 +8,12 @@ import { CardStyleInterpolators } from "@react-navigation/stack";
 import PlayBackNav from "./PlayBackNav";
 const CameraStack = createStackNavigator();
 
-const CameraNav = ({ Recording, setRecording }) => {
+const CameraNav = ({
+  Recording,
+  setRecording,
+  EditorStatus,
+  setEditorStatus,
+}) => {
   return (
     <CameraStack.Navigator
       initialRouteName="Nav"
@@ -16,7 +21,9 @@ const CameraNav = ({ Recording, setRecording }) => {
         headerShown: false,
         animationEnabled: true,
         gestureEnabled: true,
-        gestureDirection: "vertical",
+        cardStyleInterpolator: ({ current: { progress } }) => {
+          return { cardStyle: { opacity: progress } };
+        },
       }}
     >
       <CameraStack.Screen
@@ -25,7 +32,15 @@ const CameraNav = ({ Recording, setRecording }) => {
           <CreationNav Recording={Recording} setRecording={setRecording} />
         )}
       />
-      <CameraStack.Screen name="PlaybackNav" component={PlayBackNav} />
+      <CameraStack.Screen
+        name="PlaybackNav"
+        children={() => (
+          <PlayBackNav
+            EditorStatus={EditorStatus}
+            setEditorStatus={setEditorStatus}
+          />
+        )}
+      />
     </CameraStack.Navigator>
   );
 };

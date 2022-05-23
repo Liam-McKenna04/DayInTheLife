@@ -9,6 +9,7 @@ import {
   TextInput,
   TouchableOpacity,
   Appearance,
+  useColorScheme,
 } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
@@ -49,6 +50,7 @@ const CompletedNote = ({
   setEditTitle,
   EditText,
   setEditText,
+  colorScheme,
 }) => {
   const editTextBody = useRef();
   const [Editable, setEditable] = useState(true);
@@ -60,7 +62,7 @@ const CompletedNote = ({
     return (
       <Pressable
         style={{
-          backgroundColor: elevatedColor(),
+          backgroundColor: elevatedColor(colorScheme),
           marginBottom: 30,
           paddingTop: 15,
           paddingHorizontal: 20,
@@ -92,7 +94,7 @@ const CompletedNote = ({
         }}
       >
         <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
-          <Text style={{ marginBottom: 5, color: text1() }}>
+          <Text style={{ marginBottom: 5, color: text1(colorScheme) }}>
             {DateTime.fromISO(date).toFormat("t")}
           </Text>
         </View>
@@ -101,7 +103,7 @@ const CompletedNote = ({
             fontFamily: "Sora_600SemiBold",
             fontSize: 36,
             marginBottom: 5,
-            color: text1(),
+            color: text1(colorScheme),
           }}
         >
           {title}
@@ -111,7 +113,7 @@ const CompletedNote = ({
             fontFamily: "Sora_400Regular",
             fontSize: 16,
             marginHorizontal: 10,
-            color: text1(),
+            color: text1(colorScheme),
           }}
         >
           {textContent}
@@ -122,7 +124,7 @@ const CompletedNote = ({
     return (
       <View
         style={{
-          backgroundColor: elevatedColor(),
+          backgroundColor: elevatedColor(colorScheme),
           marginBottom: 30,
           paddingTop: 15,
           paddingHorizontal: 20,
@@ -135,7 +137,7 @@ const CompletedNote = ({
         }}
       >
         <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
-          <Text style={{ marginBottom: 5, color: text1() }}>
+          <Text style={{ marginBottom: 5, color: text1(colorScheme) }}>
             {DateTime.fromISO(date).toFormat("t")}
           </Text>
         </View>
@@ -145,7 +147,7 @@ const CompletedNote = ({
             fontSize: 36,
             marginBottom: 5,
             width: "100%",
-            color: text1(),
+            color: text1(colorScheme),
           }}
           multiline={true}
           onChangeText={setEditTitle}
@@ -163,7 +165,7 @@ const CompletedNote = ({
             fontSize: 16,
             marginHorizontal: 10,
             width: "100%",
-            color: text1(),
+            color: text1(colorScheme),
           }}
           multiline={true}
           onChangeText={setEditText}
@@ -183,6 +185,7 @@ const TopLeftButton = ({
   setIndexEditable,
   setAnyEditable,
   swiperRef,
+  colorScheme,
 }) => {
   const navigation = useNavigation();
   if (AnyEditable) {
@@ -202,7 +205,7 @@ const TopLeftButton = ({
           swiperRef.current.scrollBy(1, true);
         }}
       >
-        <FontAwesomeIcon icon={faTrash} size={22} color={text1()} />
+        <FontAwesomeIcon icon={faTrash} size={22} color={text1(colorScheme)} />
       </TouchableOpacity>
     );
   }
@@ -212,7 +215,7 @@ const TopLeftButton = ({
       onPress={() => {
         navigation.navigate("GalleryNav");
       }}
-      iconStyle={{ color: text1() }}
+      iconStyle={{ color: text1(colorScheme) }}
       size={24}
       underlayColor="transparent"
       activeOpacity={0.2}
@@ -237,6 +240,7 @@ const TopRightButton = ({
   IndexEditable,
   setIndexEditable,
   setAnyEditable,
+  colorScheme,
 }) => {
   if (AnyEditable) {
     return (
@@ -259,7 +263,7 @@ const TopRightButton = ({
           swiperRef.current.scrollBy(1, true);
         }}
       >
-        <FontAwesomeIcon icon={faCheck} size={24} color={text1()} />
+        <FontAwesomeIcon icon={faCheck} size={24} color={text1(colorScheme)} />
       </Pressable>
     );
   }
@@ -300,7 +304,7 @@ const TopRightButton = ({
         <FontAwesomeIcon
           icon={NoteTitle === "" && NoteText === "" ? faVideoCamera : faCheck}
           size={24}
-          color={text1()}
+          color={text1(colorScheme)}
         ></FontAwesomeIcon>
       </TouchableOpacity>
     </View>
@@ -308,9 +312,11 @@ const TopRightButton = ({
 };
 
 const Notetakingscreen = ({ swiperRef }) => {
+  const colorScheme = useColorScheme();
   const [NoteTitle, setNoteTitle] = useState("");
   const [NoteText, setNoteText] = useState("");
   const textBody = useRef();
+  const textTitle = useRef();
   const [Notes, setNotes] = useState([]);
   const [AnyEditable, setAnyEditable] = useState(false);
   const [IndexEditable, setIndexEditable] = useState(null);
@@ -341,7 +347,7 @@ const Notetakingscreen = ({ swiperRef }) => {
   const insets = useSafeAreaInsets();
   return (
     <View
-      style={{ flex: 1, backgroundColor: surfaceColor() }}
+      style={{ flex: 1, backgroundColor: surfaceColor(colorScheme) }}
       keyboardShouldPersistTaps={"always"}
     >
       {/* <StatusBar style='dark'/> */}
@@ -355,12 +361,13 @@ const Notetakingscreen = ({ swiperRef }) => {
             setNotes={setNotes}
             IndexEditable={IndexEditable}
             swiperRef={swiperRef}
+            colorScheme={colorScheme}
           />
 
           <Text
             style={{
               fontFamily: "Sora_600SemiBold",
-              color: text1(),
+              color: text1(colorScheme),
               fontSize: 36,
               textAlign: "left",
               top: 2,
@@ -387,6 +394,7 @@ const Notetakingscreen = ({ swiperRef }) => {
             setNotes={setNotes}
             setNoteTitle={setNoteTitle}
             setNoteText={setNoteText}
+            colorScheme={colorScheme}
           />
         </View>
         <View
@@ -414,9 +422,10 @@ const Notetakingscreen = ({ swiperRef }) => {
         >
           <TextInput
             multiline={true}
+            ref={textTitle}
             style={{
               fontFamily: "Sora_600SemiBold",
-              color: text1(),
+              color: text1(colorScheme),
               fontSize: 32,
               textAlign: "left",
               width: "100%",
@@ -427,7 +436,7 @@ const Notetakingscreen = ({ swiperRef }) => {
             blurOnSubmit={true}
             keyboardAppearance={Appearance.getColorScheme()}
             onSubmitEditing={() => textBody.current.focus()}
-            placeholderTextColor={placeholderColor()}
+            placeholderTextColor={placeholderColor(colorScheme)}
             autoCapitalize="sentences"
           />
 
@@ -437,7 +446,7 @@ const Notetakingscreen = ({ swiperRef }) => {
             style={{
               marginTop: 10,
               fontFamily: "Sora_400Regular",
-              color: text1(),
+              color: text1(colorScheme),
               fontSize: 16,
               textAlign: "left",
               paddingBottom: 150,
@@ -446,6 +455,14 @@ const Notetakingscreen = ({ swiperRef }) => {
             value={NoteText}
             blurOnSubmit={false}
             keyboardAppearance={Appearance.getColorScheme()}
+            onKeyPress={({ nativeEvent: { key: keyValue } }) => {
+              console.log(keyValue === "Backspace");
+              console.log(NoteText.length);
+              if (keyValue === "Backspace" && NoteText.length === 0) {
+                textTitle.current.focus();
+                console.log("ddd");
+              }
+            }}
             onSubmitEditing={() => {
               // setNotes([{title: NoteTitle, text: NoteText, date: DateTime.now()}, ...Notes])
               // setNoteText("")
@@ -469,6 +486,7 @@ const Notetakingscreen = ({ swiperRef }) => {
               title={note.title}
               date={note.date}
               index={index}
+              colorScheme={colorScheme}
             />
           ))}
         </View>

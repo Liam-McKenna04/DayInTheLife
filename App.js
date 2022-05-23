@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import * as FileSystem from "expo-file-system";
 import { v4 as uuid } from "uuid";
 
@@ -16,19 +16,22 @@ import { DateTime } from "luxon";
 import Midnight from "react-native-midnight";
 import { FFmpegKit } from "ffmpeg-kit-react-native";
 import AppContext from "./AppContext";
-import { Platform } from "react-native";
+import { Platform, View, Text, Appearance, AppState } from "react-native";
 import Navigation from "./src/navigation/Navigation";
 var RNFS = require("react-native-fs");
 import { getTrackingStatus } from "react-native-tracking-transparency";
 const schedule = require("node-schedule");
 import * as SplashScreen from "expo-splash-screen";
 import AppLoading from "expo-app-loading";
-
+import Modal from "react-native-modal";
+import { text1, elevatedColor } from "./src/utils/colors";
+import { Video, AVPlaybackStatus, Audio } from "expo-av";
 if (!__DEV__) {
   console.log = () => {};
   console.warn = () => {};
   console.error = () => {};
 }
+
 const writeTextFileWithAllVidFiles = async (filePaths) => {
   var fileContent = "";
   await RNFS.unlink(RNFS.DocumentDirectoryPath + "/audioList.txt", {
@@ -50,7 +53,7 @@ const writeTextFileWithAllVidFiles = async (filePaths) => {
   }
 };
 
-const newDay = async (setDayObjects) => {
+const newDay = async ({ setDayObjects, setDayDownloading }) => {
   console.log("NEW DAY");
   const todaySTR = await AsyncStorage.getItem("today");
   const today = todaySTR != null ? JSON.parse(todaySTR) : [];
@@ -103,7 +106,6 @@ const newDay = async (setDayObjects) => {
         FileSystem.documentDirectory + outputFile
       );
       today.thumbnail = thumbnail;
-      // console.log(finishedinfo.exists);
 
       today.video = outputFile;
     }
@@ -150,7 +152,7 @@ const newDay = async (setDayObjects) => {
     console.log("DIDNT PUSH, NO DATA");
     setDayObjects(PastDays);
   }
-  console.log(PastDays);
+  // console.log(PastDays);
 };
 
 const createThumbnail = async (videoURI) => {
@@ -168,26 +170,30 @@ SplashScreen.preventAutoHideAsync()
   .then((result) =>
     console.log(`SplashScreen.preventAutoHideAsync() succeeded: ${result}`)
   )
-  .catch(console.warn); // it's good to explicitly catch and inspect any error
+  .catch(() => console.log("t")); // it's good to explicitly catch and inspect any error
 
 export default function App() {
   let [fontsLoaded] = useFonts({
     Sora_400Regular,
     Sora_600SemiBold,
   });
-
+  const [DayDownloading, setDayDownloading] = useState(false);
   const [DayObjects, setDayObjects] = useState([]);
-  useEffect(() => {
-    console.log("dayobjects");
-    console.log(DayObjects);
-  }, [DayObjects]);
+  const [SelectedDayObject, setSelectedDayObject] = useState(false);
+  // const colorScheme = useColorScheme();
+  // console.log(colorScheme);
+
   //On app load
   useEffect(() => {
     const AppLoad = async () => {
+      await Audio.setAudioModeAsync({ playsInSilentModeIOS: true });
+
+      setSelectedDayObject(false);
+
       createDirectory("DayInTheLife/Days/");
       createDirectory("DayInTheLife/Today/");
       createDirectory("DayInTheLife/TodayFinished/");
-
+      console.log("test test");
       await CreateToday();
       today = await GetToday();
 
@@ -198,28 +204,63 @@ export default function App() {
         console.log("x");
       } else {
         console.log("y");
-        newDay(setDayObjects);
+        newDay({ setDayObjects, setDayDownloading });
       }
       // await FileSystem.getInfoAsync(DayObjects[0].video)
       // await AsyncStorage.setItem("PastDays", "[]");
-      newDay(setDayObjects);
+      // newDay({ setDayObjects, setDayDownloading });
+      // console.log("aaaa");
 
-      await SplashScreen.hideAsync();
+      await SplashScreen.hideAsync().catch(() => {});
     };
+    console.log("a");
     AppLoad();
   }, []);
+  const appState = useRef(AppState.currentState);
+  const [appStateVisible, setAppStateVisible] = useState(appState.current);
 
-  const job = schedule.scheduleJob("0 0 0 * * *", () => {
-    console.log("newday");
-    newDay(setDayObjects);
-  });
+  useEffect(() => {
+    const subscription = AppState.addEventListener("change", (nextAppState) => {
+      if (
+        appState.current.match(/inactive|background/) &&
+        nextAppState === "active"
+      ) {
+        if (
+          +DateTime.fromISO(today.day).startOf("day") ===
+          +DateTime.now().startOf("day")
+        ) {
+          console.log("x");
+        } else {
+          console.log("y");
+          newDay({ setDayObjects, setDayDownloading });
+        }
+      }
+
+      appState.current = nextAppState;
+      setAppStateVisible(appState.current);
+      console.log("AppState", appState.current);
+    });
+
+    return () => {
+      subscription.remove();
+    };
+  }, []);
 
   if (!fontsLoaded) {
     return <AppLoading />;
   }
+  Text.defaultProps = Text.defaultProps || {};
+  Text.defaultProps.allowFontScaling = false;
 
   return (
-    <AppContext.Provider value={{ DayObjects, setDayObjects }}>
+    <AppContext.Provider
+      value={{
+        DayObjects,
+        setDayObjects,
+        SelectedDayObject,
+        setSelectedDayObject,
+      }}
+    >
       <NavigationContainer>
         <Navigation />
       </NavigationContainer>

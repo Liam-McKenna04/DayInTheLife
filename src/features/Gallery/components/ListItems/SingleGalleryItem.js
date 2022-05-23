@@ -8,7 +8,7 @@ import { SharedElement } from "react-navigation-shared-element";
 import * as FileSystem from "expo-file-system";
 import { surfaceColor, elevatedColor, text1 } from "../../../../utils/colors";
 
-const MainContentRenderer = ({ dayObject }) => {
+const MainContentRenderer = ({ dayObject, colorScheme }) => {
   // console.log(dayObject)
   if (dayObject.thumbnail.length > 0) {
     // console.log(typeof(thumb))
@@ -34,7 +34,7 @@ const MainContentRenderer = ({ dayObject }) => {
             fontFamily: "Sora_400Regular",
             fontSize: 16,
             textAlign: "center",
-            color: text1(),
+            color: text1(colorScheme),
           }}
         >
           {dayObject.notes[0].text}
@@ -44,7 +44,7 @@ const MainContentRenderer = ({ dayObject }) => {
   }
 };
 
-const TitleContentRenderer = ({ dayObject, sectionType }) => {
+const TitleContentRenderer = ({ dayObject, sectionType, colorScheme }) => {
   if (sectionType === "thisWeek") {
     const weekday = [
       "Monday",
@@ -57,7 +57,11 @@ const TitleContentRenderer = ({ dayObject, sectionType }) => {
     ];
     return (
       <Text
-        style={{ fontFamily: "Sora_600SemiBold", fontSize: 18, color: text1() }}
+        style={{
+          fontFamily: "Sora_600SemiBold",
+          fontSize: 18,
+          color: text1(colorScheme),
+        }}
       >
         {weekday[DateTime.fromISO(dayObject.day).weekday - 1]}
       </Text>
@@ -67,24 +71,30 @@ const TitleContentRenderer = ({ dayObject, sectionType }) => {
 
 // const dayObjects = [{"day": new Date(),"image": null, "notes": [{"title": "Lthis is singlegall"}]}]
 
-const SingleGalleryItem = ({ dayObject, sectionType }) => {
+const SingleGalleryItem = ({ dayObject, sectionType, colorScheme }) => {
   const navigation = useNavigation();
   return (
     <Pressable
-      style={styles.GalleryItemContainer}
+      style={[
+        styles.GalleryItemContainer,
+        { backgroundColor: elevatedColor(colorScheme) },
+      ]}
       onPress={(e) => {
         navigation.navigate("DayView", { dayObject });
       }}
     >
-      <MainContentRenderer dayObject={dayObject} />
-      <TitleContentRenderer dayObject={dayObject} sectionType="thisWeek" />
+      <MainContentRenderer dayObject={dayObject} colorScheme={colorScheme} />
+      <TitleContentRenderer
+        dayObject={dayObject}
+        sectionType="thisWeek"
+        colorScheme={colorScheme}
+      />
     </Pressable>
   );
 };
 
 const styles = StyleSheet.create({
   GalleryItemContainer: {
-    backgroundColor: elevatedColor(),
     width: 133,
     height: 165,
     borderRadius: 10,

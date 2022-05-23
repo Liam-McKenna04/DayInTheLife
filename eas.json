@@ -3,6 +3,7 @@
     "version": ">= 0.48.2"
   },
   "build": {
+    
     "development": {
  
       "distribution": "internal",
@@ -31,7 +32,8 @@
         "buildConfiguration": "Release"
       },
       "android": {
-        "image": "latest"
+        "image": "latest",
+        "credentialsSource": "local"
 
       }
     }

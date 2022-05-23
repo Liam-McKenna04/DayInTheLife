@@ -11,7 +11,6 @@ import {
 import { DateTime } from "luxon";
 import { LinearGradient } from "expo-linear-gradient";
 import { SharedElement } from "react-navigation-shared-element";
-import { useFocusEffect } from "@react-navigation/native";
 import { InteractionManager } from "react-native";
 import * as FileSystem from "expo-file-system";
 import {
@@ -29,7 +28,7 @@ const gradientScheme = () => {
   }
 };
 
-const borderRad = 7;
+const borderRad = 10;
 function getNumberSuffix(num) {
   const th = "th";
   const rd = "rd";
@@ -52,8 +51,7 @@ function getNumberSuffix(num) {
   }
 }
 
-const MainContentRenderer = ({ dayObject }) => {
-  console.log(dayObject.thumbnail);
+const MainContentRenderer = ({ dayObject, colorScheme }) => {
   if (dayObject.thumbnail != "") {
     return (
       <View style={{ height: "100%", width: "100%" }}>
@@ -103,7 +101,7 @@ const MainContentRenderer = ({ dayObject }) => {
             top: topMargin,
             overflow: "hidden",
             padding: 10,
-            color: text1(),
+            color: text1(colorScheme),
           }}
         >
           {dayObject.notes[0].text}
@@ -113,21 +111,7 @@ const MainContentRenderer = ({ dayObject }) => {
   }
 };
 
-const TitleContentRenderer = ({ dayObject, sectionType }) => {
-  const [Loaded, setLoaded] = React.useState(false);
-  useFocusEffect(
-    React.useCallback(() => {
-      // Do something when the screen is focused
-      const task = InteractionManager.runAfterInteractions(() => {
-        // Expensive task
-        setLoaded(true);
-      });
-      return () => {
-        setLoaded(false);
-      };
-    }, [])
-  );
-
+const TitleContentRenderer = ({ dayObject, sectionType, colorScheme }) => {
   if (sectionType === "thisWeek") {
     const weekday = [
       "Sunday",
@@ -143,24 +127,39 @@ const TitleContentRenderer = ({ dayObject, sectionType }) => {
         {weekday[DateTime.fromISO(dayObject.day).weekday - 1]}
       </Text>
     );
-  } else if (sectionType === "weeks") {
+  } else if (sectionType === "week") {
     let suffix = getNumberSuffix(
-      DateTime.fromISO(dayObject.day).startOf("week").day
+      DateTime.fromISO(dayObject.timeBegin).endOf("week").day
     );
     let year =
-      DateTime.fromISO(dayObject.day).weekYear == DateTime.now().weekYear
+      DateTime.fromISO(dayObject.timeBegin).weekYear == DateTime.now().weekYear
         ? ""
-        : DateTime.fromISO(dayObject.day).weekYear;
+        : DateTime.fromISO(dayObject.timeBegin).weekYear;
     return (
       <Text
         style={{
           fontFamily: "Sora_600SemiBold",
-          fontSize: 20,
-          textAlign: "center",
+          fontSize: 25,
+          textAlign: "left",
+          position: "absolute",
+          top: 12,
+          left: 12,
+          width: "90%",
+          zIndex: 1,
+          color: text2(colorScheme),
         }}
       >
-        {DateTime.fromISO(dayObject.day).startOf("week").toFormat("LLLL d")}
-        {suffix} {year}
+        {DateTime.fromISO(dayObject.timeBegin)
+          .startOf("week")
+          .toFormat("LLLL d")}
+        {"-"}
+        {DateTime.fromISO(dayObject.timeBegin).startOf("week").month ===
+        DateTime.fromISO(dayObject.timeBegin).endOf("week").month
+          ? DateTime.fromISO(dayObject.timeBegin).endOf("week").day
+          : DateTime.fromISO(dayObject.timeBegin)
+              .endOf("week")
+              .toFormat("LLLL d")}
+        {year}
       </Text>
     );
   } else if (sectionType === "days") {
@@ -169,70 +168,104 @@ const TitleContentRenderer = ({ dayObject, sectionType }) => {
       DateTime.fromISO(dayObject.day).year == DateTime.now().year
         ? ""
         : DateTime.fromISO(dayObject.day).year;
-    if (Loaded) {
-      if (dayObject.thumbnail != "") {
-        return (
-          <Text
-            style={{
-              fontFamily: "Sora_600SemiBold",
-              fontSize: 25,
-              textAlign: "left",
-              position: "absolute",
-              top: 12,
-              left: 12,
-              width: "90%",
-              zIndex: 1,
-              color: text2(),
-            }}
-          >
-            {DateTime.fromISO(dayObject.day).toFormat("LLL d")}
-            {suffix} {year}
-          </Text>
-        );
-      } else {
-        return (
-          <Text
-            style={{
-              fontFamily: "Sora_600SemiBold",
-              fontSize: 25,
-              textAlign: "left",
-              position: "absolute",
-              top: 12,
-              left: 12,
-              width: "90%",
-              zIndex: 1,
-              color: text1(),
-            }}
-          >
-            {DateTime.fromISO(dayObject.day).toFormat("LLL d")}
-            {suffix} {year}
-          </Text>
-        );
-      }
+    if (dayObject.thumbnail != "") {
+      return (
+        <Text
+          style={{
+            fontFamily: "Sora_600SemiBold",
+            fontSize: 25,
+            textAlign: "left",
+            position: "absolute",
+            top: 12,
+            left: 12,
+            width: "90%",
+            zIndex: 1,
+            color: text2(colorScheme),
+          }}
+        >
+          {DateTime.fromISO(dayObject.day).toFormat("LLL d")}
+          {suffix} {year}
+        </Text>
+      );
     } else {
-      return <View></View>;
+      return (
+        <Text
+          style={{
+            fontFamily: "Sora_600SemiBold",
+            fontSize: 25,
+            textAlign: "left",
+            position: "absolute",
+            top: 12,
+            left: 12,
+            width: "90%",
+            zIndex: 1,
+            color: text1(colorScheme),
+          }}
+        >
+          {DateTime.fromISO(dayObject.day).toFormat("LLL d")}
+          {suffix} {year}
+        </Text>
+      );
     }
+  } else if (sectionType === "month") {
+    let suffix = getNumberSuffix(DateTime.fromISO(dayObject.timeBegin).day);
+    let year = DateTime.fromISO(dayObject.timeBegin).year;
+    return (
+      <Text
+        style={{
+          fontFamily: "Sora_600SemiBold",
+          fontSize: 25,
+          textAlign: "left",
+          position: "absolute",
+          top: 12,
+          left: 12,
+          width: "90%",
+          zIndex: 1,
+          color: text1(colorScheme),
+        }}
+      >
+        {DateTime.fromISO(dayObject.timeBegin).toFormat("LLL")} {year}
+      </Text>
+    );
   }
 };
 
-const SingleLargeGalleryItem = ({ dayObject, sectionType, navigation }) => {
-  // console.log(weekObject[0].day.toISODate())
+const SingleLargeGalleryItem = ({
+  dayObject,
+  sectionType,
+  navigation,
+  colorScheme,
+  timeBegin,
+  thumbnail,
+}) => {
   return (
     <Pressable
-      style={styles.GalleryItemContainer}
+      style={[
+        styles.GalleryItemContainer,
+        { backgroundColor: elevatedColor(colorScheme) },
+      ]}
       onPress={(e) => {
-        navigation.navigate("DayView", { dayObject });
+        if (!sectionType) {
+          navigation.navigate("DayView", { dayObject });
+        } else if (sectionType === "week") {
+          navigation.navigate("WeekView", { dayObject });
+        } else if (sectionType === "month") {
+          navigation.navigate("MonthView", { dayObject });
+        }
       }}
     >
-      <TitleContentRenderer dayObject={dayObject} sectionType="days" />
-      <MainContentRenderer dayObject={dayObject} />
+      <TitleContentRenderer
+        dayObject={dayObject}
+        sectionType={sectionType ? sectionType : "days"}
+        colorScheme={colorScheme}
+      />
+      <MainContentRenderer dayObject={dayObject} colorScheme={colorScheme} />
     </Pressable>
   );
 };
 
 const styles = StyleSheet.create({
   GalleryItemContainer: {
-    backgroundColor: elevatedColor(),
     width: 165,
     height: 205,
     borderRadius: borderRad,
@@ -253,6 +286,7 @@ const styles = StyleSheet.create({
     // marginTop: 20,
     marginHorizontal: 15,
     marginBottom: 20,
+    top: -10,
   },
   MainContentStyle: {
     height: 140,
