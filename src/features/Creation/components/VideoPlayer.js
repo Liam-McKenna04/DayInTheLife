@@ -37,6 +37,7 @@ import Animated, {
 import { v4 as uuid } from "uuid";
 import Modal from "react-native-modal";
 import { text1, elevatedColor, surfaceColor } from "../../../utils/colors";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const VideoPlayer = ({
   VideoURI,
@@ -52,6 +53,8 @@ const VideoPlayer = ({
   setStarted,
   TryingtoDelete,
   setTryingtoDelete,
+  OriginalAudioMuted,
+  setOriginalAudioMuted,
 }) => {
   const colorScheme = useColorScheme();
 
@@ -60,7 +63,7 @@ const VideoPlayer = ({
   const [status, setStatus] = useState({});
   const [shouldPlay, setShouldPlay] = useState(false);
   const [DurationTicks, setDurationTicks] = useState([]);
-  const [OriginalAudioMuted, setOriginalAudioMuted] = useState(true);
+  // const [OriginalAudioMuted, setOriginalAudioMuted] = useState(true);
   const [AudioRecording, setAudioRecording] = useState();
   // console.log(slider?.current?._containerSize?.width);
   let fileEnd = Platform.OS === "ios" ? "m4a" : "mp4";
@@ -100,9 +103,11 @@ const VideoPlayer = ({
       console.log("a");
       video.current.pauseAsync();
       video.current.setPositionAsync(0);
+      video.current.setIsMutedAsync(true);
     } else {
       video.current.playAsync();
       video.current.setPositionAsync(0);
+      video.current.setIsMutedAsync(false);
     }
   }, [EditorStatus]);
   useEffect(() => {
@@ -409,6 +414,10 @@ const VideoPlayer = ({
                 setStarted(true);
                 console.log(AudioRecording);
                 await AudioRecording.stopAndUnloadAsync();
+                await Audio.setAudioModeAsync({
+                  allowsRecordingIOS: false,
+                  playsInSilentModeIOS: true,
+                });
                 const uri = AudioRecording.getURI();
                 let fileEnd = Platform.OS === "ios" ? "m4a" : "mp4";
                 const tag = "audio_record" + "." + fileEnd;
@@ -538,10 +547,12 @@ const VideoPlayer = ({
                 },
                 Started && { display: "flex" },
               ]}
-              onPress={() => {
+              onPress={async () => {
                 if (!Recording && EditorStatus) {
+                  await video.current.setPositionAsync(0);
+                  const OAMSTR = JSON.stringify(OriginalAudioMuted);
+                  await AsyncStorage.setItem("OriginalAudioMuted", OAMSTR);
                   setEditorStatus("none");
-                  video.current.setPositionAsync(0);
                 }
               }}
             >
@@ -719,7 +730,7 @@ const VideoPlayer = ({
                   fontSize: 16,
                 }}
               >
-                Delete Voiceover
+                Delete
               </Text>
             </TouchableOpacity>
           </View>

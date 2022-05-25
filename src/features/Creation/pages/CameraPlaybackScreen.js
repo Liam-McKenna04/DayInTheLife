@@ -24,6 +24,7 @@ import { StatusBar, setStatusBarStyle } from "expo-status-bar";
 import { OpenFunc } from "../../../features/Gallery/components/dayView/ShareMenu";
 import Modal from "react-native-modal";
 import { text1, elevatedColor } from "../../../utils/colors";
+import { Audio } from "expo-av";
 
 var RNFS = require("react-native-fs");
 
@@ -87,6 +88,9 @@ const CameraPlaybackScreen = ({ EditorStatus, setEditorStatus }) => {
   const [TryingtoDelete, setTryingtoDelete] = useState(false);
   const [Audio, setAudio] = useState(false);
   const colorScheme = useColorScheme();
+  const [OriginalAudioMuted, setOriginalAudioMuted] = useState(true);
+  const [VidLoad, setVidLoad] = useState(true);
+
   useEffect(() => {
     console.log("eeeeeee");
     const getFiles = async () => {
@@ -109,7 +113,6 @@ const CameraPlaybackScreen = ({ EditorStatus, setEditorStatus }) => {
       const vidSegs = await JSON.parse(vidSegsString);
 
       // console.log(vidSegs);
-      setVideoList(vidSegs);
       setLoaded(true);
 
       let fileEnd = Platform.OS === "ios" ? "m4a" : "mp4";
@@ -118,6 +121,7 @@ const CameraPlaybackScreen = ({ EditorStatus, setEditorStatus }) => {
         FileSystem.documentDirectory + tag
       );
       setAudio(info.exists);
+      setVideoList(vidSegs);
     };
     getVidSegs();
 
@@ -129,48 +133,76 @@ const CameraPlaybackScreen = ({ EditorStatus, setEditorStatus }) => {
   useEffect(() => {
     const onVideoListChange = async () => {
       if (VideoList.length != 0 || Loaded) {
+        setVidLoad(false);
         const textfile = await writeTextFileWithAllAudioFiles(VideoList);
+        const StoredOriginalAudioMutedSTR = await AsyncStorage.getItem(
+          "OriginalAudioMuted"
+        );
+        console.log(StoredOriginalAudioMutedSTR);
 
-        let listlength = VideoList.length;
-        // let StringToText = "";
-        // let FilterString = "";
-        // // console.log(VideoList.length)
-        // for (let i = 0; i < VideoList.length; i++) {
-        //   console.log(VideoList[i].uri);
-        //   StringToText = StringToText.concat(
-        //     "-i " + FileSystem.documentDirectory + VideoList[i].uri + " "
-        //   );
-        //   FilterString = FilterString.concat(`[${i}:v] [${i}:a] `);
-        // }
+        const KeepOriginalSound =
+          StoredOriginalAudioMutedSTR != "undefined"
+            ? await JSON.parse(StoredOriginalAudioMutedSTR)
+            : true;
+
+        // const KeepOriginalSound = true;
+        console.log(KeepOriginalSound);
         const endingTAG = VideoList[0].uri;
         const endingSTR = endingTAG.split(".").pop();
         const outputTAG =
           "DayInTheLife/TodayFinished/" + "finished" + "." + endingSTR;
         const outputFile = FileSystem.documentDirectory + outputTAG;
 
+        let fileEnd = Platform.OS === "ios" ? "m4a" : "mp4";
+        const tag = "audio_record" + "." + fileEnd;
         FileSystem.deleteAsync(outputFile, { idempotent: true });
-        let command = "";
-        if (Platform.OS === "android") {
-          command = `-f concat -safe 0 -i ${textfile} -v quiet -c:v copy -c:a mp3 ${outputFile}`;
-        } else {
-          command = `-f concat -safe 0 -i ${textfile} -v quiet -c copy ${outputFile}`;
+        // FileSystem.deleteAsync(intermediateFile, { idempotent: true });
+        // const command = "";
+        console.log(Audio);
+        console.log("gbasdjfhasdfa");
+        if (!Audio) {
+          if (Platform.OS === "android") {
+            command = `-y -f concat -safe 0 -i ${textfile} -c:v copy -c:a mp3 ${outputFile}`;
+            await FFmpegKit.execute(command);
+          } else {
+            command = `-y -f concat -safe 0 -i ${textfile} -c copy ${outputFile}`;
+            await FFmpegKit.execute(command);
+          }
+        } else if (Audio) {
+          console.log("KOS: -- " + KeepOriginalSound);
+          if (!KeepOriginalSound) {
+            if (Platform.OS === "android") {
+              command = `-y -f concat -safe 0 -i ${textfile} -i ${
+                FileSystem.documentDirectory + tag
+              } -c:v copy -map 0:v -map 1:a -c:v copy ${outputFile}`;
+              await FFmpegKit.execute(command);
+            } else {
+              command = `-y -f concat -safe 0 -i ${textfile} -i ${
+                FileSystem.documentDirectory + tag
+              } -map 0:v -map 1 -c:v copy ${outputFile}`;
+              await FFmpegKit.execute(command);
+            }
+          } else {
+            if (Platform.OS === "android") {
+              command = `-y -f concat -safe 0 -i ${textfile} -i ${
+                FileSystem.documentDirectory + tag
+              } -c:v copy -map 0 -map 1:a -c:v copy ${outputFile}`;
+              await FFmpegKit.execute(command);
+            } else {
+              command = `-y -f concat -safe 0 -i ${textfile} -i ${
+                FileSystem.documentDirectory + tag
+              } -filter_complex "[0:a][1:a] amix=inputs=2:duration=longest" -c:v copy ${outputFile}`;
+              await FFmpegKit.execute(command);
+            }
+          }
         }
 
-        // console.log(FileSystem.documentDirectory + VideoList[0].uri);
-        const x = await FFmpegKit.execute(command).then(() => {
-          setVideoURI(outputTAG);
-        });
-        const y = await FFprobeKit.execute(
-          `-i ${outputFile} -show_entries format=size -v quiet -of csv="p=0"`
-        );
+        setVideoURI(outputTAG);
+        setVidLoad(true);
       }
     };
     onVideoListChange();
-    console.log(VideoList);
-  }, [VideoList]);
-  useEffect(() => {
-    console.log("audio");
-  }, [Audio]);
+  }, [VideoList, Audio]);
 
   return (
     <View style={{ flex: 1, backgroundColor: "black" }}>
@@ -256,7 +288,7 @@ const CameraPlaybackScreen = ({ EditorStatus, setEditorStatus }) => {
         </View>
       </View>
       <View>
-        {VideoURI.length > 0 ? (
+        {VideoURI.length > 0 && VidLoad ? (
           <VideoPlayer
             setVideoList={setVideoList}
             navigation={navigation}
@@ -269,9 +301,15 @@ const CameraPlaybackScreen = ({ EditorStatus, setEditorStatus }) => {
             setStarted={setStarted}
             TryingtoDelete={TryingtoDelete}
             setTryingtoDelete={setTryingtoDelete}
+            VoiceoverRef={Audio}
+            setVoiceoverRef={setAudio}
+            OriginalAudioMuted={OriginalAudioMuted}
+            setOriginalAudioMuted={setOriginalAudioMuted}
           />
         ) : (
-          <View></View>
+          <View
+          // style={{ backgroundColor: "red", height: 200, width: 200 }}
+          ></View>
         )}
       </View>
       <Modal
@@ -367,8 +405,11 @@ const CameraPlaybackScreen = ({ EditorStatus, setEditorStatus }) => {
                 let fileEnd = Platform.OS === "ios" ? "m4a" : "mp4";
 
                 const tag = "audio_record" + "." + fileEnd;
-                FileSystem.deleteAsync(FileSystem.documentDirectory + tag);
-                setEditorStatus("Voiceover");
+                await FileSystem.deleteAsync(
+                  FileSystem.documentDirectory + tag
+                );
+                setAudio(false);
+                // setEditorStatus("Voiceover");
                 setModalVis(false);
               }}
             >

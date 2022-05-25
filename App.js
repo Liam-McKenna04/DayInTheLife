@@ -57,7 +57,15 @@ const newDay = async ({ setDayObjects, setDayDownloading }) => {
   console.log("NEW DAY");
   const todaySTR = await AsyncStorage.getItem("today");
   const today = todaySTR != null ? JSON.parse(todaySTR) : [];
-
+  if (today) {
+    if (
+      DateTime.fromISO(today.day).startOf("day") >=
+      DateTime.now().startOf("day")
+    ) {
+      console.log("SHOULD NEVER BE HERE");
+      return;
+    }
+  }
   const vidSegsString = await AsyncStorage.getItem("videoSegments");
 
   if (vidSegsString == null) {
@@ -112,6 +120,18 @@ const newDay = async ({ setDayObjects, setDayDownloading }) => {
   }
 
   //Cleanup
+  //Destroy potential voiceover
+  let fileEnd = Platform.OS === "ios" ? "m4a" : "mp4";
+
+  const tag = "audio_record" + "." + fileEnd;
+  const info = await FileSystem.getInfoAsync(
+    FileSystem.documentDirectory + tag
+  );
+  if (info.exists) {
+    await FileSystem.deleteAsync(FileSystem.documentDirectory + tag, {
+      idempotent: true,
+    }).catch(() => {});
+  }
 
   //Destroys videosegment list
   const emptylist = JSON.stringify([]);
@@ -198,13 +218,13 @@ export default function App() {
       today = await GetToday();
 
       if (
-        +DateTime.fromISO(today.day).startOf("day") ===
-        +DateTime.now().startOf("day")
+        DateTime.fromISO(today.day).startOf("day") <
+        DateTime.now().startOf("day")
       ) {
         console.log("x");
+        newDay({ setDayObjects, setDayDownloading });
       } else {
         console.log("y");
-        newDay({ setDayObjects, setDayDownloading });
       }
       // await FileSystem.getInfoAsync(DayObjects[0].video)
       // await AsyncStorage.setItem("PastDays", "[]");
