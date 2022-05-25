@@ -59,7 +59,7 @@ const newDay = async ({ setDayObjects, setDayDownloading }) => {
   const today = todaySTR != null ? JSON.parse(todaySTR) : [];
   if (today) {
     if (
-      DateTime.fromISO(today.day).startOf("day") >=
+      DateTime.fromISO(today?.day).startOf("day") >=
       DateTime.now().startOf("day")
     ) {
       console.log("SHOULD NEVER BE HERE");
