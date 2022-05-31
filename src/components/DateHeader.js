@@ -10,7 +10,10 @@ import { FontAwesome } from "@expo/vector-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 
 import {
+  faAngleUp,
   faArrowUpRightFromSquare,
+  faChevronDown,
+  faChevronUp,
   faTrash,
   faTrashAlt,
 } from "@fortawesome/free-solid-svg-icons";
@@ -43,24 +46,40 @@ const DateHeader = ({
         backgroundColor: surfaceColor(colorScheme),
       }}
     >
-      <View style={[styles.header, { marginTop: insets.top + 7 }]}>
-        <FontAwesome.Button
-          name="arrow-left"
-          onPress={() => {
-            navigation.goBack();
-          }}
-          iconStyle={{ color: text1(colorScheme) }}
-          size={24}
-          underlayColor="transparent"
-          activeOpacity={0.2}
-          backgroundColor="transparent"
-        />
+      <View style={[styles.header, { marginTop: insets.top }]}>
+        {type ? (
+          <TouchableOpacity
+            style={{ width: 24, height: 24, marginLeft: 13 }}
+            onPress={() => {
+              navigation.goBack({ dayObject });
+            }}
+          >
+            <FontAwesomeIcon
+              icon={faChevronDown}
+              size={22}
+              color={text1()}
+            ></FontAwesomeIcon>
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity
+            style={{ width: 24, height: 24, marginLeft: 13 }}
+            onPress={() => {
+              navigation.goBack();
+            }}
+          >
+            <FontAwesomeIcon
+              icon={faChevronDown}
+              size={22}
+              color={text1()}
+            ></FontAwesomeIcon>
+          </TouchableOpacity>
+        )}
 
         <Text
           style={{
             fontFamily: "Sora_600SemiBold",
             color: text1(colorScheme),
-            fontSize: 26,
+            fontSize: 22,
             textAlign: "left",
             top: -2,
             left: -2,
@@ -111,7 +130,7 @@ const DateHeader = ({
         style={{
           borderBottomColor: "#888888",
           borderBottomWidth: 1,
-          width: "95%",
+          width: "100%",
           marginTop: 10,
         }}
       />

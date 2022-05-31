@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "771547836215",
+    "project_id": "jotmobileapp-29fcd",
+    "storage_bucket": "jotmobileapp-29fcd.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:771547836215:android:c584ed01a853028bbdb4b2",
+        "android_client_info": {
+          "package_name": "com.liammckenna04.dayinthelife"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "771547836215-78bpnukms9ng56j2v22clvbhelbm4705.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAV53fUvvK79Pn0PZNf_Ldl77J5i-zIsQA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "771547836215-78bpnukms9ng56j2v22clvbhelbm4705.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

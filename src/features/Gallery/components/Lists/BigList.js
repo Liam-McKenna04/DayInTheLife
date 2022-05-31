@@ -4,9 +4,10 @@ import {
   StyleSheet,
   Text,
   Pressable,
-  ScrollView,
   Platform,
   TouchableOpacity,
+  Dimensions,
+  FlatList,
 } from "react-native";
 import SingleLargeGalleryItem from "../ListItems/SingleLargeGalleryItem";
 import SpecialItem from "../ListItems/SpecialItem";
@@ -17,7 +18,19 @@ import { surfaceColor, elevatedColor, text1 } from "../../../../utils/colors";
 import { Asset, useAssets } from "expo-asset";
 import Share, { Social } from "react-native-share";
 import CalendarModeComponent from "../GalleryViewMisc/CalendarMode";
-// import Masonry from "react-native-masonry-layout";
+import { ScrollView } from "react-native-gesture-handler";
+import MasonryList from "reanimated-masonry-list";
+import {
+  Extrapolate,
+  runOnJS,
+  useAnimatedStyle,
+  interpolate,
+} from "react-native-reanimated";
+import Animated, {
+  useAnimatedScrollHandler,
+  useSharedValue,
+} from "react-native-reanimated";
+import { snapPoint } from "react-native-redash";
 function compareLuxonDates(a, b) {
   return a.toMillis() - b.toMillis();
 }
@@ -25,6 +38,20 @@ function compareLuxonDates(a, b) {
 const shareObject = {
   specialObject: true,
   text: "Share with your friends",
+  image: true,
+  onClick: () => {
+    Share.open({
+      title: "Share jot",
+      message: "Hey, I think you might like this video journal app!\n\n",
+      url: "https://jott.day/download",
+    }).catch(() => {});
+  },
+  id: uuidv4(),
+};
+
+const rateObject = {
+  specialObject: true,
+  text: "Rate on the App Store",
   image: true,
   onClick: () => {
     Share.open({
@@ -61,11 +88,18 @@ const BigList = ({
   colorScheme,
   type,
   MonthCal,
+  translationY,
+  translationX,
+  newTranslateY,
+  scrollViewRef,
 }) => {
   //editing objects in list
 
   const [AllObjects, setAllObjects] = useState([]);
   const [CalendarMode, setCalendarMode] = useState("day");
+  const { height } = Dimensions.get("window");
+  const [Bouncing, setBouncing] = useState(true);
+  const [HeightOffset, setHeightOffset] = useState(0);
 
   let allObjects = [];
   useEffect(() => {
@@ -150,12 +184,43 @@ const BigList = ({
     organizeBigList();
   }, [dayObjects, CalendarMode, MonthCal]);
 
+  const ScrollHandler = useAnimatedScrollHandler({
+    onScroll: (event) => {
+      translationY.value = event.contentOffset.y;
+      translationX.value = event.contentOffset.x;
+      // console.log(event);
+
+      if (translationY.value < 0) {
+        newTranslateY.value = -2 * event.contentOffset.y;
+        runOnJS(setHeightOffset)(event.contentOffset.y);
+
+        // newTranslateX.value = -2 * event?.contentOffset?.x;
+      }
+
+      // console.log(translationY.value);
+    },
+    onEndDrag: (event) => {
+      const goBack =
+        snapPoint(newTranslateY.value * 3, event.velocity.y, [0, height]) ===
+        height;
+      const BounceBack =
+        snapPoint(newTranslateY.value * 2.6, event.velocity.y, [0, height]) ===
+        height;
+      if (BounceBack) {
+        runOnJS(setBouncing)(false);
+      }
+      if (goBack) {
+        runOnJS(navigation.goBack)();
+      }
+    },
+  });
+
   return (
     <View
       style={{
         top: -20,
         minHeight: 310,
-        // flex: 1,
+        flex: 1,
         flexDirection: "column",
         justifyContent: "flex-start",
         zIndex: -1,
@@ -205,8 +270,55 @@ const BigList = ({
         </View>
       ) : null}
       <View style={{ flex: 1 }}>
-        <ScrollView
-          contentContainerStyle={[styles.container, type && { marginTop: 15 }]}
+        <MasonryList
+          data={AllObjects}
+          contentContainerStyle={[
+            styles.container,
+            type && { marginTop: 15, top: HeightOffset },
+          ]}
+          numColumns={2}
+          ref={scrollViewRef}
+          scrollEventThrottle={1}
+          // onScroll={type && ScrollHandler}
+          renderItem={({ item }) => {
+            if (item.ad) {
+              return <AdItem key={item.id} />;
+            } else if (item.specialObject) {
+              return (
+                <SpecialItem
+                  key={item.id}
+                  onClick={() => {
+                    item.onClick();
+                  }}
+                  text={item.text}
+                  image={item.image}
+                ></SpecialItem>
+              );
+            } else {
+              return (
+                <SingleLargeGalleryItem
+                  key={item.id}
+                  dayObject={item}
+                  navigation={navigation}
+                  colorScheme={colorScheme}
+                  sectionType={item.type}
+                  timeBegin={item.timeBegin}
+                  thumbnail={item.thumbnail}
+                />
+              );
+            }
+          }}
+        ></MasonryList>
+        {/* <Animated.ScrollView
+          contentContainerStyle={[
+            styles.container,
+            type && { marginTop: 15, top: HeightOffset },
+          ]}
+          scrollEventThrottle={1}
+          onScroll={type && ScrollHandler}
+          bounces={Bouncing}
+          ref={scrollViewRef}
+          scrollEnabled={true}
         >
           {AllObjects.map((x) => {
             if (x.ad) {
@@ -236,7 +348,7 @@ const BigList = ({
               );
             }
           })}
-        </ScrollView>
+        </Animated.ScrollView> */}
       </View>
     </View>
   );
@@ -255,9 +367,9 @@ const styles = StyleSheet.create({
     overflow: "visible",
   },
   container: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    overflow: "visible",
+    //   flexDirection: "row",
+    //   flexWrap: "wrap",
+    //   overflow: "visible",
     paddingTop: 25,
     width: "100%",
     marginLeft: 10,

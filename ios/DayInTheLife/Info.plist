@@ -4,7 +4,7 @@
   <dict>
   <key>GADApplicationIdentifier</key>
     <!-- <string>ca-app-pub-3940256099942544~1458002511</string> Test -->
-<string>ca-app-pub-4572817562844546~8046878342</string> 
+<string>ca-app-pub-4250936061919309~3635224531</string> 
   <key>SKAdNetworkItems</key>
   <array>
     <dict>
@@ -46,7 +46,7 @@
       </dict>
     </array>
     <key>CFBundleVersion</key>
-    <string>24</string>
+    <string>25</string>
     <key>LSRequiresIPhoneOS</key>
     <true/>
     <key>NSAppTransportSecurity</key>
@@ -109,6 +109,7 @@
     <string>twitter</string>
 
     <string>fb</string>
+  <string>itms-apps</string>
 
     <string>fb-messenger</string>
 

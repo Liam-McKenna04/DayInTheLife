@@ -16,8 +16,8 @@ const AdItem = () => {
   // const adId = "ca-app-pub-3940256099942544/2247696110";
   const adId =
     Platform.OS === "ios"
-      ? "ca-app-pub-4572817562844546/2602979970"
-      : "ca-app-pub-4572817562844546/1840848050";
+      ? "cca-app-pub-4250936061919309/7191326161"
+      : "ca-app-pub-4250936061919309/2130571176";
   const nativeAdViewRef = useRef();
   const [UsingTracking, setUsingTracking] = useState(false);
 

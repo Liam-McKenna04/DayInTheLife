@@ -7,24 +7,23 @@ import { useNavigation } from "@react-navigation/native";
 import { SharedElement } from "react-navigation-shared-element";
 import * as FileSystem from "expo-file-system";
 import { surfaceColor, elevatedColor, text1 } from "../../../../utils/colors";
+import { TouchableOpacity } from "react-native-gesture-handler";
 
 const MainContentRenderer = ({ dayObject, colorScheme }) => {
   // console.log(dayObject)
   if (dayObject.thumbnail.length > 0) {
     // console.log(typeof(thumb))
     return (
-      <SharedElement id={dayObject.id} style={{ width: "100%", height: "75%" }}>
-        <Image
-          style={{
-            height: "100%",
-            width: "100%",
-            resizeMode: "cover",
-            borderRadius: 10,
-          }}
-          resizeMode="cover"
-          source={{ uri: FileSystem.documentDirectory + dayObject.thumbnail }}
-        />
-      </SharedElement>
+      <Image
+        style={{
+          height: "75%",
+          width: "100%",
+          resizeMode: "cover",
+          borderRadius: 10,
+        }}
+        resizeMode="cover"
+        source={{ uri: FileSystem.documentDirectory + dayObject.thumbnail }}
+      />
     );
   } else {
     return (
@@ -74,7 +73,7 @@ const TitleContentRenderer = ({ dayObject, sectionType, colorScheme }) => {
 const SingleGalleryItem = ({ dayObject, sectionType, colorScheme }) => {
   const navigation = useNavigation();
   return (
-    <Pressable
+    <TouchableOpacity
       style={[
         styles.GalleryItemContainer,
         { backgroundColor: elevatedColor(colorScheme) },
@@ -89,7 +88,7 @@ const SingleGalleryItem = ({ dayObject, sectionType, colorScheme }) => {
         sectionType="thisWeek"
         colorScheme={colorScheme}
       />
-    </Pressable>
+    </TouchableOpacity>
   );
 };
 

@@ -2,19 +2,18 @@ import {
   StyleSheet,
   Text,
   View,
-  Animated,
-  ScrollView,
   Image,
   Pressable,
   TouchableOpacity,
   Dimensions,
   useColorScheme,
+  ScrollView,
 } from "react-native";
 import { Video, AVPlaybackStatus } from "expo-av";
 import Swipeable from "react-native-gesture-handler/Swipeable";
 
 import React from "react";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -37,8 +36,21 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { OpenFunc } from "./ShareMenu";
 import PopupVideo from "../../../Creation/components/VideoPlayer";
+import {
+  Extrapolate,
+  runOnJS,
+  useAnimatedStyle,
+  interpolate,
+} from "react-native-reanimated";
+import Animated, {
+  useAnimatedScrollHandler,
+  useSharedValue,
+} from "react-native-reanimated";
+import { snapPoint } from "react-native-redash";
+
 const HEADER_HEIGHT = Dimensions.get("window").height * 0.8;
 const WIDTH = Dimensions.get("window").width;
+
 // await Audio.setAudioModeAsync({ playsInSilentModeIOS: true });
 // const playbackObject = new Audio.Sound();
 
@@ -88,7 +100,7 @@ const VideoPlayer = ({ thumbnail, video, VideoPlaying, id, vidRef }) => {
         // thumbnail={FileSystem.documentDirectory + thumbnail}
       />
 
-      <SharedElement id={id}>
+      <SharedElement id={id} style={{ flex: 1 }}>
         <Image
           source={{ uri: FileSystem.documentDirectory + thumbnail }}
           style={{ height: "100%", borderRadius: 10 }}
@@ -107,28 +119,34 @@ const AnimatedImageHeader = ({
   id,
   colorScheme,
   vidRef,
+  animatedHeaderStyle,
 }) => {
   // const insets = useSafeAreaInsets();
-  const headerHeight = animatedValue.interpolate({
-    inputRange: [0, HEADER_HEIGHT - 300],
-    outputRange: [HEADER_HEIGHT, 250],
-    extrapolate: "clamp",
-  });
+  // const headerHeight = Animated.interpolateNode(animatedValue, {
+  //   inputRange: [0, HEADER_HEIGHT - 300],
+  //   outputRange: [HEADER_HEIGHT, 250],
+  //   extrapolate: "clamp",
+  // });
+
+  // console.log(animatedHeaderStyle);
   if (video != "") {
     return (
       <Animated.View
-        style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
+        style={[
+          {
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            // height: headerHeight,
 
-          zIndex: 1,
-          height: headerHeight,
-          backgroundColor: "transparent",
-          alignItems: "center",
-          justifyContent: "flex-start",
-        }}
+            zIndex: 1,
+            backgroundColor: "transparent",
+            alignItems: "center",
+            justifyContent: "flex-start",
+          },
+          animatedHeaderStyle,
+        ]}
         pointerEvents="none"
       >
         <View></View>
@@ -171,26 +189,76 @@ const AnimatedImageHeader = ({
     return <View />;
   }
 };
+const compareObjects = (object1, object2, key) => {
+  const obj1 = object1[key];
+  const obj2 = object2[key];
 
-const DayScrollViewComponent = ({ navigation, dayObject, colorScheme }) => {
+  if (obj1 < obj2) {
+    return -1;
+  }
+  if (obj1 > obj2) {
+    return 1;
+  }
+  return 0;
+};
+
+const DayScrollViewComponent = ({
+  navigation,
+  dayObject,
+  colorScheme,
+  translationY,
+  scrollViewRef,
+  newTranslateY,
+  newTranslateX,
+  translationX,
+  ScrollEnabled,
+  setScrollEnabled,
+}) => {
   // const colorScheme = useColorScheme();
-  const offset = useRef(new Animated.Value(0)).current;
-  const scrollViewRef = useRef(null);
+  // const offset = useRef(new Animated.Value(0)).current;
   const vidRef = useRef(null);
   const [VideoPlaying, setVideoPlaying] = useState(true);
   const [ExpandedVideoShown, setExpandedVideoShown] = useState(false);
   const [ReturnValue, setReturnValue] = useState(null);
   const [VideoVisible, setVideoVisible] = useState(true);
   const [FulyCompressed, setFulyCompressed] = useState(false);
-  const VideoClickHandler = () => {
-    if (offset._value < 10) {
-      console.log("clickedVideo");
-    } else {
-      console.log(offset);
-      if (scrollViewRef.current) {
-        scrollViewRef.current.scrollTo({ y: 0, animated: true });
+  const [NoteHeights, setNoteHeights] = useState([]);
+  const [RawNoteHeight, setRawNoteHeight] = useState([]);
+  const { height } = Dimensions.get("window");
+  const [Bouncing, setBouncing] = useState(true);
+  const [HeightOffset, setHeightOffset] = useState(0);
+  useEffect(() => {
+    // console.log(NoteHeights.length);
+    // const revNewHeights = RawNoteHeight.slice(0).reverse();
+    // console.log(revNewHeights);
+    if (RawNoteHeight.length === dayObject.notes.length) {
+      const RawCopied = [...RawNoteHeight];
+      RawCopied.sort((a, b) => {
+        return compareObjects(a, b, "i");
+      });
+
+      let revNewHeights = [];
+      for (let i = 0; i < RawCopied.length; i++) {
+        const element = RawCopied[i].height;
+        let prev = HEADER_HEIGHT - 290;
+        if (i > 0) {
+          prev = revNewHeights[revNewHeights.length - 1];
+        }
+        revNewHeights.push(element + prev + 25);
       }
+
+      setNoteHeights(revNewHeights);
     }
+  }, [RawNoteHeight]);
+  const VideoClickHandler = () => {
+    // if (offset._value < 10) {
+    //   console.log("clickedVideo");
+    // } else {
+    //   // console.log(offset);
+    //   if (scrollViewRef.current) {
+    //     scrollViewRef.current.scrollTo({ y: 0, animated: true });
+    //   }
+    // }
   };
 
   const NoteClickHandler = () => {
@@ -203,7 +271,52 @@ const DayScrollViewComponent = ({ navigation, dayObject, colorScheme }) => {
     //   }
     // }
   };
+  const ScrollHandler = useAnimatedScrollHandler({
+    onScroll: (event) => {
+      translationY.value = event.contentOffset.y;
+      translationX.value = event.contentOffset.x;
+      // console.log(event);
 
+      if (translationY.value < 0) {
+        newTranslateY.value = -2 * event.contentOffset.y;
+        runOnJS(setHeightOffset)(event.contentOffset.y);
+        // newTranslateX.value = -2 * event?.contentOffset?.x;
+      }
+
+      if (translationY.value > 200) {
+        runOnJS(setVideoPlaying)(false);
+      } else {
+        runOnJS(setVideoPlaying)(true);
+      }
+      // console.log(translationY.value);
+    },
+    onEndDrag: (event) => {
+      const goBack =
+        snapPoint(newTranslateY.value * 3, event.velocity.y, [0, height]) ===
+        height;
+      const BounceBack =
+        snapPoint(newTranslateY.value * 2.9, event.velocity.y, [0, height]) ===
+        height;
+      if (BounceBack) {
+        runOnJS(setBouncing)(false);
+      }
+      if (goBack) {
+        runOnJS(navigation.goBack)();
+      }
+    },
+  });
+  const animatedHeaderStyle = useAnimatedStyle(() => {
+    const headerHeight = interpolate(
+      translationY.value,
+      [0, HEADER_HEIGHT - 300],
+      [HEADER_HEIGHT, 250],
+      "clamp"
+    );
+    // console.log(headerHeight);
+    return {
+      height: headerHeight,
+    };
+  });
   return (
     <SafeAreaProvider style={{ flex: 1 }}>
       <AnimatedImageHeader
@@ -212,9 +325,10 @@ const DayScrollViewComponent = ({ navigation, dayObject, colorScheme }) => {
         VideoClickHandler={VideoClickHandler}
         thumbnail={dayObject.thumbnail}
         video={dayObject.video}
-        animatedValue={offset}
+        animatedValue={translationY.value}
         colorScheme={colorScheme}
         vidRef={vidRef}
+        animatedHeaderStyle={animatedHeaderStyle}
       />
       {/* 
       <TouchableOpacity
@@ -239,57 +353,65 @@ const DayScrollViewComponent = ({ navigation, dayObject, colorScheme }) => {
           color={"white"}
         ></FontAwesomeIcon>
       </TouchableOpacity> */}
-      <TouchableOpacity
-        style={{
-          position: "absolute",
+      {dayObject.video != "" ? (
+        <TouchableOpacity
+          style={{
+            position: "absolute",
 
-          zIndex: 5,
-          right: WIDTH / 20 + 10,
-          top: 20,
-          alignItems: "center",
-          justifyContent: "center",
-          width: 40,
-          height: 40,
-          backgroundColor: "rgba(0,0,0,0.2)",
-          borderRadius: 50,
-        }}
-        onPress={() => OpenFunc(dayObject)}
-      >
-        <FontAwesomeIcon
-          icon={faArrowUpRightFromSquare}
-          size={22}
-          color={"white"}
-        ></FontAwesomeIcon>
-      </TouchableOpacity>
-      <TouchableOpacity
-        style={{
-          position: "absolute",
+            zIndex: 5,
+            right: WIDTH / 20 + 10,
+            top: 20,
+            alignItems: "center",
+            justifyContent: "center",
+            width: 40,
+            height: 40,
+            backgroundColor: "rgba(0,0,0,0.2)",
+            borderRadius: 50,
+          }}
+          onPress={() => OpenFunc(dayObject)}
+        >
+          <FontAwesomeIcon
+            icon={faArrowUpRightFromSquare}
+            size={22}
+            color={"white"}
+          ></FontAwesomeIcon>
+        </TouchableOpacity>
+      ) : null}
+      {dayObject.video != "" ? (
+        <TouchableOpacity
+          style={{
+            position: "absolute",
 
-          zIndex: 5,
-          right: WIDTH / 20 + 10,
-          top: 70,
-          alignItems: "center",
-          justifyContent: "center",
-          width: 40,
-          height: 40,
-          backgroundColor: "rgba(0,0,0,0.2)",
-          borderRadius: 50,
-        }}
-        onPress={async () => {
-          setExpandedVideoShown(true);
-          setVideoPlaying(false);
-        }}
-      >
-        <FontAwesomeIcon
-          icon={faUpRightAndDownLeftFromCenter}
-          size={22}
-          color={"white"}
-        ></FontAwesomeIcon>
-      </TouchableOpacity>
-      <ScrollView
+            zIndex: 5,
+            right: WIDTH / 20 + 10,
+            top: 70,
+            alignItems: "center",
+            justifyContent: "center",
+            width: 40,
+            height: 40,
+            backgroundColor: "rgba(0,0,0,0.2)",
+            borderRadius: 50,
+          }}
+          onPress={async () => {
+            setExpandedVideoShown(true);
+            setVideoPlaying(false);
+          }}
+        >
+          <FontAwesomeIcon
+            icon={faUpRightAndDownLeftFromCenter}
+            size={22}
+            color={"white"}
+          ></FontAwesomeIcon>
+        </TouchableOpacity>
+      ) : null}
+      <Animated.ScrollView
         NoteClickHandler={() => {}}
         ref={scrollViewRef}
-        style={{ flex: 1, backgroundColor: "transparent" }}
+        style={{
+          flex: 1,
+          backgroundColor: "transparent",
+          top: HeightOffset,
+        }}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={[
           styles.contentContainer,
@@ -298,40 +420,58 @@ const DayScrollViewComponent = ({ navigation, dayObject, colorScheme }) => {
             : styles.contentContainerWithVideo,
         ]}
         scrollEventThrottle={1}
-        scrollToOverflowEnabled={true}
-        onScroll={Animated.event(
-          [{ nativeEvent: { contentOffset: { y: offset } } }],
-          {
-            listener: (e) => {
-              if (offset._value > 200) {
-                setVideoPlaying(false);
-              } else {
-                setVideoPlaying(true);
-              }
-              if (offset._value > HEADER_HEIGHT - 200) {
-                setFulyCompressed(true);
-                console.log(offset._value);
-              } else {
-                setFulyCompressed(false);
-              }
-            },
-            useNativeDriver: false,
-          }
-        )}
+        scrollToOverflowEnabled={false}
+        scrollEnabled={true}
+        bounces={Bouncing}
+        snapToOffsets={[HEADER_HEIGHT - 300, ...NoteHeights]}
+        decelerationRate={"fast"}
+        onScroll={ScrollHandler}
+
+        // Animated.event(
+        //   [{ nativeEvent: { contentOffset: { y: offset } } }],
+        //   {
+        //     listener: (e) => {
+        //       // console.log(offset._value);
+        //       // console.log(NoteHeights);
+        //       if (offset._value > 200) {
+        //         setVideoPlaying(false);
+        //       } else {
+        //         setVideoPlaying(true);
+        //       }
+        //       if (offset._value > HEADER_HEIGHT - 200) {
+        //         setFulyCompressed(true);
+        //         // console.log(offset._value);
+        //       } else {
+        //         setFulyCompressed(false);
+        //       }
+        //     },
+        //     useNativeDriver: false,
+        //   }
+        // )}
       >
-        {dayObject.notes.map((note) => {
-          return (
-            <StaticNoteComponent
-              NoteClickHandler={NoteClickHandler}
-              key={note.date}
-              text={note.text}
-              title={note.title}
-              time={DateTime.fromISO(note.date).toFormat("t")}
-              colorScheme={colorScheme}
-            />
-          );
-        })}
-      </ScrollView>
+        {dayObject.notes
+          .slice(0)
+          .reverse()
+          .map((note, i) => {
+            return (
+              <StaticNoteComponent
+                NoteClickHandler={NoteClickHandler}
+                key={note.date}
+                text={note.text}
+                title={note.title}
+                time={DateTime.fromISO(note.date).toFormat("t")}
+                colorScheme={colorScheme}
+                i={i}
+                setNoteHeights={setNoteHeights}
+                setRawNoteHeight={setRawNoteHeight}
+                RawNoteHeight={RawNoteHeight}
+                NoteHeights={NoteHeights}
+                HEADER_HEIGHT={HEADER_HEIGHT}
+                video={dayObject.video}
+              />
+            );
+          })}
+      </Animated.ScrollView>
 
       <Modal
         isVisible={ExpandedVideoShown}
@@ -341,7 +481,7 @@ const DayScrollViewComponent = ({ navigation, dayObject, colorScheme }) => {
         }}
         onModalwillHide={async () => {
           await vidRef.current.setPositionAsync(ReturnValue - 100);
-          console.log(ReturnValue);
+          // console.log(ReturnValue);
         }}
         style={{
           justifyContent: "center",
@@ -352,8 +492,12 @@ const DayScrollViewComponent = ({ navigation, dayObject, colorScheme }) => {
         animationInTiming={500}
         animationOutTiming={500}
         useNativeDriver={true}
+        // swipeDirection={["up", "down", "left", "right"]}
+        onSwipeComplete={() => {
+          console.log("swipe");
+        }}
       >
-        <View style={{ height: "83%" }}>
+        <View style={{ height: "83%", backgroundColor: "transparent" }}>
           <PopupVideo
             VideoURI={dayObject.video}
             videoURIList={[]}

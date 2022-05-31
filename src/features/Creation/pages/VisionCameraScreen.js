@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
+import { DateTime } from "luxon";
+
 import {
   StyleSheet,
   Text,
@@ -137,10 +139,13 @@ function VisionCameraScreen({
   const [DurationTicks, setDurationTicks] = useState([]);
 
   let photo = null;
+  var startingDoubleTapTime = null;
+  var endingDoubleTapTime = null;
+
   // console.log(VideoList)
   const { DayObjects, setDayObjects } = useContext(AppContext);
 
-  const zoom = useSharedValue(0);
+  const zoom = useSharedValue(1.1);
   const animatedProps = useAnimatedProps(() => ({ zoom: zoom.value }), [zoom]);
   const onDrag = React.useCallback((zoomValue) => {
     zoom.value = zoomValue;
@@ -431,7 +436,18 @@ function VisionCameraScreen({
       onResponderRelease={async () => {
         stopVideo({ timerRanOut: true });
         setClickedInButton(false);
-        zoom.value = 1;
+        zoom.value = 1.1;
+        endingDoubleTapTime = new Date().getTime();
+
+        if (startingDoubleTapTime) {
+          if (endingDoubleTapTime - startingDoubleTapTime < 500) {
+            setCameraOrientation(
+              CameraOrientation === devices.back ? devices.front : devices.back
+            );
+          }
+        }
+
+        startingDoubleTapTime = new Date().getTime();
       }}
       onMoveShouldSetResponder={() => true}
       onResponderMove={(evt) => {

@@ -1154,10 +1154,31 @@
     node-forge "^1.2.1"
     nullthrows "^1.1.1"
 
-"@expo/config-plugins@4.1.4", "@expo/config-plugins@^4.0.14", "@expo/config-plugins@^4.1.4", "@expo/config-plugins@~4.1.4":
+"@expo/config-plugins@4.1.4", "@expo/config-plugins@^4.0.14", "@expo/config-plugins@~4.1.4":
   version "4.1.4"
   resolved "https://registry.yarnpkg.com/@expo/config-plugins/-/config-plugins-4.1.4.tgz#08e1a6314dc0f96cd165a748b5997b5ec75a84d0"
   integrity sha512-fkOjXnSieQfVSWVLKhst0DnCAyeHksvWky1CldFCQllhDB1HHBiP09Z8pamVB783n3qr/1HNZiSp6k2iUcaSoA==
+  dependencies:
+    "@expo/config-types" "^45.0.0"
+    "@expo/json-file" "8.2.36"
+    "@expo/plist" "0.0.18"
+    "@expo/sdk-runtime-versions" "^1.0.0"
+    "@react-native/normalize-color" "^2.0.0"
+    chalk "^4.1.2"
+    debug "^4.3.1"
+    find-up "~5.0.0"
+    getenv "^1.0.0"
+    glob "7.1.6"
+    resolve-from "^5.0.0"
+    semver "^7.3.5"
+    slash "^3.0.0"
+    xcode "^3.0.1"
+    xml2js "0.4.23"
+
+"@expo/config-plugins@^4.1.5":
+  version "4.1.5"
+  resolved "https://registry.yarnpkg.com/@expo/config-plugins/-/config-plugins-4.1.5.tgz#9d357d2cda9c095e511b51583ede8a3b76174068"
+  integrity sha512-RVvU40RtZt12HavuDAe+LDIq9lHj7sheOfMEHdmpJ/uTA8pgvkbc56XF6JHQD+yRr6+uhhb+JnAasGq49dsQbw==
   dependencies:
     "@expo/config-types" "^45.0.0"
     "@expo/json-file" "8.2.36"
@@ -1491,6 +1512,23 @@
   resolved "https://registry.yarnpkg.com/@gar/promisify/-/promisify-1.1.3.tgz#555193ab2e3bb3b6adc3d551c9c030d9e860daf6"
   integrity sha512-k2Ty1JcVojjJFwrg/ThKi2ujJ7XNLYaFGNB/bWT9wGR+oSMJHMa5w+CUq6p/pVrKeNNgA7pCqEcjSnHVoqJQFw==
 
+"@gorhom/bottom-sheet@^4":
+  version "4.3.1"
+  resolved "https://registry.yarnpkg.com/@gorhom/bottom-sheet/-/bottom-sheet-4.3.1.tgz#842790fd9f4c2470dc0682a1eb9616b68f93a71e"
+  integrity sha512-z7Mlo8GOqGAZsPJXL17v3o+I1TQBPZ+n+FmZybBCoM73m/aYXLCtpXo/knoPaZkI91eKuWQ3LLz+yCfGkNPiuA==
+  dependencies:
+    "@gorhom/portal" "1.0.13"
+    invariant "^2.2.4"
+    nanoid "^3.3.3"
+    react-native-redash "^16.1.1"
+
+"@gorhom/portal@1.0.13":
+  version "1.0.13"
+  resolved "https://registry.yarnpkg.com/@gorhom/portal/-/portal-1.0.13.tgz#da3af4d427e1fa68d264107de4b3072a4adf35ce"
+  integrity sha512-ViClKPkyGnj8HVMW45OGQSnGbWBVh8i3tgMOkGqpm6Cv0WVcDfUL7SER6zyGQy8Wdoj3GUDpAJFMqVOxpmRpzw==
+  dependencies:
+    nanoid "^3.3.1"
+
 "@graphql-typed-document-node/core@^3.1.0", "@graphql-typed-document-node/core@^3.1.1":
   version "3.1.1"
   resolved "https://registry.yarnpkg.com/@graphql-typed-document-node/core/-/core-3.1.1.tgz#076d78ce99822258cf813ecc1e7fa460fa74d052"
@@ -1796,12 +1834,12 @@
   resolved "https://registry.yarnpkg.com/@react-native-community/slider/-/slider-4.2.1.tgz#8f1c8cf62de1bd91ce1e32585f7eb666f21e5025"
   integrity sha512-6HUS5HbB9bvEN4GiwBlxECgPWQIugHE+kfnxqX2jHUl1SE57MRpw00m1qVs4hXtEPQndBl6mAQiGbKCOtLPVbg==
 
-"@react-native-firebase/app@^14.9.1":
-  version "14.9.3"
-  resolved "https://registry.yarnpkg.com/@react-native-firebase/app/-/app-14.9.3.tgz#112e63ad25b6bdfaca9dfdf1ebc89292a067a569"
-  integrity sha512-ipCVqj3MmK2O7se78ykjgPZdb4bBjME0Qqc07L/cKZTI6P9pNWRwYmT1R6kFF7aPirjcBxSIoJneotdRqIzaSQ==
+"@react-native-firebase/app@^14.11.0":
+  version "14.11.0"
+  resolved "https://registry.yarnpkg.com/@react-native-firebase/app/-/app-14.11.0.tgz#41b1b7d41f51b6880ebad6a12ff87c85bcdab0d6"
+  integrity sha512-LzqgZNx+WcNGYRZG6LB9BkJAx4LE+LsbPF9p65TMSagWYd/iJafoXl4d6KWQeUMIFZQH7Ke/eJ/fIZkc+4eMRw==
   dependencies:
-    "@expo/config-plugins" "^4.1.4"
+    "@expo/config-plugins" "^4.1.5"
     opencollective-postinstall "^2.0.1"
     superstruct "^0.6.2"
 
@@ -6230,7 +6268,7 @@ mz@^2.7.0:
     object-assign "^4.0.1"
     thenify-all "^1.0.0"
 
-nanoid@^3.1.23:
+nanoid@^3.1.23, nanoid@^3.3.1, nanoid@^3.3.3:
   version "3.3.4"
   resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-3.3.4.tgz#730b67e3cd09e2deacf03c027c81c9d9dbc5e8ab"
   integrity sha512-MqBkQh/OHTS2egovRtLk45wEyNXwF+cokD+1YPf9u5VfJiRdAiRwB2froX5Co9Rh20xs4siNPm8naNotSD6RBw==
@@ -7044,10 +7082,20 @@ react-native-modal@^13.0.1:
     prop-types "^15.6.2"
     react-native-animatable "1.3.3"
 
+react-native-notifications@^4.3.1:
+  version "4.3.1"
+  resolved "https://registry.yarnpkg.com/react-native-notifications/-/react-native-notifications-4.3.1.tgz#ad9a8e6881bc17cf03ef16d4dfdaee9ec8bb721d"
+  integrity sha512-A668d+Q0/VQRjmrh+LvDpc/REA8GXgwCijXDCIlDHGMK8enmrtdxY5OANQf1VM3hecf+fD0wYFw2uqL/ZR8jgg==
+
 react-native-pager-view@5.4.15:
   version "5.4.15"
   resolved "https://registry.yarnpkg.com/react-native-pager-view/-/react-native-pager-view-5.4.15.tgz#075fef5ae4ba6ecc37e49b6c4a24770131a2a3cc"
   integrity sha512-5NssD840wFCuOL4B1ZRiRADvt+Vx2Dgify4SmAUqHXCx03yiGPnRWmFjYXyQeK6gq/8VY+gPGE4bTy9ahzBbDw==
+
+react-native-rate@^1.2.9:
+  version "1.2.9"
+  resolved "https://registry.yarnpkg.com/react-native-rate/-/react-native-rate-1.2.9.tgz#dc9fed2c8026602827c71d9a133104f98ce0c62a"
+  integrity sha512-XBA5XdcWYtRyVuGFKJrsufFfaA9fSwOI/bzzDsfcovJQbYMJ0KIXMD3dFmsxAn0Kd3LDKwnHqnpjrmXOSF9rcQ==
 
 react-native-reanimated@^2.8.0:
   version "2.8.0"
@@ -7061,6 +7109,15 @@ react-native-reanimated@^2.8.0:
     lodash.isequal "^4.5.0"
     setimmediate "^1.0.5"
     string-hash-64 "^1.0.3"
+
+react-native-redash@^16.1.1:
+  version "16.3.0"
+  resolved "https://registry.yarnpkg.com/react-native-redash/-/react-native-redash-16.3.0.tgz#a9112ff1b0e0b506a2e2ae50967597e73b69d343"
+  integrity sha512-dhmeYbQ/usGzxZSGZmzmRuIFF2LrtJUKqgseKgf9Jdj0JQ7VM20m/LqTg60+wjxeiyAh2D/vKsQ2U7rMkuoplQ==
+  dependencies:
+    abs-svg-path "^0.1.1"
+    normalize-svg-path "^1.0.1"
+    parse-svg-path "^0.1.2"
 
 react-native-redash@^16.2.3:
   version "16.2.4"
@@ -7278,6 +7335,13 @@ readline@^1.3.0:
   version "1.3.0"
   resolved "https://registry.yarnpkg.com/readline/-/readline-1.3.0.tgz#c580d77ef2cfc8752b132498060dc9793a7ac01c"
   integrity sha1-xYDXfvLPyHUrEySYBg3JeTp6wBw=
+
+reanimated-masonry-list@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/reanimated-masonry-list/-/reanimated-masonry-list-1.0.0.tgz#8dd10492f7b62696fc26842188d7a2bed62812dc"
+  integrity sha512-EPqfIs8ALgAbMH5g528O2ryh1biIHJ7yk3bApQtjulk46EnVAEK37lLEoe5Dxdowe/6jfWGNjUDm+uryGTwe7g==
+  dependencies:
+    dooboolab-welcome "^1.3.2"
 
 recast@^0.20.4:
   version "0.20.5"

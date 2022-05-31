@@ -7,7 +7,19 @@ import {
 } from "react-native";
 import React from "react";
 import { text1, elevatedColor } from "../../../../utils/colors";
-const StaticNoteComponent = ({ NoteClickHandler, title, time, text }) => {
+const StaticNoteComponent = ({
+  NoteClickHandler,
+  title,
+  time,
+  text,
+  setNoteHeights,
+  setRawNoteHeight,
+  RawNoteHeight,
+  NoteHeights,
+  HEADER_HEIGHT,
+  i,
+  video,
+}) => {
   // console.log(NoteClickHandler())
   const colorScheme = useColorScheme();
   return (
@@ -18,6 +30,10 @@ const StaticNoteComponent = ({ NoteClickHandler, title, time, text }) => {
       ]}
       onPress={() => {
         NoteClickHandler();
+      }}
+      onLayout={(event) => {
+        const { height } = event.nativeEvent.layout;
+        setRawNoteHeight([...RawNoteHeight, { height: height, i: i }]);
       }}
     >
       <Text
