@@ -48,6 +48,10 @@ import Animated, {
 import { withAnchorPoint } from "react-native-anchor-point";
 
 import RecordButton from "../utils/animaitons/RecordButton";
+import makeNotifs from "../../../utils/makeNotifs";
+import Modal from "react-native-modal";
+import { useColorScheme } from "react-native";
+import { text1, elevatedColor } from "../../../utils/colors";
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 const ReanimatedCamera = Animated.createAnimatedComponent(Camera);
 Animated.addWhitelistedNativeProps({ zoom: true });
@@ -137,10 +141,12 @@ function VisionCameraScreen({
   const [Loaded, setLoaded] = useState(false);
   const [ShortPressable, setShortPressable] = useState(true);
   const [DurationTicks, setDurationTicks] = useState([]);
-
+  const [IntroVis, setIntroVis] = useState(false);
   let photo = null;
   var startingDoubleTapTime = null;
   var endingDoubleTapTime = null;
+
+  const colorScheme = useColorScheme();
 
   // console.log(VideoList)
   const { DayObjects, setDayObjects } = useContext(AppContext);
@@ -219,7 +225,7 @@ function VisionCameraScreen({
       setVideoLength(sum);
       setDelta(0);
       await AsyncStorage.setItem("videoSegments", JSON.stringify(VideoList));
-      console.log(VideoList);
+      // console.log(VideoList);
 
       // await FFprobeKit.execute(`-v error -show_forma t -show_streams ${VideoList[0].uri}`)
 
@@ -282,7 +288,7 @@ function VisionCameraScreen({
       flash: Flash,
       onRecordingFinished: async (video) => {
         const delta = new Date().getTime() - startTime;
-        if (delta < 500) {
+        if (delta < 250) {
           console.log("a");
           setDelta(0);
           reset();
@@ -390,6 +396,11 @@ function VisionCameraScreen({
 
       reset();
       setRecording(false);
+      const FirstRecord = await AsyncStorage.getItem("FirstRecord");
+      if (FirstRecord === null) {
+        setIntroVis(true);
+        AsyncStorage.setItem("FirstRecord", "true");
+      }
     }
   };
 
@@ -410,7 +421,12 @@ function VisionCameraScreen({
 
   return (
     <View
-      style={{ flex: 1, width: "100%", justifyContent: "space-between" }}
+      style={{
+        flex: 1,
+        width: "100%",
+        justifyContent: "space-between",
+        backgroundColor: "black",
+      }}
       onStartShouldSetResponder={async (evt) => {
         const center = windowWidth / 2;
         const X = evt.nativeEvent.pageX;
@@ -438,7 +454,6 @@ function VisionCameraScreen({
         setClickedInButton(false);
         zoom.value = 1.1;
         endingDoubleTapTime = new Date().getTime();
-
         if (startingDoubleTapTime) {
           if (endingDoubleTapTime - startingDoubleTapTime < 500) {
             setCameraOrientation(
@@ -456,12 +471,12 @@ function VisionCameraScreen({
           const buttonBottom = windowHeight - (65 + insets.bottom);
 
           const y =
-            1 +
+            1.1 +
             evt.nativeEvent.pageY *
-              ((16 - 1) / (windowHeight - (60 + 65 + insets.bottom)));
+              ((16 - 1.1) / (windowHeight - (60 + 65 + insets.bottom)));
           console.log(y);
           // setZoom(Math.max(16 - y, 1))
-          onDrag(Math.max(16 - y, 1));
+          onDrag(Math.max(16 - y, 1.1));
         }
       }}
     >
@@ -941,6 +956,108 @@ function VisionCameraScreen({
             </Text>
           </View>
         )}
+        <Modal
+          isVisible={IntroVis}
+          useNativeDriverForBackdrop
+          onBackdropPress={() => {
+            setIntroVis(false);
+          }}
+          style={{
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+          backdropOpacity={0.4}
+        >
+          <View
+            style={{
+              minHeight: 250,
+              width: 350,
+              backgroundColor: elevatedColor(colorScheme),
+              padding: 20,
+              borderRadius: 10,
+            }}
+          >
+            <Text
+              style={{
+                color: text1(colorScheme),
+                fontFamily: "Sora_600SemiBold",
+                fontSize: 24,
+                marginBottom: 10,
+              }}
+            >
+              Congrats on recording your first video!
+            </Text>
+            <Text
+              style={{
+                color: text1(colorScheme),
+                fontFamily: "Sora_400Regular",
+                fontSize: 16,
+              }}
+            >
+              At the end of the day, all your journal entries and videos will be
+              combined and will go to your gallery
+            </Text>
+            <View
+              style={{
+                bottom: 10,
+                backgroundColor: "transparent",
+                height: 80,
+                width: 350,
+
+                position: "absolute",
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "space-around",
+                padding: 12,
+              }}
+            >
+              <TouchableOpacity
+                style={{
+                  width: 140,
+                  height: 55,
+                  backgroundColor: "transparent",
+                  borderRadius: 12,
+                  justifyContent: "center",
+                  alignItems: "center",
+                  borderWidth: 0,
+                  borderColor: "#444",
+                }}
+                onPress={() => {}}
+              >
+                <Text
+                  style={{
+                    color: text1(colorScheme),
+                    fontFamily: "Sora_400Regular",
+                    fontSize: 16,
+                  }}
+                ></Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={{
+                  width: 140,
+                  height: 55,
+                  backgroundColor: "#2173F2",
+                  borderRadius: 12,
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+                onPress={async () => {
+                  setIntroVis(false);
+                }}
+              >
+                <Text
+                  style={{
+                    color: "black",
+                    fontFamily: "Sora_400Regular",
+                    fontSize: 16,
+                  }}
+                >
+                  Got it!
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
       </SafeAreaView>
     </View>
   );

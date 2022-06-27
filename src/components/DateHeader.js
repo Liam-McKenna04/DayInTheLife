@@ -57,7 +57,7 @@ const DateHeader = ({
             <FontAwesomeIcon
               icon={faChevronDown}
               size={22}
-              color={text1()}
+              color={text1(colorScheme)}
             ></FontAwesomeIcon>
           </TouchableOpacity>
         ) : (
@@ -70,7 +70,7 @@ const DateHeader = ({
             <FontAwesomeIcon
               icon={faChevronDown}
               size={22}
-              color={text1()}
+              color={text1(colorScheme)}
             ></FontAwesomeIcon>
           </TouchableOpacity>
         )}
@@ -103,7 +103,7 @@ const DateHeader = ({
             <FontAwesomeIcon
               icon={faTrash}
               size={22}
-              color={text1()}
+              color={text1(colorScheme)}
             ></FontAwesomeIcon>
           </TouchableOpacity>
         ) : type === "month" ? (
@@ -120,7 +120,7 @@ const DateHeader = ({
               } else setMonthCal("day");
             }}
           >
-            <CalendarModeComponent Mode={MonthCal} />
+            <CalendarModeComponent Mode={MonthCal} colorScheme={colorScheme} />
           </TouchableOpacity>
         ) : (
           <View style={{ width: 40 }} />

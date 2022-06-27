@@ -31,6 +31,8 @@ import Animated, {
   useSharedValue,
 } from "react-native-reanimated";
 import { snapPoint } from "react-native-redash";
+import Rate, { AndroidMarket } from "react-native-rate";
+import seedrandom from "seedrandom";
 function compareLuxonDates(a, b) {
   return a.toMillis() - b.toMillis();
 }
@@ -54,11 +56,11 @@ const rateObject = {
   text: "Rate on the App Store",
   image: true,
   onClick: () => {
-    Share.open({
-      title: "Share jot",
-      message: "Hey, I think you might like this video journal app!\n\n",
-      url: "https://jott.day/download",
-    }).catch(() => {});
+    const options = {
+      AppleAppID: "1616335485",
+      GooglePackageName: "com.liammckenna04.dayinthelife",
+    };
+    Rate.rate(options).catch(() => {});
   },
   id: uuidv4(),
 };
@@ -81,6 +83,32 @@ function groupBy(collection, returnFunction) {
   return result;
 }
 
+getHeightFromSeededNumber = function (n) {
+  //Random number should be from 0 to 1
+  const n1 = Math.round(n * 5);
+  let height = 0;
+  switch (n1) {
+    case 1:
+      height = -50;
+      break;
+    case 2:
+      height = -20;
+
+      break;
+
+    case 3:
+      break;
+    case 4:
+      break;
+    case 5:
+      break;
+    default:
+      break;
+  }
+
+  return height;
+};
+
 const BigList = ({
   navigation,
   dayObjects,
@@ -100,13 +128,12 @@ const BigList = ({
   const { height } = Dimensions.get("window");
   const [Bouncing, setBouncing] = useState(true);
   const [HeightOffset, setHeightOffset] = useState(0);
-
   let allObjects = [];
   useEffect(() => {
     const organizeBigList = async () => {
       if (MonthCal) {
         setCalendarMode(MonthCal);
-        console.log(MonthCal);
+        // console.log(MonthCal);
       }
       let computedObjects = [];
       if (dayObjects === null) {
@@ -125,20 +152,27 @@ const BigList = ({
           );
           let WeekObjects = [];
           yearObjects.forEach((yearList) => {
-            let y = groupBy(yearList, (x) => x["day"]["weekNumber"]);
+            let y = groupBy(
+              yearList,
+              (x) => DateTime.fromISO(x["day"])["weekNumber"]
+            );
             y.forEach((z) => WeekObjects.push(z));
           });
 
           //Turn WeekObject array of array into Array: [object {Array, first day, id, thumbnail, type, dayObject: Computed Full Object}]
           computedObjects = WeekObjects.map((value, index) => {
+            const thumbList = value.filter((day) => day.thumbnail != "");
+            const thumb = thumbList === [] ? "" : thumbList[0].thumbnail;
+
             return {
               days: value,
               timeBegin: DateTime.fromISO(value[0].day).startOf("week").toISO(),
               id: uuidv4(),
-              thumbnail: value[0].thumbnail,
+              thumbnail: thumb,
               type: "week",
             };
           });
+          // console.log(WeekObjects);
         } else if (CalendarMode === "month") {
           let yearObjects = groupBy(
             dayObjects,
@@ -146,74 +180,38 @@ const BigList = ({
           );
           let MonthObjects = [];
           yearObjects.forEach((yearList) => {
-            let y = groupBy(yearList, (x) => x["day"]["month"]);
+            let y = groupBy(
+              yearList,
+              (x) => DateTime.fromISO(x["day"])["month"]
+            );
             y.forEach((z) => MonthObjects.push(z));
           });
 
           //Turn Month array of array into Array: [object {Array, first day, id, thumbnail, type, dayObject: Computed Full Object}]
           computedObjects = MonthObjects.map((value, index) => {
+            const thumbList = value.filter((day) => day.thumbnail != "");
+            const thumb = thumbList === [] ? "" : thumbList[0].thumbnail;
             return {
               days: value,
               timeBegin: DateTime.fromISO(value[0].day)
                 .startOf("month")
                 .toISO(),
               id: uuidv4(),
-              thumbnail: value[0].thumbnail,
+              thumbnail: thumb,
               type: "month",
             };
           });
         }
       }
 
-      if (dayObjects.length === 0) {
-        allObjects = [
-          ...computedObjects,
-          shareObject,
-          { ad: true, id: uuidv4() },
-        ];
-        setAllObjects(allObjects);
-      } else {
-        allObjects = [...computedObjects];
+      allObjects = [...computedObjects];
 
-        const idAd = uuidv4();
-        allObjects.splice(1, 0, { ad: true, id: idAd });
+      allObjects.splice(1, 0, { ad: true, id: uuidv4() });
 
-        setAllObjects(allObjects);
-      }
+      setAllObjects(allObjects);
     };
     organizeBigList();
   }, [dayObjects, CalendarMode, MonthCal]);
-
-  const ScrollHandler = useAnimatedScrollHandler({
-    onScroll: (event) => {
-      translationY.value = event.contentOffset.y;
-      translationX.value = event.contentOffset.x;
-      // console.log(event);
-
-      if (translationY.value < 0) {
-        newTranslateY.value = -2 * event.contentOffset.y;
-        runOnJS(setHeightOffset)(event.contentOffset.y);
-
-        // newTranslateX.value = -2 * event?.contentOffset?.x;
-      }
-
-      // console.log(translationY.value);
-    },
-    onEndDrag: (event) => {
-      const goBack =
-        snapPoint(newTranslateY.value * 3, event.velocity.y, [0, height]) ===
-        height;
-      const BounceBack =
-        snapPoint(newTranslateY.value * 2.6, event.velocity.y, [0, height]) ===
-        height;
-      if (BounceBack) {
-        runOnJS(setBouncing)(false);
-      }
-      if (goBack) {
-        runOnJS(navigation.goBack)();
-      }
-    },
-  });
 
   return (
     <View
@@ -222,7 +220,7 @@ const BigList = ({
         minHeight: 310,
         flex: 1,
         flexDirection: "column",
-        justifyContent: "flex-start",
+        justifyContent: "center",
         zIndex: -1,
       }}
     >
@@ -269,32 +267,31 @@ const BigList = ({
           </TouchableOpacity>
         </View>
       ) : null}
-      <View style={{ flex: 1 }}>
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
         <MasonryList
           data={AllObjects}
           contentContainerStyle={[
-            styles.container,
-            type && { marginTop: 15, top: HeightOffset },
+            { paddingTop: 25, width: "100%", marginLeft: 10, flex: 1 },
+            type && { marginTop: 20, top: HeightOffset },
           ]}
-          numColumns={2}
+          numColumns={Math.floor(Dimensions.get("screen").width / 184)}
           ref={scrollViewRef}
           scrollEventThrottle={1}
           // onScroll={type && ScrollHandler}
           renderItem={({ item }) => {
             if (item.ad) {
-              return <AdItem key={item.id} />;
-            } else if (item.specialObject) {
-              return (
-                <SpecialItem
-                  key={item.id}
-                  onClick={() => {
-                    item.onClick();
-                  }}
-                  text={item.text}
-                  image={item.image}
-                ></SpecialItem>
-              );
+              return <AdItem key={"bbbbbbbb"} />;
             } else {
+              let one = 0;
+              if (CalendarMode === "day") {
+                one = seedrandom(item.id)();
+              } else {
+                if (item.days) {
+                  one = seedrandom(item.days[0].id)();
+                }
+              }
+              const computedHeight = getHeightFromSeededNumber(one);
+
               return (
                 <SingleLargeGalleryItem
                   key={item.id}
@@ -304,6 +301,7 @@ const BigList = ({
                   sectionType={item.type}
                   timeBegin={item.timeBegin}
                   thumbnail={item.thumbnail}
+                  randomHeight={computedHeight}
                 />
               );
             }
@@ -370,10 +368,6 @@ const styles = StyleSheet.create({
     //   flexDirection: "row",
     //   flexWrap: "wrap",
     //   overflow: "visible",
-    paddingTop: 25,
-    width: "100%",
-    marginLeft: 10,
-    flex: 1,
   },
 });
 

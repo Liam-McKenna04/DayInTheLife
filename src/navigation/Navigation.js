@@ -32,7 +32,6 @@ const GalleryNav = () => {
         presentation: "transparentModal",
         animationEnabled: true,
         detachPreviousScreen: false,
-        headerMode: "screen",
 
         cardStyle: { flex: 1, backgroundColor: "transparent" },
         // animationTypeForReplace: "push",
@@ -45,8 +44,8 @@ const GalleryNav = () => {
         component={DayScreen}
         options={{
           transitionSpec: {
-            open: { animation: "timing", config: { duration: 320 } },
-            close: { animation: "timing", config: { duration: 320 } },
+            open: { animation: "timing", config: { duration: 200 } },
+            close: { animation: "timing", config: { duration: 200 } },
           },
           cardStyleInterpolator: ({
             current,
@@ -105,7 +104,7 @@ const GalleryNav = () => {
         component={WeekScreen}
         options={{
           transitionSpec: {
-            open: { animation: "timing", config: { duration: 320 } },
+            open: { animation: "timing", config: { duration: 200 } },
             close: { animation: "timing", config: { duration: 200 } },
           },
           cardStyleInterpolator: ({

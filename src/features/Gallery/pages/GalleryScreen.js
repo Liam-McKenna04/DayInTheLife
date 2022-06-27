@@ -14,7 +14,6 @@ import BigList from "../components/Lists/BigList";
 import SmallList from "../components/Lists/SmallList";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { faUser, faSquarePlus } from "@fortawesome/free-regular-svg-icons";
-import data from "../../../../assets/data/DATA";
 import { DateTime } from "luxon";
 import { StatusBar } from "expo-status-bar";
 
@@ -24,7 +23,6 @@ import { useNavigation } from "@react-navigation/native";
 import * as FileSystem from "expo-file-system";
 import AppContext from "../../../../AppContext";
 import { surfaceColor, elevatedColor, text1 } from "../../../utils/colors";
-
 function groupBy(collection, returnFunction) {
   var i = 0,
     val,
@@ -93,7 +91,6 @@ function GalleryScreen() {
     ConfigureLists();
     // console.log(ThisWeekObjects.length)
   }, [DayObjects]);
-
   return (
     <View
       navigation={navigation}

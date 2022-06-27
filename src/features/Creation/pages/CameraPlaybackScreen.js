@@ -174,7 +174,7 @@ const CameraPlaybackScreen = ({ EditorStatus, setEditorStatus }) => {
             if (Platform.OS === "android") {
               command = `-y -f concat -safe 0 -i ${textfile} -i ${
                 FileSystem.documentDirectory + tag
-              } -c:v copy -map 0:v -map 1:a -c:v copy ${outputFile}`;
+              } -map 0:v -map 1 -c:v copy ${outputFile}`;
               await FFmpegKit.execute(command);
             } else {
               command = `-y -f concat -safe 0 -i ${textfile} -i ${
@@ -186,7 +186,7 @@ const CameraPlaybackScreen = ({ EditorStatus, setEditorStatus }) => {
             if (Platform.OS === "android") {
               command = `-y -f concat -safe 0 -i ${textfile} -i ${
                 FileSystem.documentDirectory + tag
-              } -c:v copy -map 0 -map 1:a -c:v copy ${outputFile}`;
+              } -filter_complex "[0:a][1:a] amix=inputs=2:duration=longest" -c:v copy -c:a mp3 ${outputFile}`;
               await FFmpegKit.execute(command);
             } else {
               command = `-y -f concat -safe 0 -i ${textfile} -i ${

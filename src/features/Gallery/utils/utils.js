@@ -1,4 +1,5 @@
-import { Platform } from "react-native";
+import { Platform, Dimensions } from "react-native";
+
 /**
  *
  * @param {string} tag

@@ -7,12 +7,15 @@ import {
   Image,
   ImageBackground,
   Appearance,
+  TouchableOpacity,
+  Dimensions,
 } from "react-native";
 import { DateTime } from "luxon";
 import { LinearGradient } from "expo-linear-gradient";
 import { SharedElement } from "react-navigation-shared-element";
 import { InteractionManager } from "react-native";
 import * as FileSystem from "expo-file-system";
+
 import {
   elevatedColor,
   text1,
@@ -104,7 +107,7 @@ const MainContentRenderer = ({ dayObject, colorScheme }) => {
             color: text1(colorScheme),
           }}
         >
-          {dayObject.notes[0].text}
+          {dayObject?.notes ? dayObject.notes[0].text : null}
         </Text>
       </View>
     );
@@ -159,7 +162,7 @@ const TitleContentRenderer = ({ dayObject, sectionType, colorScheme }) => {
           : DateTime.fromISO(dayObject.timeBegin)
               .endOf("week")
               .toFormat("LLLL d")}
-        {year}
+        {" " + year}
       </Text>
     );
   } else if (sectionType === "days") {
@@ -224,7 +227,7 @@ const TitleContentRenderer = ({ dayObject, sectionType, colorScheme }) => {
           color: text1(colorScheme),
         }}
       >
-        {DateTime.fromISO(dayObject.timeBegin).toFormat("LLL")} {year}
+        {DateTime.fromISO(dayObject.timeBegin).toFormat("LLL")} {" " + year}
       </Text>
     );
   }
@@ -237,17 +240,22 @@ const SingleLargeGalleryItem = ({
   colorScheme,
   timeBegin,
   thumbnail,
+  randomHeight,
 }) => {
   return (
-    <Pressable
+    <TouchableOpacity
+      activeOpacity={0.5}
       style={[
         styles.GalleryItemContainer,
-        { backgroundColor: elevatedColor(colorScheme) },
+        { backgroundColor: elevatedColor(colorScheme), overflow: "hidden" },
+        randomHeight && { height: 205 + randomHeight },
+        { width: 165 },
       ]}
       onPress={(e) => {
         if (!sectionType) {
           navigation.navigate("DayView", { dayObject });
         } else if (sectionType === "week") {
+          console.log(dayObject);
           navigation.navigate("WeekView", { dayObject });
         } else if (sectionType === "month") {
           navigation.navigate("MonthView", { dayObject });
@@ -260,13 +268,14 @@ const SingleLargeGalleryItem = ({
         colorScheme={colorScheme}
       />
       <MainContentRenderer dayObject={dayObject} colorScheme={colorScheme} />
-    </Pressable>
+    </TouchableOpacity>
   );
 };
 
 const styles = StyleSheet.create({
   GalleryItemContainer: {
-    width: 165,
+    width: Dimensions.get("window").width * 0.4,
+    // width: 165,
     height: 205,
     borderRadius: borderRad,
     flexDirection: "column",

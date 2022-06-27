@@ -47,8 +47,8 @@ import Animated, {
   useSharedValue,
 } from "react-native-reanimated";
 import { snapPoint } from "react-native-redash";
-
-const HEADER_HEIGHT = Dimensions.get("window").height * 0.8;
+import { BottomSheetScrollView } from "@gorhom/bottom-sheet";
+const HEADER_HEIGHT = Dimensions.get("window").height * 0.85;
 const WIDTH = Dimensions.get("window").width;
 
 // await Audio.setAudioModeAsync({ playsInSilentModeIOS: true });
@@ -275,13 +275,6 @@ const DayScrollViewComponent = ({
     onScroll: (event) => {
       translationY.value = event.contentOffset.y;
       translationX.value = event.contentOffset.x;
-      // console.log(event);
-
-      if (translationY.value < 0) {
-        newTranslateY.value = -2 * event.contentOffset.y;
-        runOnJS(setHeightOffset)(event.contentOffset.y);
-        // newTranslateX.value = -2 * event?.contentOffset?.x;
-      }
 
       if (translationY.value > 200) {
         runOnJS(setVideoPlaying)(false);
@@ -289,20 +282,6 @@ const DayScrollViewComponent = ({
         runOnJS(setVideoPlaying)(true);
       }
       // console.log(translationY.value);
-    },
-    onEndDrag: (event) => {
-      const goBack =
-        snapPoint(newTranslateY.value * 3, event.velocity.y, [0, height]) ===
-        height;
-      const BounceBack =
-        snapPoint(newTranslateY.value * 2.9, event.velocity.y, [0, height]) ===
-        height;
-      if (BounceBack) {
-        runOnJS(setBouncing)(false);
-      }
-      if (goBack) {
-        runOnJS(navigation.goBack)();
-      }
     },
   });
   const animatedHeaderStyle = useAnimatedStyle(() => {
@@ -312,7 +291,7 @@ const DayScrollViewComponent = ({
       [HEADER_HEIGHT, 250],
       "clamp"
     );
-    // console.log(headerHeight);
+    console.log(headerHeight);
     return {
       height: headerHeight,
     };
@@ -404,13 +383,12 @@ const DayScrollViewComponent = ({
           ></FontAwesomeIcon>
         </TouchableOpacity>
       ) : null}
-      <Animated.ScrollView
+      <BottomSheetScrollView
         NoteClickHandler={() => {}}
         ref={scrollViewRef}
         style={{
           flex: 1,
-          backgroundColor: "transparent",
-          top: HeightOffset,
+          backgroundColor: surfaceColor(colorScheme),
         }}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={[
@@ -419,14 +397,13 @@ const DayScrollViewComponent = ({
             ? styles.contentContainerWithoutVideo
             : styles.contentContainerWithVideo,
         ]}
-        scrollEventThrottle={1}
+        // scrollEventThrottle={1}
         scrollToOverflowEnabled={false}
         scrollEnabled={true}
-        bounces={Bouncing}
+        bounces={true}
         snapToOffsets={[HEADER_HEIGHT - 300, ...NoteHeights]}
         decelerationRate={"fast"}
-        onScroll={ScrollHandler}
-
+        onTouchMove={ScrollHandler}
         // Animated.event(
         //   [{ nativeEvent: { contentOffset: { y: offset } } }],
         //   {
@@ -471,7 +448,7 @@ const DayScrollViewComponent = ({
               />
             );
           })}
-      </Animated.ScrollView>
+      </BottomSheetScrollView>
 
       <Modal
         isVisible={ExpandedVideoShown}

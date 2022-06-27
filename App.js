@@ -2,7 +2,11 @@ import * as React from "react";
 import { useState, useEffect, useRef } from "react";
 import * as FileSystem from "expo-file-system";
 import { v4 as uuid } from "uuid";
-
+import notifee, {
+  TimestampTrigger,
+  TriggerType,
+  TimeUnit,
+} from "@notifee/react-native";
 import { NavigationContainer } from "@react-navigation/native";
 
 import {
@@ -26,11 +30,16 @@ import AppLoading from "expo-app-loading";
 import Modal from "react-native-modal";
 import { text1, elevatedColor } from "./src/utils/colors";
 import { Video, AVPlaybackStatus, Audio } from "expo-av";
+import makeNotifs from "./src/utils/makeNotifs";
 if (!__DEV__) {
   console.log = () => {};
   console.warn = () => {};
   console.error = () => {};
 }
+
+notifee.onBackgroundEvent(async () => {
+  console.log(await notifee.getTriggerNotifications());
+});
 
 const writeTextFileWithAllVidFiles = async (filePaths) => {
   var fileContent = "";
@@ -57,7 +66,7 @@ const newDay = async ({ setDayObjects, setDayDownloading }) => {
   console.log("NEW DAY");
   const todaySTR = await AsyncStorage.getItem("today");
   const today = todaySTR != null ? JSON.parse(todaySTR) : [];
-  if (today) {
+  if (true) {
     if (
       DateTime.fromISO(today?.day).startOf("day") >=
       DateTime.now().startOf("day")
@@ -172,6 +181,7 @@ const newDay = async ({ setDayObjects, setDayDownloading }) => {
     console.log("DIDNT PUSH, NO DATA");
     setDayObjects(PastDays);
   }
+
   // console.log(PastDays);
 };
 
@@ -232,6 +242,8 @@ export default function App() {
       // console.log("aaaa");
 
       await SplashScreen.hideAsync().catch(() => {});
+
+      //setup notifications
     };
     console.log("a");
     AppLoad();
@@ -245,6 +257,8 @@ export default function App() {
         appState.current.match(/inactive|background/) &&
         nextAppState === "active"
       ) {
+        notifee.cancelAllNotifications().catch(() => {});
+        makeNotifs();
         if (
           +DateTime.fromISO(today.day).startOf("day") ===
           +DateTime.now().startOf("day")
