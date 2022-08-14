@@ -30,8 +30,8 @@ target 'DayInTheLife' do
     # An absolute path to your application root.
     :app_path => "#{Dir.pwd}/.."
   )
-  pod 'Google-Mobile-Ads-SDK'
-  pod 'GoogleMobileAdsMediationFacebook'
+  pod 'Google-Mobile-Ads-SDK', '9.4.0'
+  pod 'GoogleMobileAdsMediationFacebook', '6.9.0.1'
   # Uncomment to opt-in to using Flipper
   # Note that if you have use_frameworks! enabled, Flipper will not work
   #
